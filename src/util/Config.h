@@ -5,7 +5,7 @@
 #ifndef BESTEST_GAME_CONFIG_H
 #define BESTEST_GAME_CONFIG_H
 
-#define BEST_GAME_DEBUG // uncomment to not use
+#define BEST_GAME_DEBUG // comment to not use
 
 #include <string>
 

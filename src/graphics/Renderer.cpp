@@ -21,7 +21,7 @@ void Renderer::init() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Don't use old OpenGL
 
     // open a window and create its OpenGL context
-    window = glfwCreateWindow(CONFIG.DEFAULT_WINDOW_WIDTH, CONFIG.DEFAULT_WINDOW_HEIGHT, "Physics", nullptr, nullptr);
+    window = glfwCreateWindow(CONFIG.DEFAULT_WINDOW_WIDTH, CONFIG.DEFAULT_WINDOW_HEIGHT, "bestest game", nullptr, nullptr);
     if(window == nullptr) {
         glfwTerminate();
         throw Exception("Could not open GLFW window.");
