@@ -90,3 +90,4 @@ Temporary Items
 *.out
 *.app
 /lib/
+/CMakeLists.txt
