@@ -9,7 +9,7 @@
 
 Renderer::Renderer() {
     if(!glfwInit())
-        throw std::runtime_error("Could not initialize glfw.");
+        throw Exception("Could not initialize glfw.");
 }
 
 void Renderer::init() {
@@ -24,7 +24,7 @@ void Renderer::init() {
     window = glfwCreateWindow(CONFIG.DEFAULT_WINDOW_WIDTH, CONFIG.DEFAULT_WINDOW_HEIGHT, "Physics", nullptr, nullptr);
     if(window == nullptr) {
         glfwTerminate();
-        throw std::runtime_error("Could not open GLFW window.");
+        throw Exception("Could not open GLFW window.");
     }
     glfwMakeContextCurrent(window);
 
