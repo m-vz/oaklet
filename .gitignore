@@ -89,5 +89,3 @@ Temporary Items
 *.exe
 *.out
 *.app
-/lib/
-/CMakeLists.txt
