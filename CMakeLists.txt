@@ -49,9 +49,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(LIBS ${LIBS} glfw)
 
     # glew
-    add_definitions(-DGLEW_STATIC)
-    option(glew-cmake_BUILD_SHARED "" OFF)
-    add_subdirectory(lib/glew)
+    find_package(GLEW REQUIRED)
 
     set(INCLUDE_DIRS ${INCLUDE_DIRS} lib/glew/include lib/glew/src)
     set(LIBS ${LIBS} ${GLEW_LIBRARY})
