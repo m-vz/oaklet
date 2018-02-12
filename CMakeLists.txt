@@ -9,6 +9,9 @@ SET(LINK_FLAGS "")
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${COMPILE_FLAGS}")
 SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${LINK_FLAGS}")
 
+# glm
+set(INCLUDE_DIRS ${INCLUDE_DIRS} lib/glm)
+
 # macos specific code
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     # glfw
@@ -27,9 +30,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
     set(INCLUDE_DIRS ${INCLUDE_DIRS} lib/glew/include lib/glew/src)
     set(LIBS ${LIBS} libglew_static)
-
-    # glm
-    set(INCLUDE_DIRS ${INCLUDE_DIRS} lib/glm)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # linux specific code
@@ -53,9 +53,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
     set(INCLUDE_DIRS ${INCLUDE_DIRS} lib/glew/include lib/glew/src)
     set(LIBS ${LIBS} ${GLEW_LIBRARY})
-
-    # glm
-    set(INCLUDE_DIRS ${INCLUDE_DIRS} lib/glm)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 # assets
