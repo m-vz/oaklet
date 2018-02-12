@@ -11,13 +11,18 @@
 
 using namespace std;
 
+bool shouldEnd = false;
+void endProgram(Keyboard &keyboard, int key, int scancode, int mods) {
+    shouldEnd = true;
+}
+
 int main() {
     auto *renderer = new Renderer;
     renderer->init();
     auto *ioControl = new IOControl(renderer->getWindow());
     auto *world = new World;
 
-    bool endProgram = false;
+    ioControl->keyboard->addReleasedCallback(endProgram, GLFW_KEY_ESCAPE);
     long long int timeLag = 0;
     std::chrono::time_point<std::chrono::steady_clock> lastTick, thisTick;
 
@@ -55,7 +60,7 @@ int main() {
          */
         renderer->render(timeLag);
 
-        if(endProgram)
+        if(shouldEnd)
             break;
     }
 

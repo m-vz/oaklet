@@ -18,10 +18,8 @@ FileLog::FileLog(const std::string logPath, const LogType logLevel) : logLevel(l
 }
 
 FileLog& operator<<(FileLog &log, const LogType type) {
-    if(log.previousWasMessage) {
+    if(log.previousWasMessage && log.logLevel >= log.currentLevel)
         log.logFile << std::endl;
-        log.previousWasMessage = false;
-    }
 
     switch(type) {
         case LOG_ERROR:
@@ -46,11 +44,14 @@ FileLog& operator<<(FileLog &log, const LogType type) {
             break;
     }
 
+    log.currentLevel = type;
+    log.previousWasMessage = false;
     return log;
 }
 
 FileLog& operator<<(FileLog &log, const char *message) {
-    log.logFile << message;
+    if(log.logLevel >= log.currentLevel)
+        log.logFile << message;
 
     log.previousWasMessage = true;
     return log;
@@ -88,7 +89,7 @@ Log::Log(const LogType logLevel,
 }
 
 Log &operator<<(Log &log, const LogType type) {
-    if(log.previousType == -1) {
+    if(log.previousWasMessage && log.logLevel >= log.currentLevel) {
         if(type == LOG_ERROR || type == LOG_WARNING)
             std::cerr << std::endl;
         else if(type == LOG_INFO || type == LOG_DEBUG)
@@ -97,39 +98,35 @@ Log &operator<<(Log &log, const LogType type) {
 
     switch(type) {
         case LOG_ERROR:
-            if(log.logLevel >= LOG_ERROR) {
-                log.previousType = LOG_ERROR;
+            if(log.logLevel >= LOG_ERROR)
                 std::cerr << "ERROR: ";
-            }
             break;
         case LOG_WARNING:
-            if(log.logLevel >= LOG_WARNING) {
-                log.previousType = LOG_WARNING;
+            if(log.logLevel >= LOG_WARNING)
                 std::cerr << "WARNING: ";
-            }
             break;
         case LOG_INFO:
-            if(log.logLevel >= LOG_INFO) {
-                log.previousType = LOG_INFO;
+            if(log.logLevel >= LOG_INFO)
                 std::cout << "INFO: ";
-            }
             break;
         case LOG_DEBUG:
-            if(log.logLevel >= LOG_DEBUG) {
-                log.previousType = LOG_DEBUG;
+            if(log.logLevel >= LOG_DEBUG)
                 std::cout << "DEBUG: ";
-            }
+            break;
+        default:
             break;
     }
 
     if(log.logToFile)
         *log.fileLog << type;
 
+    log.currentLevel = type;
+    log.previousWasMessage = false;
     return log;
 }
 
 Log &operator<<(Log &log, const char *message) {
-    switch(log.previousType) {
+    switch(log.currentLevel) {
         case LOG_ERROR:
             if(log.logLevel >= LOG_ERROR)
                 std::cerr << message;
@@ -147,14 +144,13 @@ Log &operator<<(Log &log, const char *message) {
                 std::cout << message;
             break;
         default:
-            std::cout << message;
             break;
     }
 
     if(log.logToFile)
         *log.fileLog << message;
 
-    log.previousType = -1;
+    log.previousWasMessage = true;
     return log;
 }
 
@@ -166,7 +162,19 @@ Log &operator<<(Log &log, const int message) {
     return log << std::to_string(message).c_str();
 }
 
+Log &operator<<(Log &log, const long int message) {
+    return log << std::to_string(message).c_str();
+}
+
+Log &operator<<(Log &log, const long long int message) {
+    return log << std::to_string(message).c_str();
+}
+
 Log &operator<<(Log &log, const float message) {
+    return log << std::to_string(message).c_str();
+}
+
+Log &operator<<(Log &log, const double message) {
     return log << std::to_string(message).c_str();
 }
 

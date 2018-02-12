@@ -33,10 +33,11 @@ public:
     void setLogLevel(LogType logLevel);
 
 private:
-    bool previousWasMessage = false;
     LogType logLevel;
     std::ofstream logFile;
     unsigned int count[2]{};
+    int currentLevel = 0;
+    bool previousWasMessage = false;
 };
 
 class Log {
@@ -58,7 +59,10 @@ public:
     friend Log& operator<<(Log &log, const char *message);
     friend Log& operator<<(Log &log, const std::string message);
     friend Log& operator<<(Log &log, const int message);
+    friend Log& operator<<(Log &log, const long int message);
+    friend Log& operator<<(Log &log, const long long int message);
     friend Log& operator<<(Log &log, const float message);
+    friend Log& operator<<(Log &log, const double message);
     virtual ~Log();
     void setLogLevel(LogType logLevel, bool setForFileLog = true);
 
@@ -66,7 +70,8 @@ private:
     bool logToFile;
     FileLog *fileLog;
     LogType logLevel;
-    int previousType = -1;
+    int currentLevel = 0;
+    bool previousWasMessage = false;
 };
 
 #endif //BESTEST_GAME_LOG_H

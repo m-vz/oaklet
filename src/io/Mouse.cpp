@@ -6,7 +6,7 @@
 #include "../util/Log.h"
 
 void Mouse::movedTo(MousePosition position) {
-    Log::log << LogType::LOG_DEBUG << "Mouse moved to: (" << position.x << ", " << position.y << ")";
+    Log::log << LogType::LOG_INFO << "Mouse moved to: (" << position.x << ", " << position.y << ")";
 
     mousePosition = position;
 
@@ -15,35 +15,35 @@ void Mouse::movedTo(MousePosition position) {
             callback(*this);
 }
 
-void Mouse::movedTo(int x, int y) {
+void Mouse::movedTo(double x, double y) {
     movedTo({x, y});
 }
 
-void Mouse::scrolled(int wheelDelta) {
-    Log::log << LogType::LOG_DEBUG << "Mouse scrolled:" << wheelDelta;
+void Mouse::scrolled(double xOffset, double yOffset) {
+    Log::log << LogType::LOG_INFO << "Mouse scrolled: (" << xOffset << ", " << yOffset << ")";
 
     if(!scrollCallbacks.empty())
-        for(auto callback: scrollCallbacks)
-            callback(*this, wheelDelta);
+        for(const auto &callback: scrollCallbacks)
+            callback(*this, xOffset, yOffset);
 }
 
-void Mouse::down(MouseButton button) {
-    Log::log << LogType::LOG_DEBUG << "Mouse button down:" << button;
+void Mouse::down(int button) {
+    Log::log << LogType::LOG_INFO << "Mouse button down: " << button;
 
     mouseDown[button] = true;
 
     if(!downCallbacks[button].empty())
-        for(auto callback: downCallbacks[button])
+        for(const auto &callback: downCallbacks[button])
             callback(*this, button);
 }
 
-void Mouse::up(MouseButton button) {
-    Log::log << LogType::LOG_DEBUG << "Mouse button up:" << button;
+void Mouse::up(int button) {
+    Log::log << LogType::LOG_INFO << "Mouse button up: " << button;
 
     mouseDown[button] = false;
 
     if(!upCallbacks[button].empty())
-        for(auto callback: upCallbacks[button])
+        for(const auto &callback: upCallbacks[button])
             callback(*this, button);
 }
 
@@ -51,11 +51,11 @@ MousePosition Mouse::position() {
     return mousePosition;
 }
 
-bool Mouse::isDown(MouseButton button) {
+bool Mouse::isDown(int button) {
     return mouseDown[button];
 }
 
-bool Mouse::isUp(MouseButton button) {
+bool Mouse::isUp(int button) {
     return !mouseDown[button];
 }
 
@@ -63,14 +63,14 @@ void Mouse::addMoveCallback(std::function<void(Mouse&)> callback) {
     moveCallbacks.push_back(callback);
 }
 
-void Mouse::addScrollCallback(std::function<void(Mouse&, int)> callback) {
+void Mouse::addScrollCallback(std::function<void(Mouse&, double, double)> callback) {
     scrollCallbacks.push_back(callback);
 }
 
-void Mouse::addDownCallback(MouseButton button, std::function<void(Mouse&, MouseButton)> callback) {
+void Mouse::addDownCallback(int button, std::function<void(Mouse&, int)> callback) {
     downCallbacks[button].push_back(callback);
 }
 
-void Mouse::addUpCallback(MouseButton button, std::function<void(Mouse&, MouseButton)> callback) {
+void Mouse::addUpCallback(int button, std::function<void(Mouse&, int)> callback) {
     upCallbacks[button].push_back(callback);
 }

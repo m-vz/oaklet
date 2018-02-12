@@ -6,13 +6,21 @@
 #include "../io/FileLoader.h"
 #include "../exception/Exception.h"
 #include "../util/Config.h"
+#include "../util/Log.h"
 
 Renderer::Renderer() {
     if(!glfwInit())
         throw Exception("Could not initialize glfw.");
 }
 
+static void glfwErrorCallback(int error, const char* description) {
+    Log::log << LOG_ERROR << description << ". Code: " << error;
+    throw Exception(description, error);
+}
+
 void Renderer::init() {
+    glfwSetErrorCallback(glfwErrorCallback);
+
     // set window hints
     glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
 #ifdef __APPLE__ // MacOS requires at least OpenGL version 3.2 core profile with forward compatibility
@@ -73,7 +81,7 @@ GLuint Renderer::loadShaders(const char *vertexShaderPath, const char *fragmentS
     // COMPILE AND CHECK
 
     // compile vertex shader
-    printf("Compiling shader: %s\n", vertexShaderPath);
+    Log::log << LOG_INFO << "Compiling shader: " << vertexShaderPath;
     char const *vertexSourcePointer = vertexShaderCode.c_str();
     glShaderSource(vertexShaderID, 1, &vertexSourcePointer , nullptr);
     glCompileShader(vertexShaderID);
@@ -88,7 +96,7 @@ GLuint Renderer::loadShaders(const char *vertexShaderPath, const char *fragmentS
     }
 
     // compile fragment shader
-    printf("Compiling shader: %s\n", fragmentShaderPath);
+    Log::log << LOG_INFO << "Compiling shader: " << fragmentShaderPath;
     char const * FragmentSourcePointer = fragmentShaderCode.c_str();
     glShaderSource(fragmentShaderID, 1, &FragmentSourcePointer , nullptr);
     glCompileShader(fragmentShaderID);
@@ -105,7 +113,7 @@ GLuint Renderer::loadShaders(const char *vertexShaderPath, const char *fragmentS
     // LINK AND CHECK
 
     // link the program
-    printf("Linking shader program.\n");
+    Log::log << LOG_INFO << "Linking shader program.";
     GLuint programID = glCreateProgram();
     glAttachShader(programID, vertexShaderID);
     glAttachShader(programID, fragmentShaderID);
