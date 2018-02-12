@@ -15,11 +15,12 @@ Renderer::Renderer() {
 void Renderer::init() {
     // set window hints
     glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
-    // TODO: find out why this breaks glfw on ubuntu:
-    // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // OpenGL 3.3
-    // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Don't use old OpenGL
+#ifdef __APPLE__ // MacOS requires at least OpenGL version 3.2 core profile with forward compatibility
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // OpenGL 3.3
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
 
     // open a window and create its OpenGL context
     window = glfwCreateWindow(CONFIG.DEFAULT_WINDOW_WIDTH, CONFIG.DEFAULT_WINDOW_HEIGHT, "bestest game", nullptr, nullptr);
