@@ -92,7 +92,7 @@ GLuint Renderer::loadShaders(const char *vertexShaderPath, const char *fragmentS
     if(infoLogLength > 0) {
         std::vector<char> vertexShaderErrorMessage(static_cast<unsigned long>(infoLogLength + 1));
         glGetShaderInfoLog(vertexShaderID, infoLogLength, nullptr, &vertexShaderErrorMessage[0]);
-        printf("%s\n", &vertexShaderErrorMessage[0]);
+        Log::log << LOG_ERROR << &vertexShaderErrorMessage[0];
     }
 
     // compile fragment shader
@@ -107,7 +107,7 @@ GLuint Renderer::loadShaders(const char *vertexShaderPath, const char *fragmentS
     if(infoLogLength > 0) {
         std::vector<char> fragmentShaderErrorMessage(static_cast<unsigned long>(infoLogLength + 1));
         glGetShaderInfoLog(fragmentShaderID, infoLogLength, nullptr, &fragmentShaderErrorMessage[0]);
-        printf("%s\n", &fragmentShaderErrorMessage[0]);
+        Log::log << LOG_ERROR << &fragmentShaderErrorMessage[0];
     }
 
     // LINK AND CHECK
@@ -125,7 +125,7 @@ GLuint Renderer::loadShaders(const char *vertexShaderPath, const char *fragmentS
     if(infoLogLength > 0) {
         std::vector<char> ProgramErrorMessage(static_cast<unsigned long>(infoLogLength + 1));
         glGetProgramInfoLog(programID, infoLogLength, nullptr, &ProgramErrorMessage[0]);
-        printf("%s\n", &ProgramErrorMessage[0]);
+        Log::log << LOG_ERROR << &ProgramErrorMessage[0];
     }
 
     glDetachShader(programID, vertexShaderID);
