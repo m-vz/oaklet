@@ -13,9 +13,11 @@ using namespace std;
 
 bool shouldEnd = false;
 IOControl *ioControl;
+
 void endProgram(Keyboard &keyboard, int key, int scancode, int mods) {
     shouldEnd = true;
 }
+
 void toggleFullscreen(Keyboard &keyboard, int key, int scancode, int mods) {
     if(ioControl->window->isFullscreen())
         ioControl->window->setWindowed();

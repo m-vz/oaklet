@@ -1,12 +1,4 @@
-# Created by .ignore support plugin (hsz.mobi)
-### Example user template template
-### Example user template
-
-# IntelliJ project files
-.idea
-*.iml
-out
-gen### Windows template
+### Windows template
 # Windows thumbnail cache files
 Thumbs.db
 ehthumbs.db
@@ -29,6 +21,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
 ### macOS template
 # General
 .DS_Store
@@ -56,6 +49,7 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
 ### C++ template
 # Prerequisites
 *.d
@@ -89,3 +83,14 @@ Temporary Items
 *.exe
 *.out
 *.app
+
+### Custom
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+
+# Mesh files
+!/assets/meshes/**/*.obj
+/assets/meshes/stylized_levi/stylized_levi.blend
