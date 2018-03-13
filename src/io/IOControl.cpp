@@ -6,9 +6,10 @@
 #include "../util/Log.h"
 
 IOControl::IOControl(GLFWwindow *window) {
-    // prepare mouse and keyboard
-    mouse = new Mouse();
-    keyboard = new Keyboard();
+    // prepare mouse, keyboard and window
+    IOControl::mouse = new Mouse();
+    IOControl::keyboard = new Keyboard();
+    IOControl::window = new Window(window);
 
     // set user pointer
     glfwSetWindowUserPointer(window, this);
@@ -18,10 +19,28 @@ IOControl::IOControl(GLFWwindow *window) {
     glfwSetCursorPosCallback(window, cursorPositionCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetScrollCallback(window, scrollCallback);
+    glfwSetWindowSizeCallback(window, windowSizeCallback);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetWindowFocusCallback(window, windowFocusCallback);
 }
 
 void IOControl::processInput() {
     Log::log << LogType::LOG_FRAME << "processing input.";
+}
+
+int IOControl::getMonitorCount() const {
+    int count;
+    glfwGetMonitors(&count);
+    return count;
+}
+
+GLFWmonitor *IOControl::getPrimaryMonitor() {
+    return glfwGetPrimaryMonitor();
+}
+
+GLFWmonitor **IOControl::getMonitors() {
+    int count;
+    return glfwGetMonitors(&count);
 }
 
 void IOControl::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -56,7 +75,26 @@ void IOControl::scrollCallback(GLFWwindow *window, double xoffset, double yoffse
     mouse->scrolled(xoffset, yoffset);
 }
 
+void IOControl::windowSizeCallback(GLFWwindow *window, int width, int height) {
+    Window *w = ((IOControl*) glfwGetWindowUserPointer(window))->window;
+
+    w->windowSizeChanged(width, height);
+}
+
+void IOControl::framebufferSizeCallback(GLFWwindow *window, int width, int height) {
+    Window *w = ((IOControl*) glfwGetWindowUserPointer(window))->window;
+
+    w->framebufferSizeChanged(width, height);
+}
+
+void IOControl::windowFocusCallback(GLFWwindow *window, int focus) {
+    Window *w = ((IOControl*) glfwGetWindowUserPointer(window))->window;
+
+    w->focusChanged(static_cast<bool>(focus));
+}
+
 IOControl::~IOControl() {
     delete mouse;
     delete keyboard;
+    delete window;
 }

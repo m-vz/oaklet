@@ -12,17 +12,27 @@
 using namespace std;
 
 bool shouldEnd = false;
+IOControl *ioControl;
 void endProgram(Keyboard &keyboard, int key, int scancode, int mods) {
     shouldEnd = true;
+}
+void toggleFullscreen(Keyboard &keyboard, int key, int scancode, int mods) {
+    if(ioControl->window->isFullscreen())
+        ioControl->window->setWindowed();
+    else
+        ioControl->window->setFullscreen(ioControl->getPrimaryMonitor());
 }
 
 int main() {
     auto *renderer = new Renderer;
     renderer->init();
-    auto *ioControl = new IOControl(renderer->getWindow());
+    ioControl = new IOControl(renderer->getWindow());
     auto *world = new World;
 
     ioControl->keyboard->addReleasedCallback(endProgram, GLFW_KEY_ESCAPE);
+    ioControl->keyboard->addReleasedCallback(toggleFullscreen, GLFW_KEY_F);
+    ioControl->window->setWindowSizeLimits(640, 320, GLFW_DONT_CARE, GLFW_DONT_CARE);
+
     long long int timeLag = 0;
     std::chrono::time_point<std::chrono::steady_clock> lastTick, thisTick;
 
