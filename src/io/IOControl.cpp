@@ -21,7 +21,7 @@ IOControl::IOControl(GLFWwindow *window) {
 }
 
 void IOControl::processInput() {
-//    Log::log << LogType::LOG_DEBUG << "processing input.";
+    Log::log << LogType::LOG_FRAME << "processing input.";
 }
 
 void IOControl::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
