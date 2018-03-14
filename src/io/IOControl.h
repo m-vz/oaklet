@@ -9,12 +9,16 @@
 #include "Mouse.h"
 #include "Keyboard.h"
 #include "Window.h"
+#include "../graphics/camera/CirclingCamera.h"
+#include "../world/Time.h"
 
 class IOControl {
 public:
     Mouse *mouse;
     Keyboard *keyboard;
     Window *window;
+    Time *time;
+    CirclingCamera *camera;
 
     explicit IOControl(GLFWwindow *window);
     void processInput();

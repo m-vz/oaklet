@@ -26,6 +26,8 @@ IOControl::IOControl(GLFWwindow *window) {
 
 void IOControl::processInput() {
     Log::log << LogType::LOG_FRAME << "processing input.";
+
+    camera->update(time->timeSinceEpoch());
 }
 
 int IOControl::getMonitorCount() const {

@@ -7,16 +7,22 @@
 
 #include <vector>
 #include <string>
-#include <glm/glm.hpp>
+#include <glm/ext.hpp>
+#include <GL/glew.h>
 
 class Mesh {
 public:
-    void loadFromOBJ(const std::string &path);
-
-private:
+    GLuint vertexIndexBuffer, vertexBuffer;
     std::vector<unsigned int> vertexIndices, normalIndices, uvIndices, colorIndices;
-    std::vector<glm::vec3> vertexData, normalData, colorData;
+    std::vector<float> vertexData;
+    std::vector<glm::vec3> normalData, colorData;
     std::vector<glm::vec2> uvData;
+    glm::mat4 model;
+
+    explicit Mesh(const std::string &path);
+    void bindVertexBuffer();
+    void fillVertexBuffer();
+    virtual ~Mesh();
 };
 
 #endif //BESTEST_GAME_MESH_H

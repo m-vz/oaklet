@@ -34,7 +34,7 @@ std::string FileLoader::loadFileAsString(const std::string path, size_t *size) {
 }
 
 void FileLoader::loadOBJ(const std::string &path,
-                         std::vector<glm::vec3> &vertexData,
+                         std::vector<float> &vertexData,
                          std::vector<glm::vec3> &normalData,
                          std::vector<glm::vec2> &uvData,
                          std::vector<glm::vec3> &colorData,
@@ -57,8 +57,8 @@ void FileLoader::loadOBJ(const std::string &path,
         throw IOException("Error while loading .obj file.");
 
     // vertex data
-    for(int i = 0; i + 2 < attrib.vertices.size(); i += 3)
-        vertexData.emplace_back(attrib.vertices[i], attrib.vertices[i + 1], attrib.vertices[i + 2]);
+    for(float v: attrib.vertices)
+        vertexData.push_back(v);
 
     // normal data
     for(int i = 0; i + 2 < attrib.normals.size(); i += 3)

@@ -33,7 +33,7 @@ public:
     /// \param uvIndices A reference to the uv index vector to fill.
     /// \param colorIndices A reference to the color index vector to fill.
     static void loadOBJ(const std::string &path,
-                        std::vector<glm::vec3> &vertexData,
+                        std::vector<float> &vertexData,
                         std::vector<glm::vec3> &normalData,
                         std::vector<glm::vec2> &uvData,
                         std::vector<glm::vec3> &colorData,

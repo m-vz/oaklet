@@ -25,34 +25,42 @@ void toggleFullscreen(Keyboard &keyboard, int key, int scancode, int mods) {
         ioControl->window->setFullscreen(ioControl->getPrimaryMonitor());
 }
 
+void resize(Window &window, int width, int height) {
+    ioControl->camera->changeAspect(width, height);
+}
+
 int main() {
     auto *renderer = new Renderer;
-    renderer->init();
+    renderer->init(CONFIG.DEFAULT_WINDOW_WIDTH, CONFIG.DEFAULT_WINDOW_HEIGHT);
     ioControl = new IOControl(renderer->getWindow());
     auto *world = new World;
+    ioControl->camera = renderer->camera;
+    ioControl->time = world->time;
 
     ioControl->keyboard->addReleasedCallback(endProgram, GLFW_KEY_ESCAPE);
     ioControl->keyboard->addReleasedCallback(toggleFullscreen, GLFW_KEY_F);
-    ioControl->window->setWindowSizeLimits(640, 320, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    ioControl->window->setWindowSizeLimits(640, 420, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    ioControl->window->addFramebufferSizeCallback(resize);
 
     long long int timeLag = 0;
-    std::chrono::time_point<std::chrono::steady_clock> lastTick, thisTick;
+    std::chrono::time_point<std::chrono::steady_clock> thisTick = chrono::steady_clock::now(), lastTick = thisTick;
 
     while(true) {
         thisTick = chrono::steady_clock::now();
-        world->time->tick((thisTick - lastTick).count());
+        world->time->tick(std::chrono::duration_cast<std::chrono::nanoseconds>(thisTick - lastTick).count());
         timeLag += world->time->deltaTime();
         lastTick = thisTick;
 
         /*
          * input
          */
+        glfwPollEvents();
         ioControl->processInput();
 
         /*
          * update
          */
-        Log::log << LOG_DEBUG << "Updating world by " << (int) (timeLag - timeLag%CONFIG.TIME_TICK_DURATION) << "ns.";
+        Log::log << LOG_FRAME << "Updating world by " << (int) (timeLag - timeLag%CONFIG.TIME_TICK_DURATION) << "ns.";
 
         // first update this frame
         // update world and lag once

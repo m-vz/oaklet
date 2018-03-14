@@ -50,7 +50,11 @@ void Window::setWindowSize(int width, int height) {
 }
 
 void Window::setWindowSizeLimits(int minWidth, int minHeight, int maxWidth, int maxHeight) {
-    Log::log << LogType::LOG_INFO << "Set window size limits to: min width " << minWidth << ", min height " << minHeight << ", max width " << maxWidth << ", max height " << maxHeight;
+    Log::log << LogType::LOG_INFO
+             << "Set window size limits to: min width " << (minWidth < 0 ? "not set" : std::to_string(minWidth))
+             << ", min height " << (minHeight < 0 ? "not set" : std::to_string(minHeight))
+             << ", max width " << (maxWidth < 0 ? "not set" : std::to_string(maxWidth))
+             << ", max height " << (maxHeight < 0 ? "not set" : std::to_string(maxHeight));
 
     glfwSetWindowSizeLimits(window, minWidth, minHeight, maxWidth, maxHeight);
 }

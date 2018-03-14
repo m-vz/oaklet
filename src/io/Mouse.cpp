@@ -6,12 +6,12 @@
 #include "../util/Log.h"
 
 void Mouse::movedTo(MousePosition position) {
-    Log::log << LogType::LOG_INFO << "Mouse moved to: (" << position.x << ", " << position.y << ")";
+    Log::log << LogType::LOG_DEBUG << "Mouse moved to: (" << position.x << ", " << position.y << ")";
 
     mousePosition = position;
 
     if(!moveCallbacks.empty())
-        for(auto callback: moveCallbacks)
+        for(const auto &callback: moveCallbacks)
             callback(*this);
 }
 

@@ -61,7 +61,7 @@ endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 # assets
 file(COPY assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR} FILES_MATCHING REGEX ".*\\.(obj|mtl|glsl)$")
 
-set(SOURCE_FILES src/world/Time.cpp src/world/Time.h src/io/FileLoader.cpp src/io/FileLoader.h src/io/IOControl.cpp src/io/IOControl.h src/io/Mouse.cpp src/io/Mouse.h src/util/Log.cpp src/util/Log.h src/util/Config.h src/exception/Exception.cpp src/exception/Exception.h src/main.cpp src/world/World.cpp src/world/World.h src/graphics/Renderer.cpp src/graphics/Renderer.h src/io/Keyboard.cpp src/io/Keyboard.h src/graphics/Mesh.cpp src/graphics/Mesh.h src/io/Window.cpp src/io/Window.h)
+set(SOURCE_FILES src/world/Time.cpp src/world/Time.h src/io/FileLoader.cpp src/io/FileLoader.h src/io/IOControl.cpp src/io/IOControl.h src/io/Mouse.cpp src/io/Mouse.h src/util/Log.cpp src/util/Log.h src/util/Config.h src/exception/Exception.cpp src/exception/Exception.h src/main.cpp src/world/World.cpp src/world/World.h src/graphics/Renderer.cpp src/graphics/Renderer.h src/io/Keyboard.cpp src/io/Keyboard.h src/graphics/Mesh.cpp src/graphics/Mesh.h src/io/Window.cpp src/io/Window.h src/graphics/camera/Camera.cpp src/graphics/camera/Camera.h src/graphics/camera/CirclingCamera.cpp src/graphics/camera/CirclingCamera.h)
 add_executable(bestest-game ${SOURCE_FILES})
 
 include_directories(${INCLUDE_DIRS})

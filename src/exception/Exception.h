@@ -6,21 +6,23 @@
 #define BESTEST_GAME_EXCEPTION_H
 
 #include <string>
+#include <utility>
 
 /// General Exception
 class Exception: public std::exception {
 public:
-    explicit Exception(const char* message, const int code = 0) : message(message), code(code) {}
-    explicit Exception(const std::string& message, const int code = 0) : message(message), code(code) {}
-    virtual const char* what() const throw() {
+    explicit Exception(const char* message, const int code = 0) : error(message), message(message), code(code) {}
+    explicit Exception(std::string message, const int code = 0) : error(message), message(std::move(message)), code(code) {}
+    const char* what() const throw() override {
         if(code == 0) // 0 is considered no exception code
             return (messagePrefix + messageSeparator + message).c_str();
         else
             return (messagePrefix + messageSeparator + message + " " + codePrefix + std::to_string(code)).c_str();
     }
-    virtual ~Exception() throw() {}
+    ~Exception() throw() override = default;
 
 protected:
+    std::runtime_error error;
     std::string messagePrefix = "Exception", codePrefix = "Error code: ", messageSeparator = ": ";
 
 private:
