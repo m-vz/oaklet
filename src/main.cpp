@@ -29,6 +29,17 @@ void resize(Window &window, int width, int height) {
     ioControl->camera->changeAspect(width, height);
 }
 
+void changeSpeed(Keyboard &keyboard, int key, int scancode, int mods) {
+    if(key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
+        float speed = key - 48;
+        ioControl->camera->speed = speed;
+    }
+}
+
+void scrollCamera(Mouse &mouse, double xOffset, double yOffset) {
+    ioControl->camera->rotation += xOffset/10.0f;
+}
+
 int main() {
     auto *renderer = new Renderer;
     renderer->init(CONFIG.DEFAULT_WINDOW_WIDTH, CONFIG.DEFAULT_WINDOW_HEIGHT);
@@ -39,6 +50,8 @@ int main() {
 
     ioControl->keyboard->addReleasedCallback(endProgram, GLFW_KEY_ESCAPE);
     ioControl->keyboard->addReleasedCallback(toggleFullscreen, GLFW_KEY_F);
+    ioControl->keyboard->addReleasedCallback(changeSpeed);
+    ioControl->mouse->addScrollCallback(scrollCamera);
     ioControl->window->setWindowSizeLimits(640, 420, GLFW_DONT_CARE, GLFW_DONT_CARE);
     ioControl->window->addFramebufferSizeCallback(resize);
 

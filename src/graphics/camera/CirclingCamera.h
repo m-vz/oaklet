@@ -9,7 +9,7 @@
 
 class CirclingCamera : public Camera {
 public:
-    float distance, angle, speed;
+    float distance, angle, speed, rotation = 0;
     glm::vec3 lookingAt;
 
     CirclingCamera(int width, int height,

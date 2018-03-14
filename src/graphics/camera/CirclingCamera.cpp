@@ -19,8 +19,8 @@ void CirclingCamera::changeAspect(int width, int height) {
 }
 
 void CirclingCamera::update(long long int time) {
-    float planeDistance = distance*std::cosf(angle);
-    position = lookingAt - glm::vec3(planeDistance * sinf(time/1000000000.0f), distance*std::sinf(-angle), planeDistance * cosf(time/1000000000.0f));
+    float planeDistance = distance * std::cosf(angle), t = rotation + speed * time/1000000000.0f;
+    position = lookingAt - glm::vec3(planeDistance * sinf(t), distance*std::sinf(-angle), planeDistance * cosf(t));
 
     view = glm::lookAt(
             position, // camera position in world space
