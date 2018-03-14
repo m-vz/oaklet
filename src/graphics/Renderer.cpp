@@ -5,21 +5,22 @@
 #include "Renderer.h"
 #include "../io/FileLoader.h"
 #include "../exception/Exception.h"
-#include "../util/Config.h"
 #include "../util/Log.h"
 
 Renderer::Renderer() {
     if(!glfwInit())
-        throw Exception("Could not initialize glfw.");
+        throw Exception("Could not initialize glfw."); // NOLINT
 }
 
 static void glfwErrorCallback(int error, const char* description) {
     Log::log << LOG_ERROR << description << ". Code: " << error;
-    throw Exception(description, error);
+    throw Exception(description, error); // NOLINT
 }
 
-void Renderer::init() {
+void Renderer::init(int width, int height) {
     glfwSetErrorCallback(glfwErrorCallback);
+
+    camera = new CirclingCamera(width, height, 5, glm::radians(30.0f), 1.0f, glm::vec3(0, 1, 0));
 
     // set window hints
     glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
@@ -31,20 +32,33 @@ void Renderer::init() {
 #endif
 
     // open a window and create its OpenGL context
-    window = glfwCreateWindow(CONFIG.DEFAULT_WINDOW_WIDTH, CONFIG.DEFAULT_WINDOW_HEIGHT, "bestest game", nullptr, nullptr);
+    window = glfwCreateWindow(width, height, "bestest game", nullptr, nullptr);
     if(window == nullptr) {
         glfwTerminate();
-        throw Exception("Could not open GLFW window.");
+        throw Exception("Could not open GLFW window."); // NOLINT
     }
     glfwMakeContextCurrent(window);
 
     // initialize glew
     glewExperimental = static_cast<GLboolean>(true); // necessary in core profile
     if(glewInit() != GLEW_OK)
-        throw Exception("Could not initialize glew.");
+        throw Exception("Could not initialize glew."); // NOLINT
 
     // shaders
     programID = loadShaders("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
+
+    // VAO and vertex buffer
+    glGenVertexArrays(1, &vertexArrayID);
+    glBindVertexArray(vertexArrayID);
+
+    pyramid = new Mesh("assets/meshes/stylized_levi/stylized_levi.obj");
+    pyramid->bindVertexBuffer();
+    pyramid->fillVertexBuffer();
+
+    // uniforms
+    modelID = static_cast<GLuint>(glGetUniformLocation(programID, "model"));
+    viewID = static_cast<GLuint>(glGetUniformLocation(programID, "view"));
+    projectionID = static_cast<GLuint>(glGetUniformLocation(programID, "projection"));
 
     // options
     glClearColor(0, 0, 0, 1);
@@ -60,8 +74,32 @@ void Renderer::render(long long int lag) {
 
     glUseProgram(programID);
 
+    glEnableVertexAttribArray(0);
+
+    pyramid->bindVertexBuffer();
+    glVertexAttribPointer(
+            0, // attribute 0, must match the layout in the shader.
+            3, // size
+            GL_FLOAT, // type
+            GL_FALSE, // normalized?
+            0, // stride
+            (void*) nullptr // array buffer offset
+    );
+
+    glUniformMatrix4fv(modelID, 1, GL_FALSE, &pyramid->model[0][0]);
+    glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera->getView()[0][0]);
+    glUniformMatrix4fv(projectionID, 1, GL_FALSE, &camera->getProjection()[0][0]);
+
+    glDrawElements(
+            GL_TRIANGLES, // mode
+            static_cast<GLsizei>(pyramid->vertexIndices.size()), // count
+            GL_UNSIGNED_INT, // type
+            (void*) nullptr // element array buffer offset
+    );
+
+    glDisableVertexAttribArray(0);
+
     glfwSwapBuffers(window);
-    glfwPollEvents();
 }
 
 GLuint Renderer::loadShaders(const char *vertexShaderPath, const char *fragmentShaderPath) {
@@ -143,6 +181,7 @@ GLFWwindow* Renderer::getWindow() const {
 
 Renderer::~Renderer() {
     glDeleteProgram(programID);
+    glDeleteVertexArrays(1, &vertexArrayID);
 
     glfwTerminate();
 }

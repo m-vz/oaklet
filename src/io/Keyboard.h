@@ -31,15 +31,15 @@ public:
     // query
     /// Add a callback that is triggered whenever a key is pressed.
     /// \param callback The callback to call whenever a key is pressed. This keyboard, key, scancode and modifiers are passed to the callback.
-    /// \param key The key for which this callback should be called. (Default is -1 and means the callback is called for every key).
+    /// \param key The key for which this callback should be called. (Default is -1 and means the callback is called for any key).
     void addPressedCallback(std::function<void(Keyboard&, int, int, int)> callback, int key = -1);
     /// Add a callback that is triggered whenever a key is repeated.
     /// \param callback The callback to call whenever a key is repeated. This keyboard, key, scancode and modifiers are passed to the callback.
-    /// \param key The key for which this callback should be called. (Default is -1 and means the callback is called for every key).
+    /// \param key The key for which this callback should be called. (Default is -1 and means the callback is called for any key).
     void addRepeatedCallback(std::function<void(Keyboard&, int, int, int)> callback, int key = -1);
     /// Add a callback that is triggered whenever a key is released.
     /// \param callback The callback to call whenever a key is released. This keyboard, key, scancode and modifiers are passed to the callback.
-    /// \param key The key for which this callback should be called. (Default is -1 and means the callback is called for every key).
+    /// \param key The key for which this callback should be called. (Default is -1 and means the callback is called for any key).
     void addReleasedCallback(std::function<void(Keyboard&, int, int, int)> callback, int key = -1);
 
 private:

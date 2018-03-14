@@ -42,6 +42,10 @@ FileLog& operator<<(FileLog &log, const LogType type) {
             if(log.logLevel >= LOG_DEBUG)
                 log.logFile << "DEBUG: ";
             break;
+        case LOG_FRAME:
+            if(log.logLevel >= LOG_FRAME)
+                log.logFile << "FRAME: ";
+            break;
     }
 
     log.currentLevel = type;
@@ -92,7 +96,7 @@ Log &operator<<(Log &log, const LogType type) {
     if(log.previousWasMessage && log.logLevel >= log.currentLevel) {
         if(type == LOG_ERROR || type == LOG_WARNING)
             std::cerr << std::endl;
-        else if(type == LOG_INFO || type == LOG_DEBUG)
+        else if(type == LOG_INFO || type == LOG_DEBUG || type == LOG_FRAME)
             std::cout << std::endl;
     }
 
@@ -112,6 +116,10 @@ Log &operator<<(Log &log, const LogType type) {
         case LOG_DEBUG:
             if(log.logLevel >= LOG_DEBUG)
                 std::cout << "DEBUG: ";
+            break;
+        case LOG_FRAME:
+            if(log.logLevel >= LOG_FRAME)
+                std::cout << "FRAME: ";
             break;
         default:
             break;
@@ -141,6 +149,10 @@ Log &operator<<(Log &log, const char *message) {
             break;
         case LOG_DEBUG:
             if(log.logLevel >= LOG_DEBUG)
+                std::cout << message;
+            break;
+        case LOG_FRAME:
+            if(log.logLevel >= LOG_FRAME)
                 std::cout << message;
             break;
         default:

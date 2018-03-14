@@ -8,11 +8,15 @@
 #include <GL/glew.h>
 #include <glm/ext.hpp>
 #include <GLFW/glfw3.h>
+#include "Mesh.h"
+#include "camera/CirclingCamera.h"
 
 class Renderer {
 public:
+    CirclingCamera *camera;
+
     Renderer();
-    void init();
+    void init(int width, int height);
     void render(long long int lag);
 
     GLFWwindow *getWindow() const;
@@ -22,7 +26,11 @@ public:
 private:
     bool initialized = false;
     GLuint programID;
+    GLuint vertexArrayID;
+    GLuint modelID, viewID, projectionID;
     GLFWwindow *window;
+
+    Mesh *pyramid;
 
     GLuint loadShaders(const char *vertexShaderPath, const char *fragmentShaderPath);
 };

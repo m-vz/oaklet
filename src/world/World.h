@@ -5,7 +5,6 @@
 #ifndef BESTEST_GAME_WORLD_H
 #define BESTEST_GAME_WORLD_H
 
-
 #include "Time.h"
 #include "physics/Physics.h"
 
@@ -21,6 +20,5 @@ public:
     long long int age();
     virtual ~World();
 };
-
 
 #endif //BESTEST_GAME_WORLD_H
