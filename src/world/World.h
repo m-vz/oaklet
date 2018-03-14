@@ -7,10 +7,12 @@
 
 
 #include "Time.h"
+#include "physics/Physics.h"
 
 class World {
 public:
     Time *time;
+    Physics *physics;
 
     World();
 

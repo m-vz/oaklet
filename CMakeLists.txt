@@ -65,7 +65,7 @@ foreach(asset ${assets})
     configure_file(${asset} ${CMAKE_CURRENT_BINARY_DIR}/${asset} COPYONLY)
 endforeach()
 
-set(SOURCE_FILES src/world/Time.cpp src/world/Time.h src/io/FileLoader.cpp src/io/FileLoader.h src/io/IOControl.cpp src/io/IOControl.h src/io/Mouse.cpp src/io/Mouse.h src/util/Log.cpp src/util/Log.h src/util/Config.h src/exception/Exception.cpp src/exception/Exception.h src/main.cpp src/world/World.cpp src/world/World.h src/graphics/Renderer.cpp src/graphics/Renderer.h src/io/Keyboard.cpp src/io/Keyboard.h)
+set(SOURCE_FILES src/world/Time.cpp src/world/Time.h src/io/FileLoader.cpp src/io/FileLoader.h src/io/IOControl.cpp src/io/IOControl.h src/io/Mouse.cpp src/io/Mouse.h src/util/Log.cpp src/util/Log.h src/util/Config.h src/exception/Exception.cpp src/exception/Exception.h src/main.cpp src/world/World.cpp src/world/World.h src/graphics/Renderer.cpp src/graphics/Renderer.h src/io/Keyboard.cpp src/io/Keyboard.h src/world/physics/Physics.cpp src/world/physics/Physics.h src/world/physics/PhysicsObject.cpp src/world/physics/PhysicsObject.h src/world/physics/RigidBody.cpp src/world/physics/RigidBody.h src/world/physics/Matrix.cpp src/world/physics/Matrix.h src/world/physics/Triple.cpp src/world/physics/Triple.h)
 add_executable(bestest-game ${SOURCE_FILES})
 
 include_directories(${INCLUDE_DIRS})

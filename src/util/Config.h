@@ -13,7 +13,7 @@ static struct {
     // logging
     const std::string DEFAULT_LOG_FILE_PATH = "log.txt"; // If this is more than just a filename, make sure, the directory exists.
 #ifdef BEST_GAME_DEBUG
-    const int DEFAULT_LOG_LEVEL = 2; // LOG_INFO
+    const int DEFAULT_LOG_LEVEL = 3; // LOG_INFO
     const int DEFAULT_FILE_LOG_LEVEL = 3; // LOG_DEBUG
 #else
     const int DEFAULT_LOG_LEVEL = 1; // LOG_WARNING
