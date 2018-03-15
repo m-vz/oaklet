@@ -28,19 +28,24 @@ public:
     /// \param normalData A reference to the normal data vector to fill.
     /// \param uvData A reference to the uv data vector to fill.
     /// \param colorData A reference to the color data vector to fill.
-    /// \param vertexIndices A reference to the vertex index vector to fill.
-    /// \param normalIndices A reference to the normal index vector to fill.
-    /// \param uvIndices A reference to the uv index vector to fill.
-    /// \param colorIndices A reference to the color index vector to fill.
     static void loadOBJ(const std::string &path,
                         std::vector<float> &vertexData,
-                        std::vector<glm::vec3> &normalData,
-                        std::vector<glm::vec2> &uvData,
-                        std::vector<glm::vec3> &colorData,
-                        std::vector<unsigned int> &vertexIndices,
-                        std::vector<unsigned int> &normalIndices,
-                        std::vector<unsigned int> &uvIndices,
-                        std::vector<unsigned int> &colorIndices);
+                        std::vector<float> &normalData,
+                        std::vector<float> &uvData,
+                        std::vector<float> &colorData);
+    /// Load a .png image from file and store the data as unsigned char *. Free the image data again with freePNG().
+    /// \param path The path to the .png file to load.
+    /// \param imageData A pointer to a pointer to an unsigned int * that will be filled with the image data.
+    /// \param imageWidth A pointer to an int that will be filled with the width of the image.
+    /// \param imageHeight A pointer to an int that will be filled with the height of the image.
+    /// \param numberOfChannels A pointer to an int that will be filled with the actual numbers of channels in the file.
+    /// \param desiredNumberOfChannels An optional desired number of channels to load into the data.
+    static void loadPNG(const std::string &path,
+                        unsigned char **imageData,
+                        int *imageWidth = nullptr, int *imageHeight = nullptr,
+                        int *numberOfChannels = nullptr, int desiredNumberOfChannels = 0);
+    /// Free image data loaded with loadPNG().
+    static void freePNG(unsigned char *imageData);
 };
 
 #endif //BESTEST_GAME_FILELOADER_H

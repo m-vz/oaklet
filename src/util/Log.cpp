@@ -6,7 +6,7 @@
 #include "Log.h"
 #include "../exception/Exception.h"
 
-Log Log::log((const LogType) CONFIG.DEFAULT_LOG_LEVEL, true);
+Log Log::log((const LogType) CONFIG.DEFAULT_LOG_LEVEL, true); // NOLINT
 
 FileLog::FileLog(const std::string logPath, const LogType logLevel) : logLevel(logLevel) {
     logFile.open(logPath);
@@ -59,18 +59,6 @@ FileLog& operator<<(FileLog &log, const char *message) {
 
     log.previousWasMessage = true;
     return log;
-}
-
-FileLog& operator<<(FileLog &log, const std::string message) {
-    return log << message.c_str();
-}
-
-FileLog& operator<<(FileLog &log, const int message) {
-    return log << std::to_string(message).c_str();
-}
-
-FileLog& operator<<(FileLog &log, const float message) {
-    return log << std::to_string(message).c_str();
 }
 
 FileLog::~FileLog() {
@@ -174,11 +162,23 @@ Log &operator<<(Log &log, const int message) {
     return log << std::to_string(message).c_str();
 }
 
+Log &operator<<(Log &log, const unsigned int message) {
+    return log << std::to_string(message).c_str();
+}
+
 Log &operator<<(Log &log, const long int message) {
     return log << std::to_string(message).c_str();
 }
 
+Log &operator<<(Log &log, const unsigned long int message) {
+    return log << std::to_string(message).c_str();
+}
+
 Log &operator<<(Log &log, const long long int message) {
+    return log << std::to_string(message).c_str();
+}
+
+Log &operator<<(Log &log, const unsigned long long int message) {
     return log << std::to_string(message).c_str();
 }
 

@@ -14,30 +14,40 @@ using namespace std;
 bool shouldEnd = false;
 IOControl *ioControl;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void endProgram(Keyboard &keyboard, int key, int scancode, int mods) {
     shouldEnd = true;
 }
+#pragma clang diagnostic pop
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void toggleFullscreen(Keyboard &keyboard, int key, int scancode, int mods) {
     if(ioControl->window->isFullscreen())
         ioControl->window->setWindowed();
     else
         ioControl->window->setFullscreen(ioControl->getPrimaryMonitor());
 }
+#pragma clang diagnostic pop
 
 void resize(Window &window, int width, int height) {
     ioControl->camera->changeAspect(width, height);
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void changeSpeed(Keyboard &keyboard, int key, int scancode, int mods) {
     if(key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
         float speed = key - 48;
         ioControl->camera->speed = speed;
     }
 }
+#pragma clang diagnostic pop
 
 void scrollCamera(Mouse &mouse, double xOffset, double yOffset) {
     ioControl->camera->rotation += xOffset/10.0f;
+    ioControl->camera->angle += glm::radians(yOffset*10.0f);
 }
 
 int main() {

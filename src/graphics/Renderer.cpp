@@ -20,7 +20,7 @@ static void glfwErrorCallback(int error, const char* description) {
 void Renderer::init(int width, int height) {
     glfwSetErrorCallback(glfwErrorCallback);
 
-    camera = new CirclingCamera(width, height, 5, glm::radians(30.0f), 1.0f, glm::vec3(0, 1, 0));
+    camera = new CirclingCamera(width, height, 600, glm::radians(30.0f), 0.0f, glm::vec3(0, 100, 0));
 
     // set window hints
     glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
@@ -51,17 +51,33 @@ void Renderer::init(int width, int height) {
     glGenVertexArrays(1, &vertexArrayID);
     glBindVertexArray(vertexArrayID);
 
-    pyramid = new Mesh("assets/meshes/stylized_levi/stylized_levi.obj");
-    pyramid->bindVertexBuffer();
-    pyramid->fillVertexBuffer();
+    medievalHouseTexture = new Texture("assets/meshes/medieval_house/textures/medieval_house_diffuse.png");
+    medievalHouseTexture->bindTexture();
+    medievalHouseTexture->fillTexture();
+    medievalHouse = new Mesh("assets/meshes/medieval_house/medieval_house.obj");
+    medievalHouse->bindVertexBuffer();
+    medievalHouse->fillVertexBuffer();
+    medievalHouse->bindUVBuffer();
+    medievalHouse->fillUVBuffer();
 
     // uniforms
     modelID = static_cast<GLuint>(glGetUniformLocation(programID, "model"));
     viewID = static_cast<GLuint>(glGetUniformLocation(programID, "view"));
     projectionID = static_cast<GLuint>(glGetUniformLocation(programID, "projection"));
+    textureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "textureSampler"));
 
     // options
     glClearColor(0, 0, 0, 1);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    if(CONFIG.OPENGL_MIPMAP) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
 
     initialized = true;
 }
@@ -75,29 +91,35 @@ void Renderer::render(long long int lag) {
     glUseProgram(programID);
 
     glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
 
-    pyramid->bindVertexBuffer();
+    medievalHouse->bindVertexBuffer();
     glVertexAttribPointer(
             0, // attribute 0, must match the layout in the shader.
             3, // size
             GL_FLOAT, // type
             GL_FALSE, // normalized?
             0, // stride
-            (void*) nullptr // array buffer offset
+            (void*) 0 // array buffer offset // NOLINT
     );
+    medievalHouse->bindUVBuffer();
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0); // NOLINT
+    medievalHouseTexture->bindTexture();
 
-    glUniformMatrix4fv(modelID, 1, GL_FALSE, &pyramid->model[0][0]);
+    glUniformMatrix4fv(modelID, 1, GL_FALSE, &medievalHouse->model[0][0]);
     glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera->getView()[0][0]);
     glUniformMatrix4fv(projectionID, 1, GL_FALSE, &camera->getProjection()[0][0]);
+    glUniform1i(textureSampler, 0);
 
     glDrawElements(
             GL_TRIANGLES, // mode
-            static_cast<GLsizei>(pyramid->vertexIndices.size()), // count
+            static_cast<GLsizei>(medievalHouse->indices.size()), // count
             GL_UNSIGNED_INT, // type
-            (void*) nullptr // element array buffer offset
+            (void*) 0 // element array buffer offset // NOLINT
     );
 
     glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
 
     glfwSwapBuffers(window);
 }
@@ -180,6 +202,9 @@ GLFWwindow* Renderer::getWindow() const {
 }
 
 Renderer::~Renderer() {
+    delete medievalHouse;
+    delete medievalHouseTexture;
+
     glDeleteProgram(programID);
     glDeleteVertexArrays(1, &vertexArrayID);
 

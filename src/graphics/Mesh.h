@@ -12,17 +12,20 @@
 
 class Mesh {
 public:
-    GLuint vertexIndexBuffer, vertexBuffer;
-    std::vector<unsigned int> vertexIndices, normalIndices, uvIndices, colorIndices;
-    std::vector<float> vertexData;
-    std::vector<glm::vec3> normalData, colorData;
-    std::vector<glm::vec2> uvData;
+    GLuint vertexIndexBuffer, vertexBuffer, uvBuffer;
+    std::vector<unsigned int> indices;
+    std::vector<float> vertexData, normalData, colorData, uvData;
     glm::mat4 model;
 
     explicit Mesh(const std::string &path);
     void bindVertexBuffer();
     void fillVertexBuffer();
+    void bindUVBuffer();
+    void fillUVBuffer();
     virtual ~Mesh();
+
+private:
+    void calculateIndices();
 };
 
 #endif //BESTEST_GAME_MESH_H

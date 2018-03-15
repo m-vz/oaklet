@@ -26,6 +26,7 @@ static struct {
 
     // renderer
     const int DEFAULT_WINDOW_WIDTH = 1200, DEFAULT_WINDOW_HEIGHT = 900;
+    const bool OPENGL_MIPMAP = false;
 } CONFIG; // NOLINT
 
 #endif //BESTEST_GAME_CONFIG_H

@@ -8,8 +8,9 @@
 #include <GL/glew.h>
 #include <glm/ext.hpp>
 #include <GLFW/glfw3.h>
-#include "Mesh.h"
 #include "camera/CirclingCamera.h"
+#include "Mesh.h"
+#include "Texture.h"
 
 class Renderer {
 public:
@@ -28,9 +29,11 @@ private:
     GLuint programID;
     GLuint vertexArrayID;
     GLuint modelID, viewID, projectionID;
+    GLuint textureSampler;
     GLFWwindow *window;
 
-    Mesh *pyramid;
+    Mesh *medievalHouse;
+    Texture *medievalHouseTexture;
 
     GLuint loadShaders(const char *vertexShaderPath, const char *fragmentShaderPath);
 };
