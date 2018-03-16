@@ -11,17 +11,22 @@
 #include "camera/CirclingCamera.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "../io/Mouse.h"
 
 class Renderer {
 public:
     CirclingCamera *camera;
+
+    glm::vec3 lightDirectionVector = glm::vec3(-10.0f, 500.0f, 0.0f);
+    Mesh *medievalHouse;
+    GLuint medievalHouseDiffuseTextureSampler, medievalHouseNormalTextureSampler, medievalHouseSpecularTextureSampler;
+    Texture *medievalHouseDiffuseTexture, *medievalHouseNormalTexture, *medievalHouseSpecularTexture;
 
     Renderer();
     void init(int width, int height);
     void render(long long int lag);
 
     GLFWwindow *getWindow() const;
-
     virtual ~Renderer();
 
 private:
@@ -29,11 +34,8 @@ private:
     GLuint programID;
     GLuint vertexArrayID;
     GLuint modelID, viewID, projectionID;
-    GLuint textureSampler;
+    GLuint lightDirection;
     GLFWwindow *window;
-
-    Mesh *medievalHouse;
-    Texture *medievalHouseTexture;
 
     GLuint loadShaders(const char *vertexShaderPath, const char *fragmentShaderPath);
 };

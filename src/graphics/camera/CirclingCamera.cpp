@@ -28,3 +28,11 @@ void CirclingCamera::update(long long int time) {
             glm::vec3(0, 1, 0)  // head is up
     );
 }
+
+const glm::vec3 &CirclingCamera::getPosition() const {
+    return position;
+}
+
+const glm::vec3 &CirclingCamera::getLookingAt() const {
+    return lookingAt;
+}

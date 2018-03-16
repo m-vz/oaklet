@@ -16,8 +16,10 @@ public:
     GLuint textureID;
 
     explicit Texture(const std::string &texturePath, int desiredChannelCount = 3);
-    void bindTexture();
+    void bindTexture(GLenum unit = GL_TEXTURE0);
     void fillTexture();
+    void setFilter();
+    virtual ~Texture();
 };
 
 #endif //BESTEST_GAME_TEXTURE_H

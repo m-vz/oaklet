@@ -51,9 +51,18 @@ void Renderer::init(int width, int height) {
     glGenVertexArrays(1, &vertexArrayID);
     glBindVertexArray(vertexArrayID);
 
-    medievalHouseTexture = new Texture("assets/meshes/medieval_house/textures/medieval_house_diffuse.png");
-    medievalHouseTexture->bindTexture();
-    medievalHouseTexture->fillTexture();
+    medievalHouseDiffuseTexture = new Texture("assets/meshes/medieval_house/textures/medieval_house_diffuse.png");
+    medievalHouseDiffuseTexture->bindTexture(GL_TEXTURE0);
+    medievalHouseDiffuseTexture->fillTexture();
+    medievalHouseDiffuseTexture->setFilter();
+    medievalHouseNormalTexture = new Texture("assets/meshes/medieval_house/textures/medieval_house_normal.png");
+    medievalHouseNormalTexture->bindTexture(GL_TEXTURE1);
+    medievalHouseNormalTexture->fillTexture();
+    medievalHouseNormalTexture->setFilter();
+    medievalHouseSpecularTexture = new Texture("assets/meshes/medieval_house/textures/medieval_house_specular.png");
+    medievalHouseSpecularTexture->bindTexture(GL_TEXTURE1);
+    medievalHouseSpecularTexture->fillTexture();
+    medievalHouseSpecularTexture->setFilter();
     medievalHouse = new Mesh("assets/meshes/medieval_house/medieval_house.obj");
     medievalHouse->bindVertexBuffer();
     medievalHouse->fillVertexBuffer();
@@ -64,20 +73,15 @@ void Renderer::init(int width, int height) {
     modelID = static_cast<GLuint>(glGetUniformLocation(programID, "model"));
     viewID = static_cast<GLuint>(glGetUniformLocation(programID, "view"));
     projectionID = static_cast<GLuint>(glGetUniformLocation(programID, "projection"));
-    textureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "textureSampler"));
+    lightDirection = static_cast<GLuint>(glGetUniformLocation(programID, "worldspaceLightDirection"));
+    medievalHouseDiffuseTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "medievalHouseDiffuseTextureSampler"));
+    medievalHouseNormalTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "medievalHouseNormalTextureSampler"));
+    medievalHouseSpecularTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "medievalHouseSpecularTextureSampler"));
 
     // options
     glClearColor(0, 0, 0, 1);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    if(CONFIG.OPENGL_MIPMAP) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
 
     initialized = true;
 }
@@ -90,26 +94,27 @@ void Renderer::render(long long int lag) {
 
     glUseProgram(programID);
 
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
     medievalHouse->bindVertexBuffer();
-    glVertexAttribPointer(
-            0, // attribute 0, must match the layout in the shader.
-            3, // size
-            GL_FLOAT, // type
-            GL_FALSE, // normalized?
-            0, // stride
-            (void*) 0 // array buffer offset // NOLINT
-    );
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0); // NOLINT
+
     medievalHouse->bindUVBuffer();
+    glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0); // NOLINT
-    medievalHouseTexture->bindTexture();
+
+    medievalHouseDiffuseTexture->bindTexture(GL_TEXTURE0);
+    glUniform1i(medievalHouseDiffuseTextureSampler, 0);
+
+    medievalHouseNormalTexture->bindTexture(GL_TEXTURE1);
+    glUniform1i(medievalHouseNormalTextureSampler, 1);
+
+    medievalHouseSpecularTexture->bindTexture(GL_TEXTURE2);
+    glUniform1i(medievalHouseSpecularTextureSampler, 2);
 
     glUniformMatrix4fv(modelID, 1, GL_FALSE, &medievalHouse->model[0][0]);
     glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera->getView()[0][0]);
     glUniformMatrix4fv(projectionID, 1, GL_FALSE, &camera->getProjection()[0][0]);
-    glUniform1i(textureSampler, 0);
+    glUniform3f(lightDirection, lightDirectionVector.x, lightDirectionVector.y, lightDirectionVector.z);
 
     glDrawElements(
             GL_TRIANGLES, // mode
@@ -203,7 +208,7 @@ GLFWwindow* Renderer::getWindow() const {
 
 Renderer::~Renderer() {
     delete medievalHouse;
-    delete medievalHouseTexture;
+    delete medievalHouseDiffuseTexture;
 
     glDeleteProgram(programID);
     glDeleteVertexArrays(1, &vertexArrayID);

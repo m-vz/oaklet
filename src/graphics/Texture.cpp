@@ -4,6 +4,7 @@
 
 #include "Texture.h"
 #include "../io/FileLoader.h"
+#include "../util/Config.h"
 
 Texture::Texture(const std::string &texturePath, int desiredChannelCount) {
     FileLoader::loadPNG(texturePath, &textureData, &imageWidth, &imageHeight, &channelCount, desiredChannelCount);
@@ -29,10 +30,26 @@ Texture::Texture(const std::string &texturePath, int desiredChannelCount) {
     }
 }
 
-void Texture::bindTexture() {
+void Texture::bindTexture(GLenum unit) {
+    glActiveTexture(unit);
     glBindTexture(GL_TEXTURE_2D, textureID);
 }
 
 void Texture::fillTexture() {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
+}
+
+void Texture::setFilter() {
+    if(CONFIG.OPENGL_MIPMAP) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+}
+
+Texture::~Texture() {
+    glDeleteTextures(1, &textureID);
 }

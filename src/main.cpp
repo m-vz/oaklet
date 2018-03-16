@@ -12,7 +12,9 @@
 using namespace std;
 
 bool shouldEnd = false;
+Renderer *renderer;
 IOControl *ioControl;
+World *world;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -45,23 +47,32 @@ void changeSpeed(Keyboard &keyboard, int key, int scancode, int mods) {
 }
 #pragma clang diagnostic pop
 
-void scrollCamera(Mouse &mouse, double xOffset, double yOffset) {
-    ioControl->camera->rotation += xOffset/10.0f;
-    ioControl->camera->angle += glm::radians(yOffset*10.0f);
+//void scrollCamera(Mouse &mouse, double xOffset, double yOffset) {
+//    ioControl->camera->rotation += xOffset/10.0f;
+//    ioControl->camera->angle += glm::radians(yOffset*10.0f);
+//}
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+void scrollMesh(Mouse &mouse, double xOffset, double yOffset) {
+//    renderer->medievalHouse->rotate(static_cast<float>(xOffset/10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+//    renderer->medievalHouse->scale(static_cast<float>(1.0f + yOffset/100.0f));
+    renderer->lightDirectionVector.x += xOffset*10.0f;
+    renderer->lightDirectionVector.z += yOffset*10.0f;
 }
+#pragma clang diagnostic pop
 
 int main() {
-    auto *renderer = new Renderer;
+    renderer = new Renderer;
     renderer->init(CONFIG.DEFAULT_WINDOW_WIDTH, CONFIG.DEFAULT_WINDOW_HEIGHT);
     ioControl = new IOControl(renderer->getWindow());
-    auto *world = new World;
+    world = new World;
     ioControl->camera = renderer->camera;
     ioControl->time = world->time;
 
     ioControl->keyboard->addReleasedCallback(endProgram, GLFW_KEY_ESCAPE);
     ioControl->keyboard->addReleasedCallback(toggleFullscreen, GLFW_KEY_F);
     ioControl->keyboard->addReleasedCallback(changeSpeed);
-    ioControl->mouse->addScrollCallback(scrollCamera);
+    ioControl->mouse->addScrollCallback(scrollMesh);
     ioControl->window->setWindowSizeLimits(640, 420, GLFW_DONT_CARE, GLFW_DONT_CARE);
     ioControl->window->addFramebufferSizeCallback(resize);
 
