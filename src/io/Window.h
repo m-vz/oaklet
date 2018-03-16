@@ -9,10 +9,11 @@
 #include <string>
 #include <vector>
 #include "../util/Config.h"
+#include <GLFW/glfw3.h>
 
 class Window {
 public:
-    Window(GLFWwindow *window);
+    explicit Window(GLFWwindow *window);
 
     // control
     /// Tell the window its size changed.
@@ -73,6 +74,8 @@ public:
     int getFramebufferHeight() const;
     /// Return the monitor controlling the current window in fullscreen. Returns nullptr if the window is in windowed mode.
     GLFWmonitor *getWindowMonitor() const;
+    /// Return a handle to the glfw window object.
+    GLFWwindow *getGLFWWindow() const;
     /// Return whether the window is currently in fullscreen.
     bool isFullscreen() const;
     /// Return whether the window is currently hidden.

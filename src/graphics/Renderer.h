@@ -8,14 +8,14 @@
 #include <GL/glew.h>
 #include <glm/ext.hpp>
 #include <GLFW/glfw3.h>
-#include "camera/CirclingCamera.h"
 #include "Mesh.h"
 #include "Texture.h"
 #include "../io/Mouse.h"
+#include "camera/FreeCamera.h"
 
 class Renderer {
 public:
-    CirclingCamera *camera;
+    FreeCamera *camera;
 
     glm::vec3 lightDirectionVector = glm::vec3(-10.0f, 500.0f, 0.0f);
     Mesh *medievalHouse;

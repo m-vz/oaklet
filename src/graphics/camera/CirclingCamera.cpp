@@ -14,8 +14,8 @@ CirclingCamera::CirclingCamera(int width, int height,
 }
 
 void CirclingCamera::changeAspect(int width, int height) {
-    // projection matrix: 45° Field of View, display range : 0.1 unit <-> 100 units
-    projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 10000.0f);
+    // projection matrix: 45° Field of View, display range : 0.1 unit <-> 1000 units
+    projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 1000.0f);
 }
 
 void CirclingCamera::update(long long int time) {
@@ -23,9 +23,9 @@ void CirclingCamera::update(long long int time) {
     position = lookingAt - glm::vec3(planeDistance * sinf(t), distance*std::sinf(-angle), planeDistance * cosf(t));
 
     view = glm::lookAt(
-            position, // camera position in world space
-            lookingAt, // where the camera looks
-            glm::vec3(0, 1, 0)  // head is up
+            position,
+            lookingAt,
+            glm::vec3(0, 1, 0) // head is up
     );
 }
 

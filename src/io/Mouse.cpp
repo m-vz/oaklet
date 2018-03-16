@@ -6,9 +6,17 @@
 #include "../util/Log.h"
 
 void Mouse::movedTo(MousePosition position) {
-    Log::log << LogType::LOG_DEBUG << "Mouse moved to: (" << position.x << ", " << position.y << ")";
+    if(firstMovement) {
+        mousePositionOld = position;
+        firstMovement = false;
+    }
+    if(captured) {
+        mousePosition = position - mousePositionOld;
+        mousePositionOld = position;
+    } else
+        mousePosition = position;
 
-    mousePosition = position;
+    Log::log << LogType::LOG_DEBUG << "Mouse moved to: (" << mousePosition.x << ", " << mousePosition.y << ")";
 
     if(!moveCallbacks.empty())
         for(const auto &callback: moveCallbacks)
@@ -45,6 +53,24 @@ void Mouse::up(int button) {
     if(!upCallbacks[button].empty())
         for(const auto &callback: upCallbacks[button])
             callback(*this, button);
+}
+
+void Mouse::capture(Window &window) {
+    if(captured) // if the mouse is already captured (maybe in another window), free it first
+        free();
+
+    glfwSetInputMode(window.getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    capturedIn = &window;
+    captured = true;
+}
+
+void Mouse::free() {
+    if(!captured)
+        Log::log << LOG_WARNING << "Trying to free mouse that is not captured.";
+
+    glfwSetInputMode(capturedIn->getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    capturedIn = nullptr;
+    captured = false;
 }
 
 MousePosition Mouse::position() {

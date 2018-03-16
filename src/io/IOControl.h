@@ -9,8 +9,8 @@
 #include "Mouse.h"
 #include "Keyboard.h"
 #include "Window.h"
-#include "../graphics/camera/CirclingCamera.h"
 #include "../world/Time.h"
+#include "../graphics/camera/FreeCamera.h"
 
 class IOControl {
 public:
@@ -18,7 +18,7 @@ public:
     Keyboard *keyboard;
     Window *window;
     Time *time;
-    CirclingCamera *camera;
+    FreeCamera *camera;
 
     explicit IOControl(GLFWwindow *window);
     void processInput();

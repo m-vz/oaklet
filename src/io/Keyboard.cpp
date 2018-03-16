@@ -5,7 +5,7 @@
 #include "Keyboard.h"
 #include "../util/Log.h"
 
-void Keyboard::keyPressed(int key, int scancode, int mods) {
+void Keyboard::pressKey(int key, int scancode, int mods) {
     Log::log << LogType::LOG_INFO << "Key " << key << " pressed (scancode " << scancode << ", mods " << mods << ")";
 
     if(keyPressedCallbacks.count(key) != 0)
@@ -20,7 +20,7 @@ void Keyboard::keyPressed(int key, int scancode, int mods) {
                 callback(*this, key, scancode, mods);
 }
 
-void Keyboard::keyRepeated(int key, int scancode, int mods) {
+void Keyboard::repeatKey(int key, int scancode, int mods) {
     Log::log << LogType::LOG_INFO << "Key " << key << " repeated (scancode " << scancode << ", mods " << mods << ")";
 
     if(keyRepeatedCallbacks.count(key) != 0)
@@ -35,7 +35,7 @@ void Keyboard::keyRepeated(int key, int scancode, int mods) {
                 callback(*this, key, scancode, mods);
 }
 
-void Keyboard::keyReleased(int key, int scancode, int mods) {
+void Keyboard::releaseKey(int key, int scancode, int mods) {
     Log::log << LogType::LOG_INFO << "Key " << key << " released (scancode " << scancode << ", mods " << mods << ")";
 
     if(keyReleasedCallbacks.count(key) != 0)
@@ -69,4 +69,8 @@ void Keyboard::addReleasedCallback(std::function<void(Keyboard &, int, int, int)
         keyReleasedCallbacks[key].push_back(callback);
     else
         keyReleasedCallbacks[key] = std::vector<std::function<void(Keyboard&, int, int, int)>>{callback};
+}
+
+bool Keyboard::keyPressed(GLFWwindow *window, int key) {
+    return glfwGetKey(window, key) == GLFW_PRESS;
 }

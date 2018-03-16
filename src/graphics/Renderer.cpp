@@ -20,8 +20,6 @@ static void glfwErrorCallback(int error, const char* description) {
 void Renderer::init(int width, int height) {
     glfwSetErrorCallback(glfwErrorCallback);
 
-    camera = new CirclingCamera(width, height, 600, glm::radians(30.0f), 0.0f, glm::vec3(0, 100, 0));
-
     // set window hints
     glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
 #ifdef __APPLE__ // MacOS requires at least OpenGL version 3.2 core profile with forward compatibility

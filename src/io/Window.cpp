@@ -2,7 +2,6 @@
 // Created by Milan van Zanten on 13.03.18.
 //
 
-#include <GLFW/glfw3.h>
 #include "Window.h"
 #include "../util/Log.h"
 
@@ -156,6 +155,10 @@ int Window::getFramebufferHeight() const {
 
 GLFWmonitor *Window::getWindowMonitor() const {
     return windowMonitor;
+}
+
+GLFWwindow *Window::getGLFWWindow() const {
+    return window;
 }
 
 bool Window::isFullscreen() const {

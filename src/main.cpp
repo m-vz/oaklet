@@ -66,7 +66,7 @@ int main() {
     renderer->init(CONFIG.DEFAULT_WINDOW_WIDTH, CONFIG.DEFAULT_WINDOW_HEIGHT);
     ioControl = new IOControl(renderer->getWindow());
     world = new World;
-    ioControl->camera = renderer->camera;
+    renderer->camera = ioControl->camera;
     ioControl->time = world->time;
 
     ioControl->keyboard->addReleasedCallback(endProgram, GLFW_KEY_ESCAPE);
