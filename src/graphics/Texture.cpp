@@ -7,7 +7,24 @@
 #include "../util/Config.h"
 
 Texture::Texture(const std::string &texturePath, int desiredChannelCount) {
-    FileLoader::loadPNG(texturePath, &textureData, &imageWidth, &imageHeight, &channelCount, desiredChannelCount);
+    FileLoader::loadImage(texturePath, &textureData, &imageWidth, &imageHeight, &channelCount, desiredChannelCount);
+
+    switch(channelCount) {
+        case 1:
+            format = GL_RED;
+            break;
+        case 2:
+            format = GL_RG;
+            break;
+        case 3:
+            format = GL_RGB;
+            break;
+        case 4:
+            format = GL_RGBA;
+            break;
+        default:
+            break;
+    }
 
     glGenTextures(1, &textureID);
 
@@ -33,14 +50,22 @@ Texture::Texture(const std::string &texturePath, int desiredChannelCount) {
 void Texture::bindTexture(GLenum unit) {
     glActiveTexture(unit);
     glBindTexture(GL_TEXTURE_2D, textureID);
+    setFilter();
 }
 
 void Texture::fillTexture() {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, imageWidth, imageHeight, 0, static_cast<GLenum>(format), GL_UNSIGNED_BYTE, textureData);
+}
+
+void Texture::useLinearFiltering(bool filter) {
+    this->filter = filter;
 }
 
 void Texture::setFilter() {
-    if(CONFIG.OPENGL_MIPMAP) {
+    if(!filter) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    } else if(CONFIG.OPENGL_MIPMAP) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -51,5 +76,6 @@ void Texture::setFilter() {
 }
 
 Texture::~Texture() {
+    FileLoader::freeImage(textureData);
     glDeleteTextures(1, &textureID);
 }

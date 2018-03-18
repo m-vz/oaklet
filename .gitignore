@@ -93,4 +93,8 @@ gen
 
 # Mesh files
 !/assets/meshes/**/*.obj
-/assets/meshes/stylized_levi/stylized_levi.blend
+
+# asset working files
+*.blend
+*.psd
+/assets/fonts/bitmap/font_bitmap.gif

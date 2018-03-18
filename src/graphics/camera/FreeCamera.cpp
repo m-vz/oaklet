@@ -15,7 +15,6 @@ FreeCamera::FreeCamera(Window &capturedIn, Mouse &mouse, Keyboard &keyboard) : c
     mouse.addMoveCallback([this](Mouse &mouse) {
         angles.x += glm::radians<float>(static_cast<float>(mouse.position().y) / 6.0f);
         angles.y += glm::radians<float>(static_cast<float>(mouse.position().x) / 6.0f);
-        Log::log << LOG_INFO << angles.x << "," << angles.y;
     });
     keyboard.addPressedCallback([this](Keyboard &keyboard, int key, int scancode, int mods) {
         acceleration.x = speed;
@@ -88,7 +87,6 @@ void FreeCamera::update(long long int time) {
     accelerationTmp = acceleration*seconds;
     velocity += lookingDirection*accelerationTmp.x + rightDirection*accelerationTmp.y + upDirection*accelerationTmp.z - velocity*friction;
     position += velocity*seconds;
-    Log::log << LOG_INFO << position.x << "," << position.y << "," << position.z;
 
     view = glm::lookAt(position, position + lookingDirection, upDirection);
 }

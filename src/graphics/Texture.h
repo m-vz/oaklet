@@ -18,8 +18,14 @@ public:
     explicit Texture(const std::string &texturePath, int desiredChannelCount = 3);
     void bindTexture(GLenum unit = GL_TEXTURE0);
     void fillTexture();
-    void setFilter();
+    void useLinearFiltering(bool filter = true);
     virtual ~Texture();
+
+private:
+    GLint format;
+    bool filter = true;
+
+    void setFilter();
 };
 
 #endif //BESTEST_GAME_TEXTURE_H

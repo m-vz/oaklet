@@ -28,7 +28,7 @@ void Mouse::movedTo(double x, double y) {
 }
 
 void Mouse::scrolled(double xOffset, double yOffset) {
-    Log::log << LogType::LOG_INFO << "Mouse scrolled: (" << xOffset << ", " << yOffset << ")";
+    Log::log << LogType::LOG_DEBUG << "Mouse scrolled: (" << xOffset << ", " << yOffset << ")";
 
     if(!scrollCallbacks.empty())
         for(const auto &callback: scrollCallbacks)

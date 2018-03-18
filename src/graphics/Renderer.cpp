@@ -43,7 +43,7 @@ void Renderer::init(int width, int height) {
         throw Exception("Could not initialize glew."); // NOLINT
 
     // shaders
-    programID = loadShaders("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
+    programID = FileLoader::loadShaders("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
 
     // VAO and vertex buffer
     glGenVertexArrays(1, &vertexArrayID);
@@ -52,26 +52,30 @@ void Renderer::init(int width, int height) {
     medievalHouseDiffuseTexture = new Texture("assets/meshes/medieval_house/textures/medieval_house_diffuse.png");
     medievalHouseDiffuseTexture->bindTexture(GL_TEXTURE0);
     medievalHouseDiffuseTexture->fillTexture();
-    medievalHouseDiffuseTexture->setFilter();
     medievalHouseNormalTexture = new Texture("assets/meshes/medieval_house/textures/medieval_house_normal.png");
     medievalHouseNormalTexture->bindTexture(GL_TEXTURE1);
     medievalHouseNormalTexture->fillTexture();
-    medievalHouseNormalTexture->setFilter();
     medievalHouseSpecularTexture = new Texture("assets/meshes/medieval_house/textures/medieval_house_specular.png");
-    medievalHouseSpecularTexture->bindTexture(GL_TEXTURE1);
+    medievalHouseSpecularTexture->bindTexture(GL_TEXTURE2);
     medievalHouseSpecularTexture->fillTexture();
-    medievalHouseSpecularTexture->setFilter();
     medievalHouse = new Mesh("assets/meshes/medieval_house/medieval_house.obj");
     medievalHouse->bindVertexBuffer();
     medievalHouse->fillVertexBuffer();
     medievalHouse->bindUVBuffer();
     medievalHouse->fillUVBuffer();
 
+    // font
+    font = new BitmapFont("assets/fonts/bitmap/font_bitmap.bmp", glm::vec2(8, 8), glm::vec2(16, 16),
+                          {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+                           'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5',
+                           '6', '7', '8', '9', ':', ';', '#', '%', '+', '-', '/', '\\', '!', '?', '.', ',',
+                           '\'', '*', '(', ')', '[', ']', '{', '}', '<', '>', '"', '=', ' ', '_', '|', '\0'});
+
     // uniforms
     modelID = static_cast<GLuint>(glGetUniformLocation(programID, "model"));
     viewID = static_cast<GLuint>(glGetUniformLocation(programID, "view"));
     projectionID = static_cast<GLuint>(glGetUniformLocation(programID, "projection"));
-    lightDirection = static_cast<GLuint>(glGetUniformLocation(programID, "worldspaceLightDirection"));
+    lightDirectionID = static_cast<GLuint>(glGetUniformLocation(programID, "worldspaceLightDirection"));
     medievalHouseDiffuseTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "medievalHouseDiffuseTextureSampler"));
     medievalHouseNormalTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "medievalHouseNormalTextureSampler"));
     medievalHouseSpecularTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "medievalHouseSpecularTextureSampler"));
@@ -112,7 +116,7 @@ void Renderer::render(long long int lag) {
     glUniformMatrix4fv(modelID, 1, GL_FALSE, &medievalHouse->model[0][0]);
     glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera->getView()[0][0]);
     glUniformMatrix4fv(projectionID, 1, GL_FALSE, &camera->getProjection()[0][0]);
-    glUniform3f(lightDirection, lightDirectionVector.x, lightDirectionVector.y, lightDirectionVector.z);
+    glUniform3f(lightDirectionID, lightDirectionVector.x, lightDirectionVector.y, lightDirectionVector.z);
 
     glDrawElements(
             GL_TRIANGLES, // mode
@@ -124,80 +128,12 @@ void Renderer::render(long long int lag) {
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
 
+    int windowWidth, windowHeight;
+    glfwGetWindowSize(window, &windowWidth, &windowHeight);
+    font->renderTextUppercase("hello world!", glm::vec2(20, windowHeight - 20), glm::vec2(windowWidth, windowHeight), glm::vec3(1, 0, 0.2f), 1.0f);
+    font->renderTextUppercase("hello world2!", glm::vec2(20, 20 + font->getCharacterSize().y), glm::vec2(windowWidth, windowHeight), glm::vec3(1, 0, 0.2f), 1.0f);
+
     glfwSwapBuffers(window);
-}
-
-GLuint Renderer::loadShaders(const char *vertexShaderPath, const char *fragmentShaderPath) {
-    // Create the shaders
-    GLuint vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-    GLuint fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-
-    // READ
-
-    // read the shader codes from file
-    std::string vertexShaderCode = FileLoader::loadFileAsString(vertexShaderPath);
-    std::string fragmentShaderCode = FileLoader::loadFileAsString(fragmentShaderPath);
-
-    GLint result = GL_FALSE;
-    int infoLogLength;
-
-    // COMPILE AND CHECK
-
-    // compile vertex shader
-    Log::log << LOG_INFO << "Compiling shader: " << vertexShaderPath;
-    char const *vertexSourcePointer = vertexShaderCode.c_str();
-    glShaderSource(vertexShaderID, 1, &vertexSourcePointer , nullptr);
-    glCompileShader(vertexShaderID);
-
-    // check vertex shader
-    glGetShaderiv(vertexShaderID, GL_COMPILE_STATUS, &result);
-    glGetShaderiv(vertexShaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
-    if(infoLogLength > 0) {
-        std::vector<char> vertexShaderErrorMessage(static_cast<unsigned long>(infoLogLength + 1));
-        glGetShaderInfoLog(vertexShaderID, infoLogLength, nullptr, &vertexShaderErrorMessage[0]);
-        Log::log << LOG_ERROR << &vertexShaderErrorMessage[0];
-    }
-
-    // compile fragment shader
-    Log::log << LOG_INFO << "Compiling shader: " << fragmentShaderPath;
-    char const * FragmentSourcePointer = fragmentShaderCode.c_str();
-    glShaderSource(fragmentShaderID, 1, &FragmentSourcePointer , nullptr);
-    glCompileShader(fragmentShaderID);
-
-    // check fragment shader
-    glGetShaderiv(fragmentShaderID, GL_COMPILE_STATUS, &result);
-    glGetShaderiv(fragmentShaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
-    if(infoLogLength > 0) {
-        std::vector<char> fragmentShaderErrorMessage(static_cast<unsigned long>(infoLogLength + 1));
-        glGetShaderInfoLog(fragmentShaderID, infoLogLength, nullptr, &fragmentShaderErrorMessage[0]);
-        Log::log << LOG_ERROR << &fragmentShaderErrorMessage[0];
-    }
-
-    // LINK AND CHECK
-
-    // link the program
-    Log::log << LOG_INFO << "Linking shader program.";
-    GLuint programID = glCreateProgram();
-    glAttachShader(programID, vertexShaderID);
-    glAttachShader(programID, fragmentShaderID);
-    glLinkProgram(programID);
-
-    // check the program
-    glGetProgramiv(programID, GL_LINK_STATUS, &result);
-    glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &infoLogLength);
-    if(infoLogLength > 0) {
-        std::vector<char> ProgramErrorMessage(static_cast<unsigned long>(infoLogLength + 1));
-        glGetProgramInfoLog(programID, infoLogLength, nullptr, &ProgramErrorMessage[0]);
-        Log::log << LOG_ERROR << &ProgramErrorMessage[0];
-    }
-
-    glDetachShader(programID, vertexShaderID);
-    glDetachShader(programID, fragmentShaderID);
-
-    glDeleteShader(vertexShaderID);
-    glDeleteShader(fragmentShaderID);
-
-    return programID;
 }
 
 GLFWwindow* Renderer::getWindow() const {

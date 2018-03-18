@@ -37,6 +37,79 @@ std::string FileLoader::loadFileAsString(const std::string path, size_t *size) {
     return std::string(data.begin(), data.end());
 }
 
+GLuint FileLoader::loadShaders(const char *vertexShaderPath, const char *fragmentShaderPath) {
+    // Create the shaders
+    GLuint vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+    GLuint fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+
+    // READ
+
+    // read the shader codes from file
+    std::string vertexShaderCode = loadFileAsString(vertexShaderPath);
+    std::string fragmentShaderCode = loadFileAsString(fragmentShaderPath);
+
+    GLint result = GL_FALSE;
+    int infoLogLength;
+
+    // COMPILE AND CHECK
+
+    // compile vertex shader
+    Log::log << LOG_INFO << "Compiling shader: " << vertexShaderPath;
+    char const *vertexSourcePointer = vertexShaderCode.c_str();
+    glShaderSource(vertexShaderID, 1, &vertexSourcePointer , nullptr);
+    glCompileShader(vertexShaderID);
+
+    // check vertex shader
+    glGetShaderiv(vertexShaderID, GL_COMPILE_STATUS, &result);
+    glGetShaderiv(vertexShaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
+    if(infoLogLength > 0) {
+        std::vector<char> vertexShaderErrorMessage(static_cast<unsigned long>(infoLogLength + 1));
+        glGetShaderInfoLog(vertexShaderID, infoLogLength, nullptr, &vertexShaderErrorMessage[0]);
+        Log::log << LOG_ERROR << &vertexShaderErrorMessage[0];
+    }
+
+    // compile fragment shader
+    Log::log << LOG_INFO << "Compiling shader: " << fragmentShaderPath;
+    char const * FragmentSourcePointer = fragmentShaderCode.c_str();
+    glShaderSource(fragmentShaderID, 1, &FragmentSourcePointer , nullptr);
+    glCompileShader(fragmentShaderID);
+
+    // check fragment shader
+    glGetShaderiv(fragmentShaderID, GL_COMPILE_STATUS, &result);
+    glGetShaderiv(fragmentShaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
+    if(infoLogLength > 0) {
+        std::vector<char> fragmentShaderErrorMessage(static_cast<unsigned long>(infoLogLength + 1));
+        glGetShaderInfoLog(fragmentShaderID, infoLogLength, nullptr, &fragmentShaderErrorMessage[0]);
+        Log::log << LOG_ERROR << &fragmentShaderErrorMessage[0];
+    }
+
+    // LINK AND CHECK
+
+    // link the program
+    Log::log << LOG_INFO << "Linking shader program.";
+    GLuint programID = glCreateProgram();
+    glAttachShader(programID, vertexShaderID);
+    glAttachShader(programID, fragmentShaderID);
+    glLinkProgram(programID);
+
+    // check the program
+    glGetProgramiv(programID, GL_LINK_STATUS, &result);
+    glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &infoLogLength);
+    if(infoLogLength > 0) {
+        std::vector<char> ProgramErrorMessage(static_cast<unsigned long>(infoLogLength + 1));
+        glGetProgramInfoLog(programID, infoLogLength, nullptr, &ProgramErrorMessage[0]);
+        Log::log << LOG_ERROR << &ProgramErrorMessage[0];
+    }
+
+    glDetachShader(programID, vertexShaderID);
+    glDetachShader(programID, fragmentShaderID);
+
+    glDeleteShader(vertexShaderID);
+    glDeleteShader(fragmentShaderID);
+
+    return programID;
+}
+
 void FileLoader::loadOBJ(const std::string &path,
                          std::vector<float> &vertexData,
                          std::vector<float> &normalData,
@@ -94,10 +167,10 @@ void FileLoader::loadOBJ(const std::string &path,
     }
 }
 
-void FileLoader::loadPNG(const std::string &path,
-                         unsigned char **imageData,
-                         int *imageWidth, int *imageHeight,
-                         int *numberOfChannels, int desiredNumberOfChannels) {
+void FileLoader::loadImage(const std::string &path,
+                           unsigned char **imageData,
+                           int *imageWidth, int *imageHeight,
+                           int *numberOfChannels, int desiredNumberOfChannels) {
     int foo; // used to store the unused information somewhere.
     if(imageWidth == nullptr)
         imageWidth = &foo;
@@ -107,12 +180,13 @@ void FileLoader::loadPNG(const std::string &path,
         numberOfChannels = &foo;
 
     stbi_set_flip_vertically_on_load(true);
+
     *imageData = stbi_load(path.c_str(), imageWidth, imageHeight, numberOfChannels, desiredNumberOfChannels);
     if(*imageData == nullptr)
         throw IOException(stbi_failure_reason());
 }
 
-void FileLoader::freePNG(unsigned char *imageData) {
+void FileLoader::freeImage(unsigned char *imageData) {
     stbi_image_free(imageData);
 }
 

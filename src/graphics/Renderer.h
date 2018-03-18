@@ -12,6 +12,7 @@
 #include "Texture.h"
 #include "../io/Mouse.h"
 #include "camera/FreeCamera.h"
+#include "BitmapFont.h"
 
 class Renderer {
 public:
@@ -21,6 +22,8 @@ public:
     Mesh *medievalHouse;
     GLuint medievalHouseDiffuseTextureSampler, medievalHouseNormalTextureSampler, medievalHouseSpecularTextureSampler;
     Texture *medievalHouseDiffuseTexture, *medievalHouseNormalTexture, *medievalHouseSpecularTexture;
+
+    BitmapFont *font;
 
     Renderer();
     void init(int width, int height);
@@ -34,10 +37,8 @@ private:
     GLuint programID;
     GLuint vertexArrayID;
     GLuint modelID, viewID, projectionID;
-    GLuint lightDirection;
+    GLuint lightDirectionID;
     GLFWwindow *window;
-
-    GLuint loadShaders(const char *vertexShaderPath, const char *fragmentShaderPath);
 };
 
 #endif //BESTEST_GAME_RENDERER_H

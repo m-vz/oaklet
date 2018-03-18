@@ -56,6 +56,8 @@ public:
     friend Log& operator<<(Log &log, LogType type);
     friend Log& operator<<(Log &log, const char *message);
     friend Log& operator<<(Log &log, std::string message);
+    friend Log& operator<<(Log &log, char message);
+    friend Log& operator<<(Log &log, unsigned char message);
     friend Log& operator<<(Log &log, int message);
     friend Log& operator<<(Log &log, unsigned int message);
     friend Log& operator<<(Log &log, long int message);
