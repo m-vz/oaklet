@@ -5,14 +5,14 @@
 #ifndef BESTEST_GAME_CONFIG_H
 #define BESTEST_GAME_CONFIG_H
 
-#define BEST_GAME_DEBUG // comment to not use
+#define BESTEST_GAME_DEBUG // comment to not use
 
 #include <string>
 
 static struct {
     // logging
     const std::string DEFAULT_LOG_FILE_PATH = "log.txt"; // If this is more than just a filename, make sure, the directory exists.
-#ifdef BEST_GAME_DEBUG
+#ifdef BESTEST_GAME_DEBUG
     const int DEFAULT_LOG_LEVEL = 2; // LOG_INFO
     const int DEFAULT_FILE_LOG_LEVEL = 4; // LOG_DEBUG
 #else

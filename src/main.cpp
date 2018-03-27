@@ -39,25 +39,10 @@ void resize(Window &window, int width, int height) {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
-void changeSpeed(Keyboard &keyboard, int key, int scancode, int mods) {
-    if(key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
-        float speed = key - 48;
-        ioControl->camera->speed = speed;
-    }
-}
-#pragma clang diagnostic pop
-
-//void scrollCamera(Mouse &mouse, double xOffset, double yOffset) {
-//    ioControl->camera->rotation += xOffset/10.0f;
-//    ioControl->camera->angle += glm::radians(yOffset*10.0f);
-//}
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void scrollMesh(Mouse &mouse, double xOffset, double yOffset) {
-//    renderer->medievalHouse->rotate(static_cast<float>(xOffset/10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-//    renderer->medievalHouse->scale(static_cast<float>(1.0f + yOffset/100.0f));
-    renderer->lightDirectionVector.x += xOffset*10.0f;
-    renderer->lightDirectionVector.z += yOffset*10.0f;
+    renderer->lightPositionVector.x += xOffset/5.0f;
+    renderer->lightPositionVector.z += yOffset/5.0f;
+    Log::log << LOG_INFO << renderer->lightPositionVector;
 }
 #pragma clang diagnostic pop
 
@@ -71,7 +56,6 @@ int main() {
 
     ioControl->keyboard->addReleasedCallback(endProgram, GLFW_KEY_ESCAPE);
     ioControl->keyboard->addReleasedCallback(toggleFullscreen, GLFW_KEY_F);
-    ioControl->keyboard->addReleasedCallback(changeSpeed);
     ioControl->mouse->addScrollCallback(scrollMesh);
     ioControl->window->setWindowSizeLimits(640, 420, GLFW_DONT_CARE, GLFW_DONT_CARE);
     ioControl->window->addFramebufferSizeCallback(resize);
@@ -79,7 +63,7 @@ int main() {
     long long int timeLag = 0;
     std::chrono::time_point<std::chrono::steady_clock> thisTick = chrono::steady_clock::now(), lastTick = thisTick;
 
-    while(true) {
+    while(!glfwWindowShouldClose(renderer->getWindow())) {
         thisTick = chrono::steady_clock::now();
         world->time->tick(std::chrono::duration_cast<std::chrono::nanoseconds>(thisTick - lastTick).count());
         timeLag += world->time->deltaTime();

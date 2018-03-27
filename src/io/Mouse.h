@@ -85,6 +85,7 @@ public:
     /// \param button The button whose state is asked.
     /// \return Whether the specified mouse button code (GLFW_MOUSE_BUTTON_xxx) is currently up.
     bool isUp(int button);
+    bool isCaptured();
     /// Add a callback that is triggered whenever the mouse is moved.
     /// \param callback The callback to call whenever the mouse is moved.
     void addMoveCallback(std::function<void(Mouse&)> callback);

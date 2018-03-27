@@ -36,7 +36,7 @@ void Mouse::scrolled(double xOffset, double yOffset) {
 }
 
 void Mouse::down(int button) {
-    Log::log << LogType::LOG_INFO << "Mouse button down: " << button;
+    Log::log << LogType::LOG_DEBUG << "Mouse button down: " << button;
 
     mouseDown[button] = true;
 
@@ -46,7 +46,7 @@ void Mouse::down(int button) {
 }
 
 void Mouse::up(int button) {
-    Log::log << LogType::LOG_INFO << "Mouse button up: " << button;
+    Log::log << LogType::LOG_DEBUG << "Mouse button up: " << button;
 
     mouseDown[button] = false;
 
@@ -62,6 +62,7 @@ void Mouse::capture(Window &window) {
     glfwSetInputMode(window.getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     capturedIn = &window;
     captured = true;
+    firstMovement = true;
 }
 
 void Mouse::free() {
@@ -83,6 +84,10 @@ bool Mouse::isDown(int button) {
 
 bool Mouse::isUp(int button) {
     return !mouseDown[button];
+}
+
+bool Mouse::isCaptured() {
+    return captured;
 }
 
 void Mouse::addMoveCallback(std::function<void(Mouse&)> callback) {

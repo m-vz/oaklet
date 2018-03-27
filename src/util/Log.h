@@ -7,6 +7,7 @@
 
 #include <string>
 #include <fstream>
+#include <glm/glm.hpp>
 #include "Config.h"
 
 enum LogType {
@@ -66,6 +67,7 @@ public:
     friend Log& operator<<(Log &log, unsigned long long int message);
     friend Log& operator<<(Log &log, float message);
     friend Log& operator<<(Log &log, double message);
+    friend Log& operator<<(Log &log, glm::vec3 message);
     virtual ~Log();
     void setLogLevel(LogType logLevel, bool setForFileLog = true);
 

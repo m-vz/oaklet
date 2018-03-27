@@ -6,7 +6,7 @@
 #include "../util/Log.h"
 
 void Keyboard::pressKey(int key, int scancode, int mods) {
-    Log::log << LogType::LOG_INFO << "Key " << key << " pressed (scancode " << scancode << ", mods " << mods << ")";
+    Log::log << LogType::LOG_DEBUG << "Key " << key << " pressed (scancode " << scancode << ", mods " << mods << ")";
 
     if(keyPressedCallbacks.count(key) != 0)
         if(!keyPressedCallbacks[key].empty())
@@ -21,7 +21,7 @@ void Keyboard::pressKey(int key, int scancode, int mods) {
 }
 
 void Keyboard::repeatKey(int key, int scancode, int mods) {
-    Log::log << LogType::LOG_INFO << "Key " << key << " repeated (scancode " << scancode << ", mods " << mods << ")";
+    Log::log << LogType::LOG_DEBUG << "Key " << key << " repeated (scancode " << scancode << ", mods " << mods << ")";
 
     if(keyRepeatedCallbacks.count(key) != 0)
         if(!keyRepeatedCallbacks[key].empty())
@@ -36,7 +36,7 @@ void Keyboard::repeatKey(int key, int scancode, int mods) {
 }
 
 void Keyboard::releaseKey(int key, int scancode, int mods) {
-    Log::log << LogType::LOG_INFO << "Key " << key << " released (scancode " << scancode << ", mods " << mods << ")";
+    Log::log << LogType::LOG_DEBUG << "Key " << key << " released (scancode " << scancode << ", mods " << mods << ")";
 
     if(keyReleasedCallbacks.count(key) != 0)
         if(!keyReleasedCallbacks[key].empty())

@@ -9,6 +9,7 @@
 #include <string>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <assimp/Importer.hpp>
 
 class FileLoader {
 public:
@@ -27,6 +28,7 @@ public:
     /// \param fragmentShaderPath The path of the fragment shader file.
     /// \return The id of the created program.
     static GLuint loadShaders(const char *vertexShaderPath, const char *fragmentShaderPath);
+    static const aiScene *loadModel(Assimp::Importer &importer, const std::string &path);
     /// Load vertex, uv and normal data from an .obj file.
     /// \param path The path to the .obj file to load.
     /// \param vertexData A reference to the vertex data vector to fill.

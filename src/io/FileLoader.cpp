@@ -1,7 +1,5 @@
 //
 // Created by Milan van Zanten on 09.02.18.
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedMacroInspection"
 //
 
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -12,6 +10,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG
 #include <stb_image.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 std::vector<char> FileLoader::loadFile(const std::string path, size_t *size) {
     std::ifstream file(path, std::ios::ate | std::ios::binary);
@@ -110,6 +110,27 @@ GLuint FileLoader::loadShaders(const char *vertexShaderPath, const char *fragmen
     return programID;
 }
 
+const aiScene *FileLoader::loadModel(Assimp::Importer &importer, const std::string &path) {
+    const aiScene* aiScene = importer.ReadFile(path.c_str(),
+                                               aiProcess_CalcTangentSpace | // NOLINT
+                                               aiProcess_FindInvalidData |
+                                               /*aiProcess_FlipUVs |*/ // textures are being flipped in the stb image loader
+                                               aiProcess_GenSmoothNormals |
+                                               aiProcess_GenUVCoords |
+                                               aiProcess_ImproveCacheLocality |
+                                               aiProcess_JoinIdenticalVertices |
+                                               aiProcess_OptimizeGraph |
+                                               aiProcess_OptimizeMeshes |
+                                               aiProcess_SortByPType |
+                                               aiProcess_TransformUVCoords |
+                                               aiProcess_Triangulate);
+
+    if(!aiScene || aiScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !aiScene->mRootNode) // NOLINT
+        throw IOException(importer.GetErrorString());
+    else
+        return aiScene;
+}
+
 void FileLoader::loadOBJ(const std::string &path,
                          std::vector<float> &vertexData,
                          std::vector<float> &normalData,
@@ -189,5 +210,3 @@ void FileLoader::loadImage(const std::string &path,
 void FileLoader::freeImage(unsigned char *imageData) {
     stbi_image_free(imageData);
 }
-
-#pragma clang diagnostic pop

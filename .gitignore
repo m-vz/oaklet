@@ -96,5 +96,7 @@ gen
 
 # asset working files
 *.blend
+*.blend1
 *.psd
 /assets/fonts/bitmap/font_bitmap.gif
+/assets/meshes/assimp_test/

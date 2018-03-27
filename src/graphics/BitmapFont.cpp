@@ -8,8 +8,7 @@
 #include "../util/Log.h"
 
 const char *BitmapFont::VERTEX_SHADER_PATH = "assets/shaders/bitmap_vertex.glsl",
-        *BitmapFont::FRAGMENT_SHADER_PATH = "assets/shaders/bitmap_fragment.glsl",
-        BitmapFont::NULL_CHARACTER = '\0';
+        *BitmapFont::FRAGMENT_SHADER_PATH = "assets/shaders/bitmap_fragment.glsl";
 bool BitmapFont::shadersLoaded = false;
 GLuint BitmapFont::bitmapProgramID = 0;
 
@@ -23,13 +22,13 @@ BitmapFont::BitmapFont(const std::string &bitmapPath, glm::vec2 bitmapArrayDimen
     if(bitmapTexture->imageHeight != bitmapArrayDimensions.y*bitmapCharacterSize.y)
         throw IOException("Bitmap texture height " + std::to_string(bitmapTexture->imageHeight) + " does not match required height " + std::to_string(bitmapArrayDimensions.y*bitmapCharacterSize.y));
 
-    bitmapTexture->bindTexture(GL_TEXTURE0);
+    bitmapTexture->bindTexture(0);
     bitmapTexture->fillTexture();
 
     if(!shadersLoaded)
         loadShaders();
 
-    textureSamplerID = static_cast<GLuint>(glGetUniformLocation(bitmapProgramID, "textureSampler"));
+    textureSamplerID = static_cast<GLuint>(glGetUniformLocation(bitmapProgramID, "bitmapTextureSampler"));
     colorID = static_cast<GLuint>(glGetUniformLocation(bitmapProgramID, "textColor"));
     windowSizeID = static_cast<GLuint>(glGetUniformLocation(bitmapProgramID, "windowSize"));
 
@@ -80,7 +79,7 @@ void BitmapFont::renderText(std::string text, glm::vec2 position, glm::vec2 wind
 
         character = text[i];
         if(characters.find(character) == characters.end()) // font does not contain this character
-            character = NULL_CHARACTER;
+            character = '\0';
 
         bitmapPosition = characterMap[character];
 
@@ -115,7 +114,7 @@ void BitmapFont::renderText(std::string text, glm::vec2 position, glm::vec2 wind
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0); // NOLINT
 
-    bitmapTexture->bindTexture(GL_TEXTURE0);
+    bitmapTexture->bindTexture(0);
     glUniform1i(textureSamplerID, 0);
 
     glUniform3f(colorID, color.r, color.g, color.b);

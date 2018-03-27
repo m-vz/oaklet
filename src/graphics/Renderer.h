@@ -8,20 +8,19 @@
 #include <GL/glew.h>
 #include <glm/ext.hpp>
 #include <GLFW/glfw3.h>
-#include "Mesh.h"
-#include "Texture.h"
+#include "model/Texture.h"
 #include "../io/Mouse.h"
 #include "camera/FreeCamera.h"
 #include "BitmapFont.h"
+#include "model/Model.h"
 
 class Renderer {
 public:
     FreeCamera *camera;
 
-    glm::vec3 lightDirectionVector = glm::vec3(-10.0f, 500.0f, 0.0f);
-    Mesh *medievalHouse;
-    GLuint medievalHouseDiffuseTextureSampler, medievalHouseNormalTextureSampler, medievalHouseSpecularTextureSampler;
-    Texture *medievalHouseDiffuseTexture, *medievalHouseNormalTexture, *medievalHouseSpecularTexture;
+    glm::vec3 lightPositionVector = glm::vec3(0.0f, 0.0f, 1.2f);
+    Model *testModel;
+    GLuint diffuseTextureSampler, normalTextureSampler, specularTextureSampler;
 
     BitmapFont *font;
 
@@ -36,8 +35,8 @@ private:
     bool initialized = false;
     GLuint programID;
     GLuint vertexArrayID;
-    GLuint modelID, viewID, projectionID;
-    GLuint lightDirectionID;
+    GLuint modelMatrixID, viewID, projectionID;
+    GLuint lightPositionID;
     GLFWwindow *window;
 };
 

@@ -14,8 +14,8 @@ CirclingCamera::CirclingCamera(int width, int height,
 }
 
 void CirclingCamera::changeAspect(int width, int height) {
-    // projection matrix: 45° Field of View, display range : 0.1 unit <-> 1000 units
-    projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 1000.0f);
+    // projection matrix: 45° field of view, display range : 0.1 unit <-> 100 units
+    projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 100.0f);
 }
 
 void CirclingCamera::update(long long int time) {

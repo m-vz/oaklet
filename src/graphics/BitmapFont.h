@@ -10,11 +10,11 @@
 #include <unordered_map>
 #include <set>
 #include <glm/glm.hpp>
-#include "Texture.h"
+#include "model/Texture.h"
 
 class BitmapFont {
 public:
-    static const char *VERTEX_SHADER_PATH, *FRAGMENT_SHADER_PATH, NULL_CHARACTER;
+    static const char *VERTEX_SHADER_PATH, *FRAGMENT_SHADER_PATH;
     static GLuint bitmapProgramID;
     GLuint textureSamplerID, colorID, windowSizeID;
     GLuint vertexBuffer, uvBuffer;

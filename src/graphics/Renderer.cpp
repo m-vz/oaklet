@@ -25,8 +25,11 @@ void Renderer::init(int width, int height) {
 #ifdef __APPLE__ // MacOS requires at least OpenGL version 3.2 core profile with forward compatibility
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // OpenGL 3.3
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
+#ifdef BESTEST_GAME_DEBUG
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
 
     // open a window and create its OpenGL context
@@ -49,20 +52,8 @@ void Renderer::init(int width, int height) {
     glGenVertexArrays(1, &vertexArrayID);
     glBindVertexArray(vertexArrayID);
 
-    medievalHouseDiffuseTexture = new Texture("assets/meshes/medieval_house/textures/medieval_house_diffuse.png");
-    medievalHouseDiffuseTexture->bindTexture(GL_TEXTURE0);
-    medievalHouseDiffuseTexture->fillTexture();
-    medievalHouseNormalTexture = new Texture("assets/meshes/medieval_house/textures/medieval_house_normal.png");
-    medievalHouseNormalTexture->bindTexture(GL_TEXTURE1);
-    medievalHouseNormalTexture->fillTexture();
-    medievalHouseSpecularTexture = new Texture("assets/meshes/medieval_house/textures/medieval_house_specular.png");
-    medievalHouseSpecularTexture->bindTexture(GL_TEXTURE2);
-    medievalHouseSpecularTexture->fillTexture();
-    medievalHouse = new Mesh("assets/meshes/medieval_house/medieval_house.obj");
-    medievalHouse->bindVertexBuffer();
-    medievalHouse->fillVertexBuffer();
-    medievalHouse->bindUVBuffer();
-    medievalHouse->fillUVBuffer();
+    testModel = new Model();
+    testModel->loadModel("assets/meshes/test_cube/test_cube.obj");
 
     // font
     font = new BitmapFont("assets/fonts/bitmap/font_bitmap.bmp", glm::vec2(8, 8), glm::vec2(16, 16),
@@ -72,13 +63,13 @@ void Renderer::init(int width, int height) {
                            '\'', '*', '(', ')', '[', ']', '{', '}', '<', '>', '"', '=', ' ', '_', '|', '\0'});
 
     // uniforms
-    modelID = static_cast<GLuint>(glGetUniformLocation(programID, "model"));
+    modelMatrixID = static_cast<GLuint>(glGetUniformLocation(programID, "model"));
     viewID = static_cast<GLuint>(glGetUniformLocation(programID, "view"));
     projectionID = static_cast<GLuint>(glGetUniformLocation(programID, "projection"));
-    lightDirectionID = static_cast<GLuint>(glGetUniformLocation(programID, "worldspaceLightDirection"));
-    medievalHouseDiffuseTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "medievalHouseDiffuseTextureSampler"));
-    medievalHouseNormalTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "medievalHouseNormalTextureSampler"));
-    medievalHouseSpecularTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "medievalHouseSpecularTextureSampler"));
+    lightPositionID = static_cast<GLuint>(glGetUniformLocation(programID, "worldspaceLightPosition"));
+    diffuseTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "diffuseTextureSampler"));
+    normalTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "normalTextureSampler"));
+    specularTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "specularTextureSampler"));
 
     // options
     glClearColor(0, 0, 0, 1);
@@ -92,46 +83,19 @@ void Renderer::render(long long int lag) {
     if(!initialized)
         throw NotInitialisedException("Renderer");
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // NOLINT
 
     glUseProgram(programID);
 
-    medievalHouse->bindVertexBuffer();
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0); // NOLINT
-
-    medievalHouse->bindUVBuffer();
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0); // NOLINT
-
-    medievalHouseDiffuseTexture->bindTexture(GL_TEXTURE0);
-    glUniform1i(medievalHouseDiffuseTextureSampler, 0);
-
-    medievalHouseNormalTexture->bindTexture(GL_TEXTURE1);
-    glUniform1i(medievalHouseNormalTextureSampler, 1);
-
-    medievalHouseSpecularTexture->bindTexture(GL_TEXTURE2);
-    glUniform1i(medievalHouseSpecularTextureSampler, 2);
-
-    glUniformMatrix4fv(modelID, 1, GL_FALSE, &medievalHouse->model[0][0]);
     glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera->getView()[0][0]);
     glUniformMatrix4fv(projectionID, 1, GL_FALSE, &camera->getProjection()[0][0]);
-    glUniform3f(lightDirectionID, lightDirectionVector.x, lightDirectionVector.y, lightDirectionVector.z);
+    glUniform3f(lightPositionID, lightPositionVector.x, lightPositionVector.y, lightPositionVector.z);
 
-    glDrawElements(
-            GL_TRIANGLES, // mode
-            static_cast<GLsizei>(medievalHouse->indices.size()), // count
-            GL_UNSIGNED_INT, // type
-            (void*) 0 // element array buffer offset // NOLINT
-    );
-
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
+    testModel->render(modelMatrixID, diffuseTextureSampler, normalTextureSampler, specularTextureSampler);
 
     int windowWidth, windowHeight;
     glfwGetWindowSize(window, &windowWidth, &windowHeight);
     font->renderTextUppercase("hello world!", glm::vec2(20, windowHeight - 20), glm::vec2(windowWidth, windowHeight), glm::vec3(1, 0, 0.2f), 1.0f);
-    font->renderTextUppercase("hello world2!", glm::vec2(20, 20 + font->getCharacterSize().y), glm::vec2(windowWidth, windowHeight), glm::vec3(1, 0, 0.2f), 1.0f);
 
     glfwSwapBuffers(window);
 }
@@ -141,8 +105,7 @@ GLFWwindow* Renderer::getWindow() const {
 }
 
 Renderer::~Renderer() {
-    delete medievalHouse;
-    delete medievalHouseDiffuseTexture;
+    delete testModel;
 
     glDeleteProgram(programID);
     glDeleteVertexArrays(1, &vertexArrayID);
