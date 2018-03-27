@@ -66,6 +66,7 @@ void Model::render(GLuint modelMatrixID, GLuint diffuseTextureSamplerID, GLuint 
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     glEnableVertexAttribArray(3);
+    glEnableVertexAttribArray(4);
 
     for(auto mesh: meshes) {
         std::unordered_map<TextureType, Texture*, std::hash<int>> &material = materials[mesh->materialIndex];
@@ -78,6 +79,8 @@ void Model::render(GLuint modelMatrixID, GLuint diffuseTextureSamplerID, GLuint 
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
         mesh->bindBuffer(mesh->tangentBuffer);
         glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+        mesh->bindBuffer(mesh->colorBuffer);
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
 
         mesh->bindBuffer(mesh->indexBuffer, GL_ELEMENT_ARRAY_BUFFER);
 
@@ -102,6 +105,7 @@ void Model::render(GLuint modelMatrixID, GLuint diffuseTextureSamplerID, GLuint 
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
     glDisableVertexAttribArray(3);
+    glDisableVertexAttribArray(4);
 }
 
 void Model::setTranslation(glm::vec3 translation) {

@@ -44,7 +44,7 @@ void Mesh::initMesh(const aiMesh *aiMesh) {
 
         // TODO: Make multiple vertex color sets possible?
         if(aiMesh->HasVertexColors(0)) {
-            c = aiMesh->mColors[i];
+            c = &aiMesh->mColors[0][i];
             colorData.push_back(c->r);
             colorData.push_back(c->g);
             colorData.push_back(c->b);
