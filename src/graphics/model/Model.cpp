@@ -15,24 +15,30 @@ Model::Model() {
     calculateRotationMatrix();
     calculateScaleMatrix();
     calculateModelMatrix();
+
+    blackTexture = new Texture("assets/images/pixel_black.png");
+    whiteTexture = new Texture("assets/images/pixel_white.png");
 }
 
 void Model::loadModel(const std::string &path) {
+    unsigned long oldSize;
     Assimp::Importer importer;
     const aiScene *aiScene = FileLoader::loadModel(importer, path);
 
     // fetch and create meshes from the scene
-    meshes.resize(aiScene->mNumMeshes);
-    for(int i = 0; i < aiScene->mNumMeshes; i++) {
+    oldSize = meshes.size();
+    meshes.resize(oldSize + aiScene->mNumMeshes);
+    for(unsigned long i = oldSize; i < meshes.size(); i++) {
         auto *mesh = new Mesh();
-        mesh->initMesh(aiScene->mMeshes[i]);
+        mesh->initMesh(aiScene->mMeshes[i - oldSize]);
         meshes[i] = mesh;
     }
 
     // fetch materials from the scene
-    materials.resize(aiScene->mNumMaterials);
-    for(int i = 0; i < aiScene->mNumMaterials; ++i) {
-        const aiMaterial *aiMaterial = aiScene->mMaterials[i];
+    oldSize = materials.size();
+    materials.resize(oldSize +aiScene->mNumMaterials);
+    for(unsigned long i = oldSize; i < materials.size(); ++i) {
+        const aiMaterial *aiMaterial = aiScene->mMaterials[i - oldSize];
 
         // search textures for all supported texture types
         for(int j = 0; j < TEXTURE_MAX; ++j) {
@@ -69,31 +75,46 @@ void Model::render(GLuint modelMatrixID, GLuint diffuseTextureSamplerID, GLuint 
     glEnableVertexAttribArray(4);
 
     for(auto mesh: meshes) {
-        std::unordered_map<TextureType, Texture*, std::hash<int>> &material = materials[mesh->materialIndex];
-
         mesh->bindBuffer(mesh->vertexBuffer);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
         mesh->bindBuffer(mesh->uvBuffer);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-        mesh->bindBuffer(mesh->normalBuffer);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-        mesh->bindBuffer(mesh->tangentBuffer);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-        mesh->bindBuffer(mesh->colorBuffer);
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+        if(mesh->hasNormalData) {
+            mesh->bindBuffer(mesh->normalBuffer);
+            glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+        }
+        if(mesh->hasTangentData) {
+            mesh->bindBuffer(mesh->tangentBuffer);
+            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+        }
+        if(mesh->hasColorData) {
+            mesh->bindBuffer(mesh->colorBuffer);
+            glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+        }
 
         mesh->bindBuffer(mesh->indexBuffer, GL_ELEMENT_ARRAY_BUFFER);
 
-        if(material.find(TEXTURE_DIFFUSE) != material.end()) {
-            material[TEXTURE_DIFFUSE]->bindTexture(TEXTURE_DIFFUSE);
+        if(mesh->materialIndex >= 0) {
+            std::unordered_map<TextureType, Texture*, std::hash<int>> &material = materials[mesh->materialIndex];
+
+            if(material.find(TEXTURE_DIFFUSE) != material.end()) {
+                material[TEXTURE_DIFFUSE]->bindTexture(TEXTURE_DIFFUSE);
+                glUniform1i(diffuseTextureSamplerID, TEXTURE_DIFFUSE);
+            }
+            if(material.find(TEXTURE_NORMAL) != material.end()) {
+                material[TEXTURE_NORMAL]->bindTexture(TEXTURE_NORMAL);
+                glUniform1i(normalTextureSamplerID, TEXTURE_NORMAL);
+            }
+            if(material.find(TEXTURE_SPECULAR) != material.end()) {
+                material[TEXTURE_SPECULAR]->bindTexture(TEXTURE_SPECULAR);
+                glUniform1i(specularTextureSamplerID, TEXTURE_SPECULAR);
+            }
+        } else {
+            blackTexture->bindTexture(TEXTURE_DIFFUSE);
             glUniform1i(diffuseTextureSamplerID, TEXTURE_DIFFUSE);
-        }
-        if(material.find(TEXTURE_NORMAL) != material.end()) {
-            material[TEXTURE_NORMAL]->bindTexture(TEXTURE_NORMAL);
+            whiteTexture->bindTexture(TEXTURE_NORMAL);
             glUniform1i(normalTextureSamplerID, TEXTURE_NORMAL);
-        }
-        if(material.find(TEXTURE_SPECULAR) != material.end()) {
-            material[TEXTURE_SPECULAR]->bindTexture(TEXTURE_SPECULAR);
+            whiteTexture->bindTexture(TEXTURE_SPECULAR);
             glUniform1i(specularTextureSamplerID, TEXTURE_SPECULAR);
         }
         glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, &modelMatrix[0][0]);
@@ -116,7 +137,7 @@ void Model::setTranslation(glm::vec3 translation) {
 }
 
 void Model::translate(glm::vec3 translation) {
-    translation += translation;
+    this->translation += translation;
 
     calculateTranslationMatrix();
     calculateModelMatrix();
@@ -167,6 +188,8 @@ void Model::scale(float scale) {
 }
 
 Model::~Model() {
+    delete blackTexture;
+    delete whiteTexture;
     for(auto mesh: meshes)
         delete mesh;
     for(auto material: materials)

@@ -6,6 +6,7 @@
 #include "../io/FileLoader.h"
 #include "../exception/Exception.h"
 #include "../util/Log.h"
+#include "model/MeshFactory.h"
 
 Renderer::Renderer() {
     if(!glfwInit())
@@ -46,7 +47,8 @@ void Renderer::init(int width, int height) {
         throw Exception("Could not initialize glew."); // NOLINT
 
     // shaders
-    programID = FileLoader::loadShaders("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
+    shader = FileLoader::loadShaders("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
+    flatShader = FileLoader::loadShaders("assets/shaders/flat_vertex.glsl", "assets/shaders/flat_fragment.glsl");
 
     // VAO and vertex buffer
     glGenVertexArrays(1, &vertexArrayID);
@@ -54,6 +56,10 @@ void Renderer::init(int width, int height) {
 
     testModel = new Model();
     testModel->loadModel("assets/meshes/test_cube/test_cube.obj");
+    testModel->translate(glm::vec3(0, 1, 0));
+
+    floor = new Model();
+    MeshFactory::addPlane(floor, glm::vec3(0.0f), 10000, 10000, glm::vec3(0, 1, 0), glm::vec3(0, 0, -1), glm::vec4(0.6f, 0.5f, 0.4f, 1));
 
     // font
     font = new BitmapFont("assets/fonts/bitmap/font_bitmap.bmp", glm::vec2(8, 8), glm::vec2(16, 16),
@@ -63,16 +69,21 @@ void Renderer::init(int width, int height) {
                            '\'', '*', '(', ')', '[', ']', '{', '}', '<', '>', '"', '=', ' ', '_', '|', '\0'});
 
     // uniforms
-    modelMatrixID = static_cast<GLuint>(glGetUniformLocation(programID, "model"));
-    viewID = static_cast<GLuint>(glGetUniformLocation(programID, "view"));
-    projectionID = static_cast<GLuint>(glGetUniformLocation(programID, "projection"));
-    lightPositionID = static_cast<GLuint>(glGetUniformLocation(programID, "worldspaceLightPosition"));
-    diffuseTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "diffuseTextureSampler"));
-    normalTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "normalTextureSampler"));
-    specularTextureSampler = static_cast<GLuint>(glGetUniformLocation(programID, "specularTextureSampler"));
+    modelMatrixID = static_cast<GLuint>(glGetUniformLocation(shader, "model"));
+    viewID = static_cast<GLuint>(glGetUniformLocation(shader, "view"));
+    projectionID = static_cast<GLuint>(glGetUniformLocation(shader, "projection"));
+    lightPositionID = static_cast<GLuint>(glGetUniformLocation(shader, "worldspaceLightPosition"));
+    diffuseTextureSampler = static_cast<GLuint>(glGetUniformLocation(shader, "diffuseTextureSampler"));
+    normalTextureSampler = static_cast<GLuint>(glGetUniformLocation(shader, "normalTextureSampler"));
+    specularTextureSampler = static_cast<GLuint>(glGetUniformLocation(shader, "specularTextureSampler"));
+
+    flatModelMatrixID = static_cast<GLuint>(glGetUniformLocation(flatShader, "model"));
+    flatViewID = static_cast<GLuint>(glGetUniformLocation(flatShader, "view"));
+    flatProjectionID = static_cast<GLuint>(glGetUniformLocation(flatShader, "projection"));
+    flatLightPositionID = static_cast<GLuint>(glGetUniformLocation(flatShader, "worldspaceLightPosition"));
 
     // options
-    glClearColor(0, 0, 0, 1);
+    glClearColor(1, 1, 1, 1);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
@@ -85,13 +96,17 @@ void Renderer::render(long long int lag) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // NOLINT
 
-    glUseProgram(programID);
-
+    glUseProgram(shader);
     glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera->getView()[0][0]);
     glUniformMatrix4fv(projectionID, 1, GL_FALSE, &camera->getProjection()[0][0]);
     glUniform3f(lightPositionID, lightPositionVector.x, lightPositionVector.y, lightPositionVector.z);
-
     testModel->render(modelMatrixID, diffuseTextureSampler, normalTextureSampler, specularTextureSampler);
+
+    glUseProgram(flatShader);
+    glUniformMatrix4fv(flatViewID, 1, GL_FALSE, &camera->getView()[0][0]);
+    glUniformMatrix4fv(flatProjectionID, 1, GL_FALSE, &camera->getProjection()[0][0]);
+    glUniform3f(flatLightPositionID, lightPositionVector.x, lightPositionVector.y, lightPositionVector.z);
+    floor->render(flatModelMatrixID, 0, 0, 0);
 
     int windowWidth, windowHeight;
     glfwGetWindowSize(window, &windowWidth, &windowHeight);
@@ -106,8 +121,10 @@ GLFWwindow* Renderer::getWindow() const {
 
 Renderer::~Renderer() {
     delete testModel;
+    delete floor;
 
-    glDeleteProgram(programID);
+    glDeleteProgram(shader);
+    glDeleteProgram(flatShader);
     glDeleteVertexArrays(1, &vertexArrayID);
 
     glfwTerminate();

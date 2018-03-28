@@ -18,9 +18,8 @@ class Renderer {
 public:
     FreeCamera *camera;
 
-    glm::vec3 lightPositionVector = glm::vec3(0.0f, 0.0f, 1.2f);
-    Model *testModel;
-    GLuint diffuseTextureSampler, normalTextureSampler, specularTextureSampler;
+    glm::vec3 lightPositionVector = glm::vec3(0.0f, 0.5f, 1.2f);
+    Model *testModel, *floor;
 
     BitmapFont *font;
 
@@ -33,10 +32,10 @@ public:
 
 private:
     bool initialized = false;
-    GLuint programID;
+    GLuint shader, flatShader;
     GLuint vertexArrayID;
-    GLuint modelMatrixID, viewID, projectionID;
-    GLuint lightPositionID;
+    GLuint modelMatrixID, viewID, projectionID, lightPositionID, diffuseTextureSampler, normalTextureSampler, specularTextureSampler;
+    GLuint flatModelMatrixID, flatViewID, flatProjectionID, flatLightPositionID;
     GLFWwindow *window;
 };
 

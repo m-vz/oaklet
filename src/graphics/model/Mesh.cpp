@@ -72,30 +72,44 @@ void Mesh::initMesh(const aiMesh *aiMesh) {
         indices.push_back(face->mIndices[2]);
     }
 
-    /* fill buffers */
+    fillBuffers(aiMesh->HasTextureCoords(0), aiMesh->HasNormals(), aiMesh->HasTangentsAndBitangents(), aiMesh->HasVertexColors(0));
+}
+
+void Mesh::fillBuffers(bool fillUVBuffer, bool fillNormalBuffer, bool fillTangentBuffer, bool fillColorBuffer) {
     bindBuffer(vertexBuffer);
     fillBuffer(&vertexData);
     bindBuffer(indexBuffer, GL_ELEMENT_ARRAY_BUFFER);
     fillBuffer(&indices, GL_ELEMENT_ARRAY_BUFFER);
 
-    if(aiMesh->HasTextureCoords(0)) {
+    if(fillUVBuffer) {
         bindBuffer(uvBuffer);
         fillBuffer(&uvData);
+    } else {
+        std::vector<float> uvs(vertexData.size());
+
+        bindBuffer(uvBuffer);
+        fillBuffer(&uvs);
     }
 
-    if(aiMesh->HasNormals()) {
+    if(fillNormalBuffer) {
         bindBuffer(normalBuffer);
         fillBuffer(&normalData);
+
+        hasNormalData = true;
     }
 
-    if(aiMesh->HasTangentsAndBitangents()) {
+    if(fillTangentBuffer) {
         bindBuffer(tangentBuffer);
         fillBuffer(&tangentData);
+
+        hasTangentData = true;
     }
 
-    if(aiMesh->HasVertexColors(0)) {
+    if(fillColorBuffer) {
         bindBuffer(colorBuffer);
         fillBuffer(&colorData);
+
+        hasColorData = true;
     }
 }
 
