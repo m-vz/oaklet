@@ -11,7 +11,7 @@ out vec3 color;
 
 void main() {
     vec3 lightColor = vec3(1, 1, 1);
-    float lightPower = 1.0f;
+    float lightPower = 80.0f;
 
     vec3 diffuseColor = texture(diffuseTextureSampler, tangentspaceVertexUV).rgb;
     vec3 ambientColor = vec3(0.1, 0.1, 0.1) * diffuseColor;

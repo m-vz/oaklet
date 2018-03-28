@@ -10,6 +10,8 @@
 class MeshFactory {
 public:
     static Model *addPlane(Model *addTo, glm::vec3 origin, float width, float height, glm::vec3 normal, glm::vec3 up, glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    static Model *addCuboid(Model *addTo, glm::vec3 origin, float width, float height, float length, glm::vec3 forward, glm::vec3 up, glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    static Model *addCube(Model *addTo, glm::vec3 origin, float size, glm::vec3 forward, glm::vec3 up, glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 };
 
 #endif //BESTEST_GAME_MESHFACTORY_H

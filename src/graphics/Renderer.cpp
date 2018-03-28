@@ -54,12 +54,10 @@ void Renderer::init(int width, int height) {
     glGenVertexArrays(1, &vertexArrayID);
     glBindVertexArray(vertexArrayID);
 
-    testModel = new Model();
-    testModel->loadModel("assets/meshes/test_cube/test_cube.obj");
-    testModel->translate(glm::vec3(0, 1, 0));
-
     floor = new Model();
     MeshFactory::addPlane(floor, glm::vec3(0.0f), 10000, 10000, glm::vec3(0, 1, 0), glm::vec3(0, 0, -1), glm::vec4(0.6f, 0.5f, 0.4f, 1));
+    MeshFactory::addCuboid(floor, glm::vec3(-2.5f, 0.5f, 0.0f), 0.6f, 1.0f, 2.3f, glm::vec3(-0.2f, 0.0f, -1.0f), glm::vec3(0, 1, 0), glm::vec4(0.2f, 1.0f, 0.4f, 1.0f));
+    MeshFactory::addCube(floor, glm::vec3(0, 1, 0), 2, glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), glm::vec4(0.9f, 0.1f, 0.0f, 1.0f));
 
     // font
     font = new BitmapFont("assets/fonts/bitmap/font_bitmap.bmp", glm::vec2(8, 8), glm::vec2(16, 16),
@@ -96,12 +94,6 @@ void Renderer::render(long long int lag) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // NOLINT
 
-    glUseProgram(shader);
-    glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera->getView()[0][0]);
-    glUniformMatrix4fv(projectionID, 1, GL_FALSE, &camera->getProjection()[0][0]);
-    glUniform3f(lightPositionID, lightPositionVector.x, lightPositionVector.y, lightPositionVector.z);
-    testModel->render(modelMatrixID, diffuseTextureSampler, normalTextureSampler, specularTextureSampler);
-
     glUseProgram(flatShader);
     glUniformMatrix4fv(flatViewID, 1, GL_FALSE, &camera->getView()[0][0]);
     glUniformMatrix4fv(flatProjectionID, 1, GL_FALSE, &camera->getProjection()[0][0]);
@@ -120,7 +112,6 @@ GLFWwindow* Renderer::getWindow() const {
 }
 
 Renderer::~Renderer() {
-    delete testModel;
     delete floor;
 
     glDeleteProgram(shader);

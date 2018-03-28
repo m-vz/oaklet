@@ -18,8 +18,8 @@ class Renderer {
 public:
     FreeCamera *camera;
 
-    glm::vec3 lightPositionVector = glm::vec3(0.0f, 0.5f, 1.2f);
-    Model *testModel, *floor;
+    glm::vec3 lightPositionVector = glm::vec3(-5.0f, 10.0f, 5.0f);
+    Model *floor;
 
     BitmapFont *font;
 
