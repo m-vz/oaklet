@@ -11,22 +11,18 @@
 
 class Physics {
 public:
-    Physics();
     void update(long long int deltaTime);
     void addPhysicsObject(RigidBody* objectToAdd);
     void removePhysicsObject(RigidBody* objectToRemove);
     void Array_to_Bodies(double y[]);
     void Bodies_to_Array(double y[]);
     void dydt(long long int deltaTime, double y[], double ydot[]);
-    void initStates();
-
 
     double *y0;
     double *yfinal;
-    int nBodies;
-    int stateSize;
-
-
+    int nBodies = 0;
+    int stateSize = 18;
+    int c = 1;
 
 private:
     std::vector<RigidBody*> rigidBodies{};

@@ -6,9 +6,10 @@
 #define BESTEST_GAME_RIGIDBODY_H
 
 
-#include <tgmath.h>
+#include <glm/detail/type_mat.hpp>
 #include "Matrix.h"
 #include "Triple.h"
+#include "../../graphics/model/Model.h"
 
 #define STATE_SIZE 18
 
@@ -16,7 +17,7 @@
 class RigidBody  {
 
 public:
-    RigidBody();
+    RigidBody(Model *model);
     void State_to_Array(double y[]);
     void Array_to_State(double y[]);
     void Compute_Force_and_Torque(double t);
@@ -27,6 +28,8 @@ public:
 
 
 private:
+    glm::mat4 *modelMatrix;
+
     /* Constant quantities */
     double mass;
     /* mass M */

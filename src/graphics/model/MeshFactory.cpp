@@ -127,12 +127,15 @@ Model *MeshFactory::addCuboid(Model *addTo,
         cuboid->normalData.push_back(tmp->x);
         cuboid->normalData.push_back(tmp->y);
         cuboid->normalData.push_back(tmp->z);
+        cuboid->tangentData.push_back(0);
+        cuboid->tangentData.push_back(0);
+        cuboid->tangentData.push_back(0);
     }
     for(unsigned int i = 0; i < 36; ++i)
         cuboid->indices.push_back(i); // the vertices are already ordered
 
     /* fill mesh and add to model */
-    cuboid->fillBuffers(false, true, false, true);
+    cuboid->fillBuffers(false, true, true, true);
 
     addTo->meshes.push_back(cuboid);
     return addTo;

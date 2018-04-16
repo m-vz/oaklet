@@ -57,13 +57,21 @@ void RigidBody::Array_to_State(double y[]) {
 }
 
 void RigidBody::Compute_Force_and_Torque(double t) {
-    double forceA[3];
-    forceA[0] = 9.81;
-    forceA[1] = 0;
-    forceA[2] = 0;
-    force = new Triple(forceA);
-    torque = new Triple(forceA);
-
+    if(t == 0) {
+        double forceA[3];
+        forceA[0] = 9.81;
+        forceA[1] = 9.81;
+        forceA[2] = 0;
+        force = new Triple(forceA);
+        torque = new Triple(forceA);
+    } else {
+        double forceA[3];
+        forceA[0] = 9.81;
+        forceA[1] = 0;
+        forceA[2] = 0;
+        force = new Triple(forceA);
+        torque = new Triple(forceA);
+    }
 }
 
 void RigidBody::ddt_State_to_Array(double ydot[]) {
@@ -118,6 +126,7 @@ void RigidBody::initCube(double mass) {
 
 }
 
-RigidBody::RigidBody() {
-
+RigidBody::RigidBody(Model *model) {
+    modelMatrix = &model->modelMatrix;
+    initCube(1);
 }

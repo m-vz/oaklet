@@ -8,6 +8,8 @@
 #include "world/World.h"
 #include "io/IOControl.h"
 #include "util/Log.h"
+#include "graphics/model/MeshFactory.h"
+#include "world/Entity.h"
 
 using namespace std;
 
@@ -53,6 +55,13 @@ int main() {
     world = new World;
     renderer->camera = ioControl->camera;
     ioControl->time = world->time;
+
+    auto *entity = new Entity();
+    auto *floor = new Model();
+    MeshFactory::addCube(floor, glm::vec3(0, 1, 0), 2, glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), glm::vec4(0.9f, 0.1f, 0.0f, 1.0f));
+    entity->setModel(floor);
+    world->physics->addPhysicsObject(entity->getRigidBody());
+    renderer->floor = floor;
 
     ioControl->keyboard->addReleasedCallback(endProgram, GLFW_KEY_ESCAPE);
     ioControl->keyboard->addReleasedCallback(toggleFullscreen, GLFW_KEY_F);

@@ -6,10 +6,6 @@
 #include "Physics.h"
 #include "../../util/Log.h"
 
-Physics::Physics() {
-    initStates();
-}
-
 void Physics::update(long long int deltaTime) {
 
         for(int i = 0; i < stateSize * nBodies; i++){
@@ -21,7 +17,10 @@ void Physics::update(long long int deltaTime) {
             yfinal[i] = y0[i] + yfinal[i]*(deltaTime/1000000000.0);
         }
         Array_to_Bodies(yfinal);
-        Log::log << LOG_DEBUG << rigidBodies[0]->x->x;
+        if(!rigidBodies.empty()) {
+            Log::log << LOG_DEBUG << "x " << rigidBodies[0]->x->x;
+            Log::log << LOG_DEBUG << "y " << rigidBodies[0]->x->y;
+        }
 
 
 
@@ -30,6 +29,11 @@ void Physics::update(long long int deltaTime) {
 void Physics::addPhysicsObject(RigidBody *objectToAdd) {
     rigidBodies.push_back(objectToAdd);
 
+    nBodies = 1;
+    y0 = new double[nBodies*stateSize]{};
+    yfinal = new double[nBodies*stateSize]{};
+    Bodies_to_Array(yfinal);
+    y0 = yfinal;
 }
 
 void Physics::removePhysicsObject(RigidBody *objectToRemove) {
@@ -37,6 +41,12 @@ void Physics::removePhysicsObject(RigidBody *objectToRemove) {
     if(i != rigidBodies.end()) {
         rigidBodies.erase(i);
     }
+
+    nBodies--;
+    y0 = new double[nBodies*stateSize]{};
+    yfinal = new double[nBodies*stateSize]{};
+    Bodies_to_Array(yfinal);
+    y0 = yfinal;
 }
 
 void Physics::Array_to_Bodies(double *y) {
@@ -56,22 +66,14 @@ void Physics::dydt(long long int deltaTime, double y[], double ydot[]) {
     Array_to_Bodies(y);
 
     for(int i = 0; i < nBodies; i++){
-        rigidBodies[i]->Compute_Force_and_Torque(deltaTime);
+        if(c == 1) {
+            rigidBodies[i]->Compute_Force_and_Torque(0);
+            c = 0;
+        } else {
+            rigidBodies[i]->Compute_Force_and_Torque(deltaTime);
+        }
         rigidBodies[i]->ddt_State_to_Array(&ydot[i*STATE_SIZE]);
 
     }
-}
-
-void Physics::initStates() {
-    nBodies = 1;
-    stateSize = 18;
-    RigidBody *body = new RigidBody();
-    body->initCube(10);
-    y0 = new double[nBodies*stateSize]{};
-    yfinal = new double[nBodies*stateSize]{};
-    addPhysicsObject(body);
-    Bodies_to_Array(yfinal);
-
-
 }
 
