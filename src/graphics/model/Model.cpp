@@ -130,7 +130,7 @@ void Model::render(GLuint modelMatrixID, GLuint diffuseTextureSamplerID, GLuint 
 }
 
 void Model::setTranslation(glm::vec3 translation) {
-    translation = translation;
+    this->translation = translation;
 
     calculateTranslationMatrix();
     calculateModelMatrix();

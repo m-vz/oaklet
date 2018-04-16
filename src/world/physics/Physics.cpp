@@ -7,33 +7,33 @@
 #include "../../util/Log.h"
 
 void Physics::update(long long int deltaTime) {
+    for(int i = 0; i < stateSize * nBodies; i++)
+        y0[i] = yfinal[i];
+    dydt(deltaTime, y0, yfinal);
+    for(int i = 0; i < stateSize * nBodies; i++){
 
-        for(int i = 0; i < stateSize * nBodies; i++){
-            y0[i] = yfinal[i];
-        }
-        dydt(deltaTime, y0, yfinal);
-        for(int i = 0; i < stateSize * nBodies; i++){
+        yfinal[i] = y0[i] + yfinal[i]*(deltaTime/1000000000.0);
+    }
+    Array_to_Bodies(yfinal);
 
-            yfinal[i] = y0[i] + yfinal[i]*(deltaTime/1000000000.0);
-        }
-        Array_to_Bodies(yfinal);
-        if(!rigidBodies.empty()) {
-            Log::log << LOG_DEBUG << "x " << rigidBodies[0]->x->x;
-            Log::log << LOG_DEBUG << "y " << rigidBodies[0]->x->y;
-        }
+    for(int i = 0; i < nBodies; ++i)
+        rigidBodies[i]->adjustModel();
 
-
-
+    if(!rigidBodies.empty()) {
+        Log::log << LOG_DEBUG << "x " << rigidBodies[0]->x->x;
+        Log::log << LOG_DEBUG << "y " << rigidBodies[0]->x->y;
+    }
 }
 
 void Physics::addPhysicsObject(RigidBody *objectToAdd) {
     rigidBodies.push_back(objectToAdd);
 
-    nBodies = 1;
+    nBodies++;
     y0 = new double[nBodies*stateSize]{};
     yfinal = new double[nBodies*stateSize]{};
     Bodies_to_Array(yfinal);
-    y0 = yfinal;
+    for(int i = 0; i < stateSize * nBodies; i++)
+        y0[i] = yfinal[i];
 }
 
 void Physics::removePhysicsObject(RigidBody *objectToRemove) {
@@ -46,7 +46,8 @@ void Physics::removePhysicsObject(RigidBody *objectToRemove) {
     y0 = new double[nBodies*stateSize]{};
     yfinal = new double[nBodies*stateSize]{};
     Bodies_to_Array(yfinal);
-    y0 = yfinal;
+    for(int j = 0; j < stateSize * nBodies; j++)
+        y0[j] = yfinal[j];
 }
 
 void Physics::Array_to_Bodies(double *y) {
@@ -66,14 +67,8 @@ void Physics::dydt(long long int deltaTime, double y[], double ydot[]) {
     Array_to_Bodies(y);
 
     for(int i = 0; i < nBodies; i++){
-        if(c == 1) {
-            rigidBodies[i]->Compute_Force_and_Torque(0);
-            c = 0;
-        } else {
-            rigidBodies[i]->Compute_Force_and_Torque(deltaTime);
-        }
+        rigidBodies[i]->Compute_Force_and_Torque(deltaTime);
         rigidBodies[i]->ddt_State_to_Array(&ydot[i*STATE_SIZE]);
-
     }
 }
 

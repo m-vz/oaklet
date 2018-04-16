@@ -22,7 +22,6 @@ public:
     double *yfinal;
     int nBodies = 0;
     int stateSize = 18;
-    int c = 1;
 
 private:
     std::vector<RigidBody*> rigidBodies{};

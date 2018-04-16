@@ -20,7 +20,6 @@ void World::firstUpdateInFrame(long long int deltaTime) {
 
 void World::update(long long int deltaTime) {
     physics->update(deltaTime);
-
 }
 
 long long int World::age() {

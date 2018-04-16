@@ -17,18 +17,19 @@
 class RigidBody  {
 
 public:
-    RigidBody(Model *model);
+    explicit RigidBody(Model *model);
     void State_to_Array(double y[]);
     void Array_to_State(double y[]);
     void Compute_Force_and_Torque(double t);
     void ddt_State_to_Array(double *ydot);
     void initCube(double m);
+    void adjustModel();
 
     Triple *x;
 
 
 private:
-    glm::mat4 *modelMatrix;
+    Model *model;
 
     /* Constant quantities */
     double mass;

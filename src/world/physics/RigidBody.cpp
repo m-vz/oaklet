@@ -2,6 +2,9 @@
 // Created by diego on 24.02.18.
 //
 
+#define GLM_ENABLE_EXPERIMENTAL
+
+#include <glm/ext.hpp>
 #include "RigidBody.h"
 
 void RigidBody::State_to_Array(double y[]) {
@@ -57,21 +60,13 @@ void RigidBody::Array_to_State(double y[]) {
 }
 
 void RigidBody::Compute_Force_and_Torque(double t) {
-    if(t == 0) {
-        double forceA[3];
-        forceA[0] = 9.81;
-        forceA[1] = 9.81;
-        forceA[2] = 0;
-        force = new Triple(forceA);
-        torque = new Triple(forceA);
-    } else {
-        double forceA[3];
-        forceA[0] = 9.81;
-        forceA[1] = 0;
-        forceA[2] = 0;
-        force = new Triple(forceA);
-        torque = new Triple(forceA);
-    }
+    double forceA[3] = {0, -9.81, 0};
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreturn-stack-address"
+    force = new Triple(forceA);
+#pragma clang diagnostic pop
+
+    torque = new Triple();
 }
 
 void RigidBody::ddt_State_to_Array(double ydot[]) {
@@ -94,15 +89,6 @@ void RigidBody::ddt_State_to_Array(double ydot[]) {
     ydot[15] = torque->x;
     ydot[16] = torque->y;
     ydot[17] = torque->z;
-
-
-
-
-
-
-
-
-
 }
 
 void RigidBody::initCube(double mass) {
@@ -126,7 +112,11 @@ void RigidBody::initCube(double mass) {
 
 }
 
+void RigidBody::adjustModel() {
+    model->setTranslation(glm::vec3(x->x, x->y, x->z));
+}
+
 RigidBody::RigidBody(Model *model) {
-    modelMatrix = &model->modelMatrix;
-    initCube(1);
+    this->model = model;
+    initCube(1); // TODO: not 1, calculate.
 }
