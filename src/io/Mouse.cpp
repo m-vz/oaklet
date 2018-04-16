@@ -6,9 +6,17 @@
 #include "../util/Log.h"
 
 void Mouse::movedTo(MousePosition position) {
-    Log::log << LogType::LOG_DEBUG << "Mouse moved to: (" << position.x << ", " << position.y << ")";
+    if(firstMovement) {
+        mousePositionOld = position;
+        firstMovement = false;
+    }
+    if(captured) {
+        mousePosition = position - mousePositionOld;
+        mousePositionOld = position;
+    } else
+        mousePosition = position;
 
-    mousePosition = position;
+    Log::log << LogType::LOG_DEBUG << "Mouse moved to: (" << mousePosition.x << ", " << mousePosition.y << ")";
 
     if(!moveCallbacks.empty())
         for(const auto &callback: moveCallbacks)
@@ -20,7 +28,7 @@ void Mouse::movedTo(double x, double y) {
 }
 
 void Mouse::scrolled(double xOffset, double yOffset) {
-    Log::log << LogType::LOG_INFO << "Mouse scrolled: (" << xOffset << ", " << yOffset << ")";
+    Log::log << LogType::LOG_DEBUG << "Mouse scrolled: (" << xOffset << ", " << yOffset << ")";
 
     if(!scrollCallbacks.empty())
         for(const auto &callback: scrollCallbacks)
@@ -28,7 +36,7 @@ void Mouse::scrolled(double xOffset, double yOffset) {
 }
 
 void Mouse::down(int button) {
-    Log::log << LogType::LOG_INFO << "Mouse button down: " << button;
+    Log::log << LogType::LOG_DEBUG << "Mouse button down: " << button;
 
     mouseDown[button] = true;
 
@@ -38,13 +46,32 @@ void Mouse::down(int button) {
 }
 
 void Mouse::up(int button) {
-    Log::log << LogType::LOG_INFO << "Mouse button up: " << button;
+    Log::log << LogType::LOG_DEBUG << "Mouse button up: " << button;
 
     mouseDown[button] = false;
 
     if(!upCallbacks[button].empty())
         for(const auto &callback: upCallbacks[button])
             callback(*this, button);
+}
+
+void Mouse::capture(Window &window) {
+    if(captured) // if the mouse is already captured (maybe in another window), free it first
+        free();
+
+    glfwSetInputMode(window.getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    capturedIn = &window;
+    captured = true;
+    firstMovement = true;
+}
+
+void Mouse::free() {
+    if(!captured)
+        Log::log << LOG_WARNING << "Trying to free mouse that is not captured.";
+
+    glfwSetInputMode(capturedIn->getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    capturedIn = nullptr;
+    captured = false;
 }
 
 MousePosition Mouse::position() {
@@ -57,6 +84,10 @@ bool Mouse::isDown(int button) {
 
 bool Mouse::isUp(int button) {
     return !mouseDown[button];
+}
+
+bool Mouse::isCaptured() {
+    return captured;
 }
 
 void Mouse::addMoveCallback(std::function<void(Mouse&)> callback) {

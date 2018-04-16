@@ -5,14 +5,14 @@
 #ifndef BESTEST_GAME_CONFIG_H
 #define BESTEST_GAME_CONFIG_H
 
-#define BEST_GAME_DEBUG // comment to not use
+#define BESTEST_GAME_DEBUG // comment to not use
 
 #include <string>
 
 static struct {
     // logging
     const std::string DEFAULT_LOG_FILE_PATH = "log.txt"; // If this is more than just a filename, make sure, the directory exists.
-#ifdef BEST_GAME_DEBUG
+#ifdef BESTEST_GAME_DEBUG
     const int DEFAULT_LOG_LEVEL = 3; // LOG_INFO
     const int DEFAULT_FILE_LOG_LEVEL = 4; // LOG_DEBUG
 #else
@@ -26,6 +26,7 @@ static struct {
 
     // renderer
     const int DEFAULT_WINDOW_WIDTH = 1200, DEFAULT_WINDOW_HEIGHT = 900;
+    const bool OPENGL_MIPMAP = false;
 } CONFIG; // NOLINT
 
 #endif //BESTEST_GAME_CONFIG_H

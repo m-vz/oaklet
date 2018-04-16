@@ -7,11 +7,52 @@
 
 #include <functional>
 #include <vector>
+#include "Window.h"
 #include <GLFW/glfw3.h>
 
 struct MousePosition {
     double x;
     double y;
+
+    MousePosition &operator+=(const MousePosition &position) {
+        x += position.x;
+        y += position.y;
+        return *this;
+    };
+
+    MousePosition &operator-=(const MousePosition &position) {
+        x -= position.x;
+        y -= position.y;
+        return *this;
+    };
+
+    MousePosition &operator*=(const MousePosition &position) {
+        x *= position.x;
+        y *= position.y;
+        return *this;
+    };
+
+    MousePosition &operator/=(const MousePosition &position) {
+        x /= position.x;
+        y /= position.y;
+        return *this;
+    };
+
+    MousePosition operator+(const MousePosition &position) {
+        return MousePosition{x + position.x, y + position.y};
+    };
+
+    MousePosition operator-(const MousePosition &position) {
+        return MousePosition{x - position.x, y - position.y};
+    };
+
+    MousePosition operator*(const MousePosition &position) {
+        return MousePosition{x * position.x, y * position.y};
+    };
+
+    MousePosition operator/(const MousePosition &position) {
+        return MousePosition{x / position.x, y / position.y};
+    };
 };
 
 class Mouse {
@@ -29,6 +70,8 @@ public:
     /// Tell the mouse a specific button is up.
     /// \param button The mouse button code (GLFW_MOUSE_BUTTON_xxx) that is up.
     void up(int button);
+    void capture(Window &window);
+    void free();
 
     // query
     /// Get the current position of the mouse.
@@ -42,6 +85,7 @@ public:
     /// \param button The button whose state is asked.
     /// \return Whether the specified mouse button code (GLFW_MOUSE_BUTTON_xxx) is currently up.
     bool isUp(int button);
+    bool isCaptured();
     /// Add a callback that is triggered whenever the mouse is moved.
     /// \param callback The callback to call whenever the mouse is moved.
     void addMoveCallback(std::function<void(Mouse&)> callback);
@@ -58,8 +102,10 @@ public:
     void addUpCallback(int button, std::function<void(Mouse&, int)> callback);
 
 private:
+    bool captured = false, firstMovement = true;
+    Window *capturedIn;
     bool mouseDown[GLFW_MOUSE_BUTTON_LAST + 1]{};
-    MousePosition mousePosition{};
+    MousePosition mousePosition{}, mousePositionOld{};
     std::vector<std::function<void(Mouse&)>> moveCallbacks;
     std::vector<std::function<void(Mouse&, double, double)>> scrollCallbacks;
     std::vector<std::function<void(Mouse&, int)>> downCallbacks[GLFW_MOUSE_BUTTON_LAST + 1];

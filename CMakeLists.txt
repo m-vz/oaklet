@@ -15,6 +15,9 @@ set(INCLUDE_DIRS ${INCLUDE_DIRS} lib/glm)
 # tinyobjloader
 set(INCLUDE_DIRS ${INCLUDE_DIRS} lib/tinyobjloader)
 
+# stb
+set(INCLUDE_DIRS ${INCLUDE_DIRS} lib/stb)
+
 # macos specific code
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     # glfw
@@ -33,6 +36,15 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
     set(INCLUDE_DIRS ${INCLUDE_DIRS} lib/glew/include lib/glew/src)
     set(LIBS ${LIBS} libglew_static)
+
+    # assimp
+    set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_STATIC_LIB ON CACHE BOOL "" FORCE)
+    add_subdirectory(lib/assimp)
+
+    set(INCLUDE_DIRS ${INCLUDE_DIRS} lib/assimp/include ${CMAKE_CURRENT_BINARY_DIR}/lib/assimp/include lib/assimp/code)
+    set(LIBS ${LIBS} assimp)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # linux specific code
@@ -56,12 +68,27 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
     set(INCLUDE_DIRS ${INCLUDE_DIRS} lib/glew/include lib/glew/src)
     set(LIBS ${LIBS} ${GLEW_LIBRARY})
+
+    # assimp
+    set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_STATIC_LIB ON CACHE BOOL "" FORCE)
+    add_subdirectory(lib/assimp)
+
+    set(INCLUDE_DIRS ${INCLUDE_DIRS} lib/assimp/include ${CMAKE_CURRENT_BINARY_DIR}/lib/assimp/include lib/assimp/code)
+    set(LIBS ${LIBS} assimp)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 # assets
-file(COPY assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR} FILES_MATCHING REGEX ".*\\.(obj|mtl|glsl)$")
+set(ASSET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets/)
+file(GLOB_RECURSE ASSET_FILES ${ASSET_DIR}*.obj ${ASSET_DIR}*.3ds ${ASSET_DIR}*.mtl ${ASSET_DIR}*.glsl ${ASSET_DIR}*.png ${ASSET_DIR}*.bmp ${ASSET_DIR}*.exr ${ASSET_DIR}*.tga)
+foreach(ASSET_FILE ${ASSET_FILES})
+    file(RELATIVE_PATH ASSET_RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${ASSET_FILE})
+    get_filename_component(ASSET_RELATIVE_DIRECTORY ${ASSET_RELATIVE} DIRECTORY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${ASSET_RELATIVE} ${CMAKE_CURRENT_BINARY_DIR}/${ASSET_RELATIVE} COPYONLY)
+endforeach()
 
-set(SOURCE_FILES src/world/Time.cpp src/world/Time.h src/io/FileLoader.cpp src/io/FileLoader.h src/io/IOControl.cpp src/io/IOControl.h src/io/Mouse.cpp src/io/Mouse.h src/util/Log.cpp src/util/Log.h src/util/Config.h src/exception/Exception.cpp src/exception/Exception.h src/main.cpp src/world/World.cpp src/world/World.h src/graphics/Renderer.cpp src/graphics/Renderer.h src/io/Keyboard.cpp src/io/Keyboard.h src/graphics/Mesh.cpp src/graphics/Mesh.h src/io/Window.cpp src/io/Window.h src/graphics/camera/Camera.cpp src/graphics/camera/Camera.h src/graphics/camera/CirclingCamera.cpp src/graphics/camera/CirclingCamera.h src/world/physics/Physics.cpp src/world/physics/Physics.h src/world/physics/PhysicsObject.cpp src/world/physics/PhysicsObject.h src/world/physics/RigidBody.cpp src/world/physics/RigidBody.h src/world/physics/Matrix.cpp src/world/physics/Matrix.h src/world/physics/Triple.cpp src/world/physics/Triple.h)
+set(SOURCE_FILES src/world/Time.cpp src/world/Time.h src/io/FileLoader.cpp src/io/FileLoader.h src/io/IOControl.cpp src/io/IOControl.h src/io/Mouse.cpp src/io/Mouse.h src/util/Log.cpp src/util/Log.h src/util/Config.h src/exception/Exception.cpp src/exception/Exception.h src/main.cpp src/world/World.cpp src/world/World.h src/graphics/Renderer.cpp src/graphics/Renderer.h src/io/Keyboard.cpp src/io/Keyboard.h src/graphics/model/Mesh.cpp src/graphics/model/Mesh.h src/io/Window.cpp src/io/Window.h src/graphics/camera/Camera.cpp src/graphics/camera/Camera.h src/graphics/camera/CirclingCamera.cpp src/graphics/camera/CirclingCamera.h src/graphics/model/Texture.cpp src/graphics/model/Texture.h src/graphics/camera/FreeCamera.cpp src/graphics/camera/FreeCamera.h src/graphics/BitmapFont.cpp src/graphics/BitmapFont.h src/graphics/model/Model.cpp src/graphics/model/Model.h src/graphics/model/MeshFactory.cpp src/graphics/model/MeshFactory.h src/world/physics/Physics.cpp src/world/physics/Physics.h src/world/physics/PhysicsObject.cpp src/world/physics/PhysicsObject.h src/world/physics/RigidBody.cpp src/world/physics/RigidBody.h src/world/physics/Matrix.cpp src/world/physics/Matrix.h src/world/physics/Triple.cpp src/world/physics/Triple.h)
 add_executable(bestest-game ${SOURCE_FILES})
 
 include_directories(${INCLUDE_DIRS})

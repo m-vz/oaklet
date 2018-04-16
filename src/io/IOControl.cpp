@@ -11,6 +11,9 @@ IOControl::IOControl(GLFWwindow *window) {
     IOControl::keyboard = new Keyboard();
     IOControl::window = new Window(window);
 
+    // prepare camera
+    camera = new FreeCamera(*IOControl::window, *IOControl::mouse, *IOControl::keyboard);
+
     // set user pointer
     glfwSetWindowUserPointer(window, this);
 
@@ -27,7 +30,7 @@ IOControl::IOControl(GLFWwindow *window) {
 void IOControl::processInput() {
     Log::log << LogType::LOG_FRAME << "processing input.";
 
-    camera->update(time->timeSinceEpoch());
+    camera->update(time->deltaTime());
 }
 
 int IOControl::getMonitorCount() const {
@@ -49,11 +52,11 @@ void IOControl::keyCallback(GLFWwindow* window, int key, int scancode, int actio
     Keyboard *keyboard = ((IOControl*) glfwGetWindowUserPointer(window))->keyboard;
 
     if(action == GLFW_PRESS)
-        keyboard->keyPressed(key, scancode, mods);
+        keyboard->pressKey(key, scancode, mods);
     else if(action == GLFW_REPEAT)
-        keyboard->keyRepeated(key, scancode, mods);
+        keyboard->repeatKey(key, scancode, mods);
     else if(action == GLFW_RELEASE)
-        keyboard->keyReleased(key, scancode, mods);
+        keyboard->releaseKey(key, scancode, mods);
 }
 
 void IOControl::cursorPositionCallback(GLFWwindow *window, double xpos, double ypos) {
