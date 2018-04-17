@@ -9,11 +9,15 @@
 #include "../graphics/camera/Camera.h"
 #include "../graphics/light/PointLight.h"
 #include "Entity.h"
+#include "../graphics/light/DirectionalLight.h"
+#include "../graphics/light/SpotLight.h"
 
 class Scene {
 public:
     std::vector<Entity*> entities;
+    std::vector<DirectionalLight*> directionalLights;
     std::vector<PointLight*> pointLights;
+    std::vector<SpotLight*> spotLights;
     std::vector<Camera*> cameras;
     Camera *activeCamera;
 

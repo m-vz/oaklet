@@ -75,7 +75,9 @@ void Renderer::renderScene(Scene *scene, long long int lag) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // NOLINT
 
     lighting.enable();
+    lighting.setDirectionalLights(scene->directionalLights.size(), scene->directionalLights);
     lighting.setPointLights(scene->pointLights.size(), scene->pointLights);
+    lighting.setSpotLights(scene->spotLights.size(), scene->spotLights);
     lighting.setView(scene->activeCamera->getView());
     for(auto entity: scene->entities)
         entity->getModel()->render(lighting, scene->activeCamera->getProjection()*scene->activeCamera->getView());

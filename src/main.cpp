@@ -10,6 +10,7 @@
 #include "util/Log.h"
 #include "graphics/model/MeshFactory.h"
 #include "world/Entity.h"
+#include "graphics/light/DirectionalLight.h"
 
 using namespace std;
 
@@ -37,11 +38,8 @@ void resize(Window &window, int width, int height) {
 }
 
 void scrollMesh(Mouse &mouse, double xOffset, double yOffset) {
-    world->activeScene->pointLights[0]->lightPosition.x += 2*xOffset/5.0f;
-    world->activeScene->pointLights[0]->lightPosition.z += 2*yOffset/5.0f;
-    world->activeScene->pointLights[1]->lightPosition.x += xOffset/5.0f;
-    world->activeScene->pointLights[1]->lightPosition.z += yOffset/5.0f;
-    Log::log << LOG_INFO << world->activeScene->pointLights[0]->lightPosition;
+    world->activeScene->spotLights[0]->lightPosition.x += xOffset/5.0f;
+    world->activeScene->spotLights[0]->lightPosition.y -= yOffset/5.0f;
 }
 #pragma clang diagnostic pop
 
@@ -58,17 +56,23 @@ int main() {
     renderer->camera = mainCamera;
 
     Model test = Model(), test2 = Model();
-    test.loadModel("assets/meshes/medieval_house/medieval_house.obj");
-    MeshFactory::addPlane(&test, glm::vec3(0.0f), 10000, 10000, glm::vec3(0, 1, 0), glm::vec3(0, 0, -1), glm::vec4(0.6f, 0.5f, 0.4f, 1));
-    test2.setTranslation(glm::vec3(0, 1, 0));
     Entity testEntity = Entity(), testEntity2 = Entity();
+    DirectionalLight testSunLight = DirectionalLight(glm::vec3(1, 1, -1), glm::vec3(0.933333333f, 0.847058824f, 0.62745098f), 1);
+    PointLight testPointLight = PointLight(glm::vec3(0.15f, 3, 6.7f), glm::vec3(0.5f, 0.25f, 0.1f), 4);
+    SpotLight testSpotLight = SpotLight(glm::vec3(6.5f, 4, 4.5f), glm::vec3(-1, 0, -0.5f), glm::vec3(0.9f, 0.8f, 0.55f), 50, 0.9);
+
+    test.loadModel("assets/meshes/medieval_house/medieval_house.obj");
+    MeshFactory::addPlane(&test, glm::vec3(0.0f), 10000, 10000, glm::vec3(0, 1, 0), glm::vec3(0, 0, -1), glm::vec4(0.2f, 0.16f, 0.13f, 1));
+
+    test2.setTranslation(glm::vec3(0, 1, 0));
+
     testEntity.setModel(&test);
     testEntity2.setModel(&test2);
     world->activeScene->entities.push_back(&testEntity);
     world->activeScene->entities.push_back(&testEntity2);
-    PointLight testLight = PointLight(glm::vec3(0, 3, 0), glm::vec3(0.5f, 0.25f, 0.1f), 4), testLight2 = PointLight(glm::vec3(0, 20, 0), glm::vec3(1, 1, 1), 80);
-    world->activeScene->pointLights.push_back(&testLight);
-    world->activeScene->pointLights.push_back(&testLight2);
+    world->activeScene->directionalLights.push_back(&testSunLight);
+    world->activeScene->pointLights.push_back(&testPointLight);
+    world->activeScene->spotLights.push_back(&testSpotLight);
 
     ioControl->keyboard->addReleasedCallback(endProgram, GLFW_KEY_ESCAPE);
     ioControl->keyboard->addReleasedCallback(toggleFullscreen, GLFW_KEY_F);
