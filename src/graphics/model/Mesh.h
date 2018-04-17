@@ -26,14 +26,14 @@ public:
     int materialIndex = -1;
 
     Mesh();
-    void initMesh(const aiMesh* aiMesh);
+    void initMesh(const aiMesh* aiMesh, int materialIndexOffset);
     void generateBuffers(GLuint *buffers, int number = 1);
     void bindBuffer(GLuint buffer, GLenum type = GL_ARRAY_BUFFER);
     template<typename T> void fillBuffer(std::vector<T> *data, GLenum target = GL_ARRAY_BUFFER, GLenum usage = GL_STATIC_DRAW);
     virtual ~Mesh();
 
 private:
-    bool hasNormalData = false, hasTangentData = false, hasUVData = false, hasColorData = false;
+    bool hasNormalData = false, hasTangentData = false, hasColorData = false;
 
     void fillBuffers(bool fillUVBuffer = true, bool fillNormalBuffer = true, bool fillTangentBuffer = true, bool fillColorBuffer = true);
 };

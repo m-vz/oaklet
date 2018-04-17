@@ -50,18 +50,8 @@ void Renderer::init(int width, int height) {
     glGenVertexArrays(1, &vertexArrayID);
     glBindVertexArray(vertexArrayID);
 
-    // shaders
-//    shader = FileLoader::loadShaders("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
-    flatLighting.init();
-
-    // uniforms
-//    modelMatrixID = static_cast<GLuint>(glGetUniformLocation(shader, "model"));
-//    viewID = static_cast<GLuint>(glGetUniformLocation(shader, "view"));
-//    projectionID = static_cast<GLuint>(glGetUniformLocation(shader, "projection"));
-//    lightPositionID = static_cast<GLuint>(glGetUniformLocation(shader, "worldspaceLightPosition"));
-//    diffuseTextureSampler = static_cast<GLuint>(glGetUniformLocation(shader, "diffuseTextureSampler"));
-//    normalTextureSampler = static_cast<GLuint>(glGetUniformLocation(shader, "normalTextureSampler"));
-//    specularTextureSampler = static_cast<GLuint>(glGetUniformLocation(shader, "specularTextureSampler"));
+    // techniques
+    lighting.init();
 
     // font
     font = new BitmapFont("assets/fonts/bitmap/font_bitmap.bmp", glm::vec2(8, 8), glm::vec2(16, 16),
@@ -84,14 +74,11 @@ void Renderer::renderScene(Scene *scene, long long int lag) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // NOLINT
 
-    flatLighting.enable();
-    flatLighting.setPointLights(scene->pointLights.size(), scene->pointLights);
-    flatLighting.setView(scene->activeCamera->getView());
-    glUniform1i(0, TEXTURE_DIFFUSE);
-    glUniform1i(0, TEXTURE_NORMAL);
-    glUniform1i(0, TEXTURE_SPECULAR);
+    lighting.enable();
+    lighting.setPointLights(scene->pointLights.size(), scene->pointLights);
+    lighting.setView(scene->activeCamera->getView());
     for(auto entity: scene->entities)
-        entity->getModel()->render(flatLighting, scene->activeCamera->getProjection()*scene->activeCamera->getView());
+        entity->getModel()->render(lighting, scene->activeCamera->getProjection()*scene->activeCamera->getView());
 
     glfwSwapBuffers(window);
 }

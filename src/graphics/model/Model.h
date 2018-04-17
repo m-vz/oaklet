@@ -31,7 +31,7 @@ public:
     virtual ~Model();
 
 private:
-    Texture *blackTexture, *whiteTexture;
+    Texture *blackTexture, *whiteTexture, *outwardsTexture;
     float rotationAngle = 0.0f;
     glm::mat4 translationMatrix, rotationMatrix, scaleMatrix;
     glm::vec3 translation = glm::vec3(0.0f), rotationAxis = glm::vec3(0.0f, 1.0f, 0.0f), scaleVector = glm::vec3(1.0f);

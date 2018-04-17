@@ -24,24 +24,18 @@ FreeCamera *mainCamera;
 void endProgram(Keyboard &keyboard, int key, int scancode, int mods) {
     shouldEnd = true;
 }
-#pragma clang diagnostic pop
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void toggleFullscreen(Keyboard &keyboard, int key, int scancode, int mods) {
     if(ioControl->window->isFullscreen())
         ioControl->window->setWindowed();
     else
         ioControl->window->setFullscreen(ioControl->getPrimaryMonitor());
 }
-#pragma clang diagnostic pop
 
 void resize(Window &window, int width, int height) {
     mainCamera->changeAspect(width, height);
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void scrollMesh(Mouse &mouse, double xOffset, double yOffset) {
     world->activeScene->pointLights[0]->lightPosition.x += 2*xOffset/5.0f;
     world->activeScene->pointLights[0]->lightPosition.z += 2*yOffset/5.0f;
@@ -52,23 +46,27 @@ void scrollMesh(Mouse &mouse, double xOffset, double yOffset) {
 #pragma clang diagnostic pop
 
 int main() {
+    // PREPARE TEST
+
     renderer = new Renderer;
     renderer->init(CONFIG.DEFAULT_WINDOW_WIDTH, CONFIG.DEFAULT_WINDOW_HEIGHT);
     ioControl = new IOControl(renderer->getWindow());
-    mainCamera = new FreeCamera(*ioControl->window, *ioControl->mouse, *ioControl->keyboard);
+    mainCamera = new FreeCamera(*ioControl->window, *ioControl->mouse, *ioControl->keyboard, glm::vec3(6, 8, 12), glm::vec2(-0.3f, 0.4f));
     world = new World;
     world->activeScene = new Scene(mainCamera);
     world->scenes.push_back(world->activeScene);
     renderer->camera = mainCamera;
 
-    Model test = Model();
+    Model test = Model(), test2 = Model();
+    test.loadModel("assets/meshes/medieval_house/medieval_house.obj");
     MeshFactory::addPlane(&test, glm::vec3(0.0f), 10000, 10000, glm::vec3(0, 1, 0), glm::vec3(0, 0, -1), glm::vec4(0.6f, 0.5f, 0.4f, 1));
-    MeshFactory::addCuboid(&test, glm::vec3(-2.5f, 0.5f, 0.0f), 0.6f, 1.0f, 2.3f, glm::vec3(-0.2f, 0.0f, -1.0f), glm::vec3(0, 1, 0), glm::vec4(0.2f, 1.0f, 0.4f, 1.0f));
-    MeshFactory::addCube(&test, glm::vec3(0, 1, 0), 2, glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), glm::vec4(0.9f, 0.1f, 0.0f, 1.0f));
-    Entity testEntity = Entity();
+    test2.setTranslation(glm::vec3(0, 1, 0));
+    Entity testEntity = Entity(), testEntity2 = Entity();
     testEntity.setModel(&test);
+    testEntity2.setModel(&test2);
     world->activeScene->entities.push_back(&testEntity);
-    PointLight testLight = PointLight(glm::vec3(0, 10, 0), glm::vec3(0.2f, 1, 0.2f), 80), testLight2 = PointLight(glm::vec3(0, 10, 0), glm::vec3(1, 0.2f, 0.2f), 60);
+    world->activeScene->entities.push_back(&testEntity2);
+    PointLight testLight = PointLight(glm::vec3(0, 3, 0), glm::vec3(0.5f, 0.25f, 0.1f), 4), testLight2 = PointLight(glm::vec3(0, 20, 0), glm::vec3(1, 1, 1), 80);
     world->activeScene->pointLights.push_back(&testLight);
     world->activeScene->pointLights.push_back(&testLight2);
 
@@ -77,6 +75,8 @@ int main() {
     ioControl->mouse->addScrollCallback(scrollMesh);
     ioControl->window->setWindowSizeLimits(640, 420, GLFW_DONT_CARE, GLFW_DONT_CARE);
     ioControl->window->addFramebufferSizeCallback(resize);
+
+    // MAIN LOOP
 
     long long int timeLag = 0;
     std::chrono::time_point<std::chrono::steady_clock> thisTick = chrono::steady_clock::now(), lastTick = thisTick;

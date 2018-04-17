@@ -2,8 +2,10 @@
 
 const int MAX_POINT_LIGHTS = 8;
 
-in vec3 worldspaceNormal, worldspaceVertexPosition, worldspaceCameraDirection;
+in vec2 tangentspaceVertexUV;
 in vec4 vertexColor;
+in vec3 worldspaceVertexPosition, worldspaceCameraDirection;
+in mat3 tbn;
 
 struct Attenuation {
     float exponential;
@@ -20,14 +22,17 @@ struct PointLight {
 
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform int pointLightCount;
+uniform sampler2D diffuseTextureSampler, normalTextureSampler, specularTextureSampler;
 
 out vec3 color;
 
 void main() {
-    vec3 diffuseColor = vertexColor.rgb;
-    vec3 ambientColor = vec3(0.06) * diffuseColor;
-    vec3 specularColor = vec3(1, 1, 1);
+    vec3 diffuseColor = clamp(texture(diffuseTextureSampler, tangentspaceVertexUV).rgb + vertexColor.rgb, 0, 1);
+    vec3 ambientColor = vec3(0.1) * diffuseColor;
+    vec3 specularColor = texture(specularTextureSampler, tangentspaceVertexUV).rgb;
     color = vec3(0, 0, 0);
+
+    vec3 worldspaceNormal = tbn * normalize(texture(normalTextureSampler, tangentspaceVertexUV).rgb*2.0 - 1.0);
 
     for(int i = 0; i < pointLightCount; i++) {
         vec3 worldspaceLightDirection = normalize(pointLights[i].position - worldspaceVertexPosition);

@@ -14,7 +14,7 @@
 #include "BitmapFont.h"
 #include "model/Model.h"
 #include "../world/Scene.h"
-#include "technique/FlatLightingTechnique.h"
+#include "technique/SimpleLightingTechnique.h"
 
 class Renderer {
 public:
@@ -31,9 +31,8 @@ public:
 
 private:
     bool initialized = false;
-    FlatLightingTechnique flatLighting;
+    SimpleLightingTechnique lighting;
     GLuint vertexArrayID;
-    GLuint modelMatrixID, viewID, projectionID, lightPositionID, diffuseTextureSampler, normalTextureSampler, specularTextureSampler;
     GLFWwindow *window;
 };
 

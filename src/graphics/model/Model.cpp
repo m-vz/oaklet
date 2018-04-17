@@ -17,7 +17,14 @@ Model::Model() {
     calculateModelMatrix();
 
     blackTexture = new Texture("assets/images/pixel_black.png");
+    blackTexture->bindTexture(0);
+    blackTexture->fillTexture();
     whiteTexture = new Texture("assets/images/pixel_white.png");
+    whiteTexture->bindTexture(0);
+    whiteTexture->fillTexture();
+    outwardsTexture = new Texture("assets/images/pixel_outwards.png");
+    outwardsTexture->bindTexture(0);
+    outwardsTexture->fillTexture();
 }
 
 void Model::loadModel(const std::string &path) {
@@ -30,13 +37,13 @@ void Model::loadModel(const std::string &path) {
     meshes.resize(oldSize + aiScene->mNumMeshes);
     for(unsigned long i = oldSize; i < meshes.size(); i++) {
         auto *mesh = new Mesh();
-        mesh->initMesh(aiScene->mMeshes[i - oldSize]);
+        mesh->initMesh(aiScene->mMeshes[i - oldSize], static_cast<int>(materials.size()));
         meshes[i] = mesh;
     }
 
     // fetch materials from the scene
     oldSize = materials.size();
-    materials.resize(oldSize +aiScene->mNumMaterials);
+    materials.resize(oldSize + aiScene->mNumMaterials);
     for(unsigned long i = oldSize; i < materials.size(); ++i) {
         const aiMaterial *aiMaterial = aiScene->mMaterials[i - oldSize];
 
@@ -70,27 +77,26 @@ void Model::loadModel(const std::string &path) {
 void Model::render(LightingTechnique &technique, glm::mat4 vp) {
     glm::mat4 mvp;
 
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glEnableVertexAttribArray(3);
-    glEnableVertexAttribArray(4);
-
     for(auto mesh: meshes) {
         mesh->bindBuffer(mesh->vertexBuffer);
+        glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
         mesh->bindBuffer(mesh->uvBuffer);
+        glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
         if(mesh->hasNormalData) {
             mesh->bindBuffer(mesh->normalBuffer);
+            glEnableVertexAttribArray(2);
             glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
         }
         if(mesh->hasTangentData) {
             mesh->bindBuffer(mesh->tangentBuffer);
+            glEnableVertexAttribArray(3);
             glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
         }
         if(mesh->hasColorData) {
             mesh->bindBuffer(mesh->colorBuffer);
+            glEnableVertexAttribArray(4);
             glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
         }
 
@@ -101,30 +107,36 @@ void Model::render(LightingTechnique &technique, glm::mat4 vp) {
 
             if(material.find(TEXTURE_DIFFUSE) != material.end()) {
                 material[TEXTURE_DIFFUSE]->bindTexture(TEXTURE_DIFFUSE);
+                technique.setDiffuseTextureSampler(TEXTURE_DIFFUSE);
             }
             if(material.find(TEXTURE_NORMAL) != material.end()) {
                 material[TEXTURE_NORMAL]->bindTexture(TEXTURE_NORMAL);
+                technique.setNormalTextureSampler(TEXTURE_NORMAL);
             }
             if(material.find(TEXTURE_SPECULAR) != material.end()) {
                 material[TEXTURE_SPECULAR]->bindTexture(TEXTURE_SPECULAR);
+                technique.setSpecularTextureSampler(TEXTURE_SPECULAR);
             }
         } else {
             blackTexture->bindTexture(TEXTURE_DIFFUSE);
-            whiteTexture->bindTexture(TEXTURE_NORMAL);
+            technique.setDiffuseTextureSampler(TEXTURE_DIFFUSE);
+            outwardsTexture->bindTexture(TEXTURE_NORMAL);
+            technique.setNormalTextureSampler(TEXTURE_NORMAL);
             whiteTexture->bindTexture(TEXTURE_SPECULAR);
+            technique.setSpecularTextureSampler(TEXTURE_SPECULAR);
         }
         technique.setModel(modelMatrix);
         mvp = vp*modelMatrix;
         technique.setMVP(mvp);
 
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->indices.size()), GL_UNSIGNED_INT, 0); // NOLINT
-    }
 
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
-    glDisableVertexAttribArray(3);
-    glDisableVertexAttribArray(4);
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
+        glDisableVertexAttribArray(3);
+        glDisableVertexAttribArray(4);
+    }
 }
 
 void Model::setTranslation(glm::vec3 translation) {
@@ -188,6 +200,7 @@ void Model::scale(float scale) {
 Model::~Model() {
     delete blackTexture;
     delete whiteTexture;
+    delete outwardsTexture;
     for(auto mesh: meshes)
         delete mesh;
     for(auto material: materials)

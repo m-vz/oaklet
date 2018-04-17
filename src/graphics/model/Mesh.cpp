@@ -16,8 +16,8 @@ Mesh::Mesh() {
     generateBuffers(&colorBuffer);
 }
 
-void Mesh::initMesh(const aiMesh *aiMesh) {
-    materialIndex = aiMesh->mMaterialIndex;
+void Mesh::initMesh(const aiMesh *aiMesh, int materialIndexOffset) {
+    materialIndex = aiMesh->mMaterialIndex + materialIndexOffset;
 
     /* vertex data */
     aiVector3D *v;
@@ -85,7 +85,7 @@ void Mesh::fillBuffers(bool fillUVBuffer, bool fillNormalBuffer, bool fillTangen
         bindBuffer(uvBuffer);
         fillBuffer(&uvData);
     } else {
-        std::vector<float> uvs(vertexData.size());
+        std::vector<float> uvs(2*vertexData.size()/3);
 
         bindBuffer(uvBuffer);
         fillBuffer(&uvs);

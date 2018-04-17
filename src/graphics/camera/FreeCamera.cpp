@@ -7,15 +7,16 @@
 #include "FreeCamera.h"
 #include "../../util/Log.h"
 
-FreeCamera::FreeCamera(Window &capturedIn, Mouse &mouse, Keyboard &keyboard) : capturedIn(capturedIn) {
+FreeCamera::FreeCamera(Window &capturedIn, Mouse &mouse, Keyboard &keyboard, glm::vec3 position, glm::vec2 angles)
+        : capturedIn(capturedIn), position(position), angles(angles) {
     changeAspect(capturedIn.getWindowWidth(), capturedIn.getWindowHeight());
     update(0);
 
     mouse.capture(capturedIn);
     mouse.addMoveCallback([this](Mouse &mouse) {
         if(mouseCaptured) {
-            angles.x += glm::radians<float>(static_cast<float>(-mouse.position().y) / 6.0f);
-            angles.y += glm::radians<float>(static_cast<float>(-mouse.position().x) / 6.0f);
+            this->angles.x += glm::radians<float>(static_cast<float>(-mouse.position().y) / 6.0f);
+            this->angles.y += glm::radians<float>(static_cast<float>(-mouse.position().x) / 6.0f);
         }
     });
 

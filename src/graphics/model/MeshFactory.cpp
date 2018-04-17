@@ -82,7 +82,7 @@ Model *MeshFactory::addCuboid(Model *addTo,
             origin + widthHalf*left - heightHalf*up + lengthHalf*forward, // back bottom left
             origin - widthHalf*left - heightHalf*up + lengthHalf*forward, // back bottom right
             origin - widthHalf*left + heightHalf*up + lengthHalf*forward, // back top right
-            origin + widthHalf*left + heightHalf*up + lengthHalf*forward, // back top left
+            origin + widthHalf*left + heightHalf*up + lengthHalf*forward // back top left
     };
     glm::vec3 normals[6] = {
             glm::normalize(glm::vec3(0) - forward), // backward (~= towards the front)
@@ -90,7 +90,15 @@ Model *MeshFactory::addCuboid(Model *addTo,
             glm::normalize(forward), // forward (~= towards the back)
             glm::normalize(left), // left
             glm::normalize(up), // up
-            glm::normalize(glm::vec3(0) - up), // down
+            glm::normalize(glm::vec3(0) - up) // down
+    };
+    glm::vec3 tangents[6] = {
+            glm::normalize(glm::vec3(0) - left), // backward (~= towards the front)
+            glm::normalize(forward), // right
+            glm::normalize(left), // forward (~= towards the back)
+            glm::normalize(glm::vec3(0) - forward), // left
+            glm::normalize(glm::vec3(0) - left), // up
+            glm::normalize(left) // down
     };
     unsigned int vertexIndices[36] = {
         0, 1, 2, 0, 2, 3, // front (~= -forward)
@@ -101,6 +109,14 @@ Model *MeshFactory::addCuboid(Model *addTo,
         4, 5, 1, 4, 1, 0 // bottom
     };
     unsigned int normalIndices[36] = {
+        0, 0, 0, 0, 0, 0, // front (~= -forward)
+        1, 1, 1, 1, 1, 1, // right
+        2, 2, 2, 2, 2, 2, // back (~= forward)
+        3, 3, 3, 3, 3, 3, // left
+        4, 4, 4, 4, 4, 4, // top
+        5, 5, 5, 5, 5, 5 // bottom
+    };
+    unsigned int tangentIndices[36] = {
         0, 0, 0, 0, 0, 0, // front (~= -forward)
         1, 1, 1, 1, 1, 1, // right
         2, 2, 2, 2, 2, 2, // back (~= forward)
@@ -127,9 +143,13 @@ Model *MeshFactory::addCuboid(Model *addTo,
         cuboid->normalData.push_back(tmp->x);
         cuboid->normalData.push_back(tmp->y);
         cuboid->normalData.push_back(tmp->z);
-        cuboid->tangentData.push_back(0);
-        cuboid->tangentData.push_back(0);
-        cuboid->tangentData.push_back(0);
+    }
+    for(auto &index: tangentIndices) {
+        tmp = &tangents[index];
+
+        cuboid->tangentData.push_back(tmp->x);
+        cuboid->tangentData.push_back(tmp->y);
+        cuboid->tangentData.push_back(tmp->z);
     }
     for(unsigned int i = 0; i < 36; ++i)
         cuboid->indices.push_back(i); // the vertices are already ordered

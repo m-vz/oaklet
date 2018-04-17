@@ -1,20 +1,24 @@
 //
-// Created by Milan van Zanten on 16.04.18.
+// Created by Milan van Zanten on 17.04.18.
 //
 
-#include "FlatLightingTechnique.h"
+#include "SimpleLightingTechnique.h"
 #include "../../exception/Exception.h"
-#include "../light/PointLight.h"
 
-void FlatLightingTechnique::init() {
-    Technique::init();
-    addShader(GL_VERTEX_SHADER, "assets/shaders/flat_vertex.glsl");
-    addShader(GL_FRAGMENT_SHADER, "assets/shaders/flat_fragment.glsl");
+void SimpleLightingTechnique::init() {
+    LightingTechnique::init();
+    addShader(GL_VERTEX_SHADER, "assets/shaders/simple_vertex.glsl");
+    addShader(GL_FRAGMENT_SHADER, "assets/shaders/simple_fragment.glsl");
     finalize();
 
     viewID = getUniformLocation("view");
+
     modelID = getUniformLocation("model");
     mvpID = getUniformLocation("mvp");
+
+    diffuseTextureSamplerID = getUniformLocation("diffuseTextureSampler");
+    normalTextureSamplerID = getUniformLocation("normalTextureSampler");
+    specularTextureSamplerID = getUniformLocation("specularTextureSampler");
 
     pointLightCountID = getUniformLocation("pointLightCount");
     for(int i = 0; i < MAX_POINT_LIGHTS; ++i) {
@@ -27,7 +31,7 @@ void FlatLightingTechnique::init() {
     }
 }
 
-void FlatLightingTechnique::setPointLights(unsigned long lightCount, const std::vector<PointLight*> &lights) {
+void SimpleLightingTechnique::setPointLights(unsigned long lightCount, const std::vector<PointLight *> &lights) {
     if(lightCount > MAX_POINT_LIGHTS)
         throw Exception("Light count cannot be larger than MAX_POINT_LIGHTS."); // NOLINT
 
@@ -43,14 +47,6 @@ void FlatLightingTechnique::setPointLights(unsigned long lightCount, const std::
     }
 }
 
-void FlatLightingTechnique::setView(const glm::mat4 &view) {
+void SimpleLightingTechnique::setView(const glm::mat4 &view) {
     glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
-}
-
-void FlatLightingTechnique::setModel(const glm::mat4 &model) {
-    glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
-}
-
-void FlatLightingTechnique::setMVP(const glm::mat4 &mvp) {
-    glUniformMatrix4fv(mvpID, 1, GL_FALSE, &mvp[0][0]);
 }
