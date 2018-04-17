@@ -17,8 +17,6 @@ public:
     Mouse *mouse;
     Keyboard *keyboard;
     Window *window;
-    Time *time;
-    FreeCamera *camera;
 
     explicit IOControl(GLFWwindow *window);
     void processInput();

@@ -9,6 +9,7 @@
 
 class Camera {
 public:
+    virtual void update(long long int time)= 0;
     virtual void changeAspect(int width, int height) = 0;
     const glm::mat4 &getView() const;
     const glm::mat4 &getProjection() const;

@@ -96,9 +96,9 @@ GLuint FileLoader::loadShaders(const char *vertexShaderPath, const char *fragmen
     glGetProgramiv(programID, GL_LINK_STATUS, &result);
     glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &infoLogLength);
     if(infoLogLength > 0) {
-        std::vector<char> ProgramErrorMessage(static_cast<unsigned long>(infoLogLength + 1));
-        glGetProgramInfoLog(programID, infoLogLength, nullptr, &ProgramErrorMessage[0]);
-        Log::log << LOG_ERROR << &ProgramErrorMessage[0];
+        std::vector<char> programErrorMessage(static_cast<unsigned long>(infoLogLength + 1));
+        glGetProgramInfoLog(programID, infoLogLength, nullptr, &programErrorMessage[0]);
+        Log::log << LOG_ERROR << &programErrorMessage[0];
     }
 
     glDetachShader(programID, vertexShaderID);

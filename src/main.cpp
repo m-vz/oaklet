@@ -17,6 +17,7 @@ bool shouldEnd = false;
 Renderer *renderer;
 IOControl *ioControl;
 World *world;
+FreeCamera *mainCamera;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -36,15 +37,17 @@ void toggleFullscreen(Keyboard &keyboard, int key, int scancode, int mods) {
 #pragma clang diagnostic pop
 
 void resize(Window &window, int width, int height) {
-    ioControl->camera->changeAspect(width, height);
+    mainCamera->changeAspect(width, height);
 }
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 void scrollMesh(Mouse &mouse, double xOffset, double yOffset) {
-    renderer->lightPositionVector.x += xOffset/5.0f;
-    renderer->lightPositionVector.z += yOffset/5.0f;
-    Log::log << LOG_INFO << renderer->lightPositionVector;
+    world->activeScene->pointLights[0]->lightPosition.x += 2*xOffset/5.0f;
+    world->activeScene->pointLights[0]->lightPosition.z += 2*yOffset/5.0f;
+    world->activeScene->pointLights[1]->lightPosition.x += xOffset/5.0f;
+    world->activeScene->pointLights[1]->lightPosition.z += yOffset/5.0f;
+    Log::log << LOG_INFO << world->activeScene->pointLights[0]->lightPosition;
 }
 #pragma clang diagnostic pop
 
@@ -52,16 +55,22 @@ int main() {
     renderer = new Renderer;
     renderer->init(CONFIG.DEFAULT_WINDOW_WIDTH, CONFIG.DEFAULT_WINDOW_HEIGHT);
     ioControl = new IOControl(renderer->getWindow());
+    mainCamera = new FreeCamera(*ioControl->window, *ioControl->mouse, *ioControl->keyboard);
     world = new World;
-    renderer->camera = ioControl->camera;
-    ioControl->time = world->time;
+    world->activeScene = new Scene(mainCamera);
+    world->scenes.push_back(world->activeScene);
+    renderer->camera = mainCamera;
 
-    auto *entity = new Entity();
-    auto *floor = new Model();
-    MeshFactory::addCube(floor, glm::vec3(0, 1, 0), 2, glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), glm::vec4(0.9f, 0.1f, 0.0f, 1.0f));
-    entity->setModel(floor);
-    world->physics->addPhysicsObject(entity->getRigidBody());
-    renderer->floor = floor;
+    Model test = Model();
+    MeshFactory::addPlane(&test, glm::vec3(0.0f), 10000, 10000, glm::vec3(0, 1, 0), glm::vec3(0, 0, -1), glm::vec4(0.6f, 0.5f, 0.4f, 1));
+    MeshFactory::addCuboid(&test, glm::vec3(-2.5f, 0.5f, 0.0f), 0.6f, 1.0f, 2.3f, glm::vec3(-0.2f, 0.0f, -1.0f), glm::vec3(0, 1, 0), glm::vec4(0.2f, 1.0f, 0.4f, 1.0f));
+    MeshFactory::addCube(&test, glm::vec3(0, 1, 0), 2, glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), glm::vec4(0.9f, 0.1f, 0.0f, 1.0f));
+    Entity testEntity = Entity();
+    testEntity.setModel(&test);
+    world->activeScene->entities.push_back(&testEntity);
+    PointLight testLight = PointLight(glm::vec3(0, 10, 0), glm::vec3(0.2f, 1, 0.2f), 80), testLight2 = PointLight(glm::vec3(0, 10, 0), glm::vec3(1, 0.2f, 0.2f), 60);
+    world->activeScene->pointLights.push_back(&testLight);
+    world->activeScene->pointLights.push_back(&testLight2);
 
     ioControl->keyboard->addReleasedCallback(endProgram, GLFW_KEY_ESCAPE);
     ioControl->keyboard->addReleasedCallback(toggleFullscreen, GLFW_KEY_F);
@@ -89,6 +98,9 @@ int main() {
          */
         Log::log << LOG_FRAME << "Updating world by " << (int) (timeLag - timeLag%CONFIG.TIME_TICK_DURATION) << "ns.";
 
+        // special updates that are run once per frame
+        world->perFrameUpdate(world->time->deltaTime());
+
         // first update this frame
         // update world and lag once
         world->firstUpdateInFrame(CONFIG.TIME_TICK_DURATION);
@@ -105,7 +117,7 @@ int main() {
         /*
          * render
          */
-        renderer->render(timeLag);
+        renderer->renderScene(world->activeScene, timeLag);
 
         if(shouldEnd)
             break;
@@ -114,6 +126,7 @@ int main() {
     delete renderer;
     delete ioControl;
     delete world;
+    delete mainCamera;
 
     return 0;
 }

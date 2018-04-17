@@ -8,11 +8,17 @@
 World::World() {
     time = new Time;
     physics = new Physics;
+}
 
+void World::perFrameUpdate(long long int frameTime) {
+    // special updates that run once per frame go here
+    for(auto scene: scenes)
+        for(auto camera: scene->cameras)
+            camera->update(frameTime);
 }
 
 void World::firstUpdateInFrame(long long int deltaTime) {
-    // special updates at the start of each frame go here.
+    // special updates at the start of each frame go here
 
     // do the usual updates as well
     update(deltaTime);

@@ -7,14 +7,17 @@
 
 #include "Time.h"
 #include "physics/Physics.h"
+#include "Scene.h"
 
 class World {
 public:
     Time *time;
     Physics *physics;
+    std::vector<Scene*> scenes;
+    Scene *activeScene;
 
     World();
-
+    void perFrameUpdate(long long int frameTime);
     void firstUpdateInFrame(long long int deltaTime);
     void update(long long int deltaTime);
     long long int age();

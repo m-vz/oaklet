@@ -67,7 +67,9 @@ void Model::loadModel(const std::string &path) {
     }
 }
 
-void Model::render(GLuint modelMatrixID, GLuint diffuseTextureSamplerID, GLuint normalTextureSamplerID, GLuint specularTextureSamplerID) {
+void Model::render(LightingTechnique &technique, glm::mat4 vp) {
+    glm::mat4 mvp;
+
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
@@ -99,25 +101,21 @@ void Model::render(GLuint modelMatrixID, GLuint diffuseTextureSamplerID, GLuint 
 
             if(material.find(TEXTURE_DIFFUSE) != material.end()) {
                 material[TEXTURE_DIFFUSE]->bindTexture(TEXTURE_DIFFUSE);
-                glUniform1i(diffuseTextureSamplerID, TEXTURE_DIFFUSE);
             }
             if(material.find(TEXTURE_NORMAL) != material.end()) {
                 material[TEXTURE_NORMAL]->bindTexture(TEXTURE_NORMAL);
-                glUniform1i(normalTextureSamplerID, TEXTURE_NORMAL);
             }
             if(material.find(TEXTURE_SPECULAR) != material.end()) {
                 material[TEXTURE_SPECULAR]->bindTexture(TEXTURE_SPECULAR);
-                glUniform1i(specularTextureSamplerID, TEXTURE_SPECULAR);
             }
         } else {
             blackTexture->bindTexture(TEXTURE_DIFFUSE);
-            glUniform1i(diffuseTextureSamplerID, TEXTURE_DIFFUSE);
             whiteTexture->bindTexture(TEXTURE_NORMAL);
-            glUniform1i(normalTextureSamplerID, TEXTURE_NORMAL);
             whiteTexture->bindTexture(TEXTURE_SPECULAR);
-            glUniform1i(specularTextureSamplerID, TEXTURE_SPECULAR);
         }
-        glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, &modelMatrix[0][0]);
+        technique.setModel(modelMatrix);
+        mvp = vp*modelMatrix;
+        technique.setMVP(mvp);
 
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->indices.size()), GL_UNSIGNED_INT, 0); // NOLINT
     }

@@ -4,13 +4,13 @@ layout(location = 0) in vec3 modelspaceVertexPosition;
 layout(location = 2) in vec3 modelspaceVertexNormal;
 layout(location = 4) in vec4 color;
 
-uniform mat4 model, view, projection;
+uniform mat4 mvp, model, view;
 
 out vec3 worldspaceNormal, worldspaceVertexPosition, worldspaceCameraDirection;
 out vec4 vertexColor;
 
 void main() {
-    gl_Position = (projection * view * model) * vec4(modelspaceVertexPosition, 1);
+    gl_Position = mvp * vec4(modelspaceVertexPosition, 1);
 
     vertexColor = color;
 

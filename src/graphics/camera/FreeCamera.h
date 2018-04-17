@@ -16,7 +16,7 @@ public:
 
     FreeCamera(Window &capturedIn, Mouse &mouse, Keyboard &keyboard);
     void changeAspect(int width, int height) override;
-    void update(long long int time);
+    void update(long long int time) override;
 
 private:
     bool mouseCaptured = true;

@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include "Mesh.h"
 #include "Texture.h"
+#include "../technique/LightingTechnique.h"
 
 class Model {
 public:
@@ -18,7 +19,7 @@ public:
 
     Model();
     void loadModel(const std::string &path);
-    void render(GLuint modelMatrixID, GLuint diffuseTextureSamplerID, GLuint normalTextureSamplerID, GLuint specularTextureSamplerID);
+    void render(LightingTechnique &technique, glm::mat4 vp);
     void setTranslation(glm::vec3 translation);
     void translate(glm::vec3 translation);
     void setRotation(float angle, glm::vec3 axis);
