@@ -35,4 +35,6 @@ long long int World::age() {
 World::~World() {
     delete time;
     delete physics;
+    for(auto scene: scenes)
+        delete scene;
 }

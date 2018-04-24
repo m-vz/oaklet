@@ -23,7 +23,13 @@ Model *MeshFactory::addPlane(Model *addTo,
             origin - widthHalf*tangent - heightHalf*up,
             origin + widthHalf*tangent - heightHalf*up,
             origin + widthHalf*tangent + heightHalf*up,
-            origin - widthHalf*tangent + heightHalf*up,
+            origin - widthHalf*tangent + heightHalf*up
+    };
+    glm::vec2 uvs[4] = {
+            glm::vec2(0, 0),
+            glm::vec2(1, 0),
+            glm::vec2(1, 1),
+            glm::vec2(0, 1)
     };
     unsigned int indices[6] = {
             0, 1, 2,
@@ -48,12 +54,15 @@ Model *MeshFactory::addPlane(Model *addTo,
         plane->colorData.push_back(color.b);
         plane->colorData.push_back(color.a);
     }
-
+    for(auto &uv: uvs) {
+        plane->uvData.push_back(uv.x);
+        plane->uvData.push_back(uv.y);
+    }
     for(auto &index: indices)
         plane->indices.push_back(index);
 
     /* fill mesh and add to model */
-    plane->fillBuffers(false, true, true, true);
+    plane->fillBuffers(true, true, true, true);
 
     addTo->meshes.push_back(plane);
     return addTo;

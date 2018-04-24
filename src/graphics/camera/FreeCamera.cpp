@@ -9,7 +9,7 @@
 
 FreeCamera::FreeCamera(Window &capturedIn, Mouse &mouse, Keyboard &keyboard, glm::vec3 position, glm::vec2 angles)
         : capturedIn(capturedIn), position(position), angles(angles) {
-    changeAspect(capturedIn.getWindowWidth(), capturedIn.getWindowHeight());
+    changeAspectRatio(capturedIn.getWindowWidth(), capturedIn.getWindowHeight());
     update(0);
 
     mouse.capture(capturedIn);
@@ -86,9 +86,11 @@ FreeCamera::FreeCamera(Window &capturedIn, Mouse &mouse, Keyboard &keyboard, glm
     }, GLFW_KEY_LEFT_SHIFT);
 }
 
-void FreeCamera::changeAspect(int width, int height) {
+void FreeCamera::changeAspectRatio(int width, int height) {
+    aspectRatio = (float) width / (float) height;
+
     // projection matrix: 45° field of view, display range : 0.1 unit <-> 100 units
-    projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
 }
 
 void FreeCamera::update(long long int time) {

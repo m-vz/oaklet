@@ -8,16 +8,20 @@
 #include <GL/glew.h>
 #include <glm/ext.hpp>
 #include <GLFW/glfw3.h>
-#include "model/Texture.h"
+#include "texture/Texture.h"
 #include "../io/Mouse.h"
 #include "camera/FreeCamera.h"
 #include "BitmapFont.h"
 #include "model/Model.h"
 #include "../world/Scene.h"
 #include "technique/SimpleLightingTechnique.h"
+#include "technique/ShadowMapTechnique.h"
 
 class Renderer {
 public:
+    SimpleLightingTechnique lighting;
+    ShadowMapTechnique shadowing;
+
     FreeCamera *camera;
 
     BitmapFont *font;
@@ -31,7 +35,6 @@ public:
 
 private:
     bool initialized = false;
-    SimpleLightingTechnique lighting;
     GLuint vertexArrayID;
     GLFWwindow *window;
 };

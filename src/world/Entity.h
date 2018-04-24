@@ -13,6 +13,7 @@ public:
     void setModel(Model *model);
     Model *getModel() const;
     RigidBody *getRigidBody() const;
+    virtual ~Entity();
 
 private:
     Model *model;

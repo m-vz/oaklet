@@ -9,13 +9,15 @@ CirclingCamera::CirclingCamera(int width, int height,
                                float distance, float angle, float speed,
                                glm::vec3 lookingAt)
         : distance(distance), angle(angle), speed(speed), lookingAt(lookingAt) {
-    changeAspect(width, height);
+    changeAspectRatio(width, height);
     update(0);
 }
 
-void CirclingCamera::changeAspect(int width, int height) {
+void CirclingCamera::changeAspectRatio(int width, int height) {
+    aspectRatio = (float) width / (float) height;
+
     // projection matrix: 45° field of view, display range : 0.1 unit <-> 100 units
-    projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
 }
 
 void CirclingCamera::update(long long int time) {

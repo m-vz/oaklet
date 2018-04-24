@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <set>
 #include <glm/glm.hpp>
-#include "model/Texture.h"
+#include "texture/Texture.h"
 
 class BitmapFont {
 public:

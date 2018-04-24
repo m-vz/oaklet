@@ -13,29 +13,34 @@ enum TextureType {
     TEXTURE_DIFFUSE = 0,
     TEXTURE_NORMAL,
     TEXTURE_SPECULAR,
-    TEXTURE_MAX
+    TEXTURE_DEPTH
 };
 
 class Texture {
 public:
     static const int MAX_POWER_OF_TWO_TEXTURE_SIZE = 16384; // 2^14, largest size for a power-of-two texture to be recognized as one.
+
     int imageWidth, imageHeight, channelCount;
-    unsigned char *textureData;
+    unsigned char *textureData = nullptr;
     GLuint textureID;
 
-    explicit Texture(const std::string &texturePath, int desiredChannelCount = 3);
+    explicit Texture(int width, int height, bool convertToLinearSpace, int desiredChannelCount = 3);
+    explicit Texture(const std::string &texturePath, bool convertToLinearSpace, int desiredChannelCount = 3);
     void bindTexture(int unit);
-    void fillTexture();
-    void useLinearFiltering(bool filter = true);
+    void fillTexture(bool filter = true, bool mipmap = false, bool checkPowerOfTwo = true);
     virtual ~Texture();
 
     static aiTextureType textureTypeToAITextureType(TextureType type);
 
-private:
-    GLint format;
-    bool filter = true;
+protected:
+    GLint internalFormat;
+    GLenum format;
+    GLenum type = GL_UNSIGNED_BYTE;
 
-    void setFilter();
+private:
+    bool freeTextureData = false;
+
+    void init(int desiredChannelCount, bool convertToLinearSpace);
 };
 
 #endif //BESTEST_GAME_TEXTURE_H

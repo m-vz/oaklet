@@ -5,11 +5,6 @@ const int MAX_POINT_LIGHTS = 4;
 const int MAX_SPOT_LIGHTS = 4;
 const float SCREEN_GAMMA = 2.2;
 
-in vec2 tangentspaceVertexUV;
-in vec4 vertexColor;
-in vec3 worldspaceVertexPosition, worldspaceCameraDirection;
-in mat3 tbn;
-
 struct Attenuation {
     float exponential;
     float linear;
@@ -17,6 +12,8 @@ struct Attenuation {
 };
 
 struct DirectionalLight {
+    mat4 vp;
+    sampler2D shadowMapTextureSampler;
     vec3 direction;
     vec3 color;
     float power;
@@ -30,6 +27,8 @@ struct PointLight {
 };
 
 struct SpotLight {
+    mat4 vp;
+    sampler2D shadowMapTextureSampler;
     vec3 position;
     vec3 direction;
     vec3 color;
@@ -46,12 +45,37 @@ uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 uniform int spotLightCount;
 uniform sampler2D diffuseTextureSampler, normalTextureSampler, specularTextureSampler;
 
+in vec2 tangentspaceVertexUV;
+in vec4 vertexColor;
+in vec3 worldspaceVertexPosition, worldspaceCameraDirection;
+in mat3 tbn;
+in vec4 directionalLightVertexPositions[MAX_DIRECTIONAL_LIGHTS];
+in vec4 spotLightVertexPositions[MAX_SPOT_LIGHTS];
+
 out vec3 color;
+
+float shadowCalculation(vec4 lightVertexPosition, vec3 vertexNormal, vec3 lightDirection, sampler2D shadowMapTextureSampler) {
+    vec3 position = (lightVertexPosition.xyz / lightVertexPosition.w) * 0.5 + 0.5; // perspective division (xyz/w) and transformation from [-1, 1] to [0, 1]
+    float currentDepth = position.z;
+    float bias = max(0.005 * (1.0 - dot(vertexNormal, lightDirection)), 0.0005);
+
+    float shadow = 0.0;
+
+    if(position.z <= 1.0) { // leave position values outside the light view frustum at 0
+        vec2 texelSize = 1.0/textureSize(shadowMapTextureSampler, 0);
+        for(int y = -1; y <= 1; y++)
+            for(int x = -1; x <= 1; x++)
+                shadow += currentDepth - bias > texture(shadowMapTextureSampler, position.xy + vec2(x, y)*texelSize).r ? 1 : 0;
+        shadow /= 9;
+    }
+
+    return shadow;
+}
 
 void main() {
     float shininess = 16;
     vec3 diffuseColor = clamp(texture(diffuseTextureSampler, tangentspaceVertexUV).rgb + vertexColor.rgb, 0, 1);
-    vec3 ambientColor = vec3(0.2) * diffuseColor;
+    vec3 ambientColor = vec3(0.05) * diffuseColor;
     vec3 specularColor = texture(specularTextureSampler, tangentspaceVertexUV).rgb;
     color = ambientColor;
 
@@ -67,8 +91,9 @@ void main() {
             specular = pow(cosAlpha, shininess);
         }
 
-        color += diffuseColor * directionalLights[i].color*directionalLights[i].power * lambertian +
-                 specularColor * directionalLights[i].color*directionalLights[i].power * specular;
+        color += (diffuseColor * directionalLights[i].color*directionalLights[i].power * lambertian +
+                 specularColor * directionalLights[i].color*directionalLights[i].power * specular) *
+                 (1 - shadowCalculation(directionalLightVertexPositions[i], worldspaceNormal, normalize(spotLights[i].position - worldspaceVertexPosition), directionalLights[i].shadowMapTextureSampler));
     }
 
     for(int i = 0; i < pointLightCount; i++) {
@@ -114,10 +139,16 @@ void main() {
 
             color += (diffuseColor * spotLights[i].color*spotLights[i].power * lambertian / attenuation +
                      specularColor * spotLights[i].color*spotLights[i].power * specular / attenuation) *
-                     (1 - (1 - spotlightFactor) * 1/(1 - spotLights[i].cutoff));
+                     (1 - (1 - spotlightFactor) * 1/(1 - spotLights[i].cutoff)) *
+                     (1 - shadowCalculation(spotLightVertexPositions[i], worldspaceNormal, worldspaceLightDirection, spotLights[i].shadowMapTextureSampler));
         }
     }
 
-    // gamma correction
-    // color = pow(color, vec3(1/SCREEN_GAMMA));
+    // gamma correction (conversion from linear colours to srgb)
+    if(color.r <= 0.00313066844250063) color.r *= 12.92;
+    else color.r = 1.055*pow(color.r, 0.416666667) - 0.055;
+    if(color.g <= 0.00313066844250063) color.g *= 12.92;
+    else color.g = 1.055*pow(color.g, 0.416666667) - 0.055;
+    if(color.b <= 0.00313066844250063) color.b *= 12.92;
+    else color.b = 1.055*pow(color.b, 0.416666667) - 0.055;
 }

@@ -9,6 +9,10 @@
 
 class PointLight {
 public:
+    static constexpr float DEFAULT_ATTENUATION_EXPONENTIAL = 1;
+    static constexpr float DEFAULT_ATTENUATION_LINEAR = 0;
+    static constexpr float DEFAULT_ATTENUATION_CONSTANT = 0;
+
     glm::vec3 lightPosition;
     glm::vec3 lightColor;
     float lightPower;
@@ -20,7 +24,9 @@ public:
 
     PointLight(glm::vec3 lightPosition,
                glm::vec3 lightColor, float lightPower,
-               float constantAttenuation = 0, float linearAttenuation = 0, float exponentialAttenuation = 1);
+               float exponentialAttenuation = DEFAULT_ATTENUATION_EXPONENTIAL,
+               float linearAttenuation = DEFAULT_ATTENUATION_LINEAR,
+               float constantAttenuation = DEFAULT_ATTENUATION_CONSTANT);
 };
 
 #endif //BESTEST_GAME_POINTLIGHT_H

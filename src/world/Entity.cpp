@@ -16,3 +16,7 @@ Model *Entity::getModel() const {
 RigidBody *Entity::getRigidBody() const {
     return rigidBody;
 }
+
+Entity::~Entity() {
+    delete rigidBody;
+}

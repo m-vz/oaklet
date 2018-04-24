@@ -16,7 +16,7 @@ Mesh::Mesh() {
     generateBuffers(&colorBuffer);
 }
 
-void Mesh::initMesh(const aiMesh *aiMesh, int materialIndexOffset) {
+void Mesh::initFromAIMesh(const aiMesh *aiMesh, int materialIndexOffset) {
     materialIndex = aiMesh->mMaterialIndex + materialIndexOffset;
 
     /* vertex data */
@@ -127,6 +127,18 @@ void Mesh::fillBuffer(std::vector<T> *data, GLenum target, GLenum usage) {
         throw Exception("Data is empty, cannot fill buffer."); // NOLINT
 
     glBufferData(target, data->size() * sizeof(T), &(*data)[0], usage);
+}
+
+bool Mesh::containsNormalData() const {
+    return hasNormalData;
+}
+
+bool Mesh::containsTangentData() const {
+    return hasTangentData;
+}
+
+bool Mesh::containsColorData() const {
+    return hasColorData;
 }
 
 Mesh::~Mesh() {

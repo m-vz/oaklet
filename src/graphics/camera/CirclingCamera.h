@@ -14,8 +14,8 @@ public:
     CirclingCamera(int width, int height,
                    float distance, float angle, float speed = 0.0f,
                    glm::vec3 lookingAt = glm::vec3(0, 0, 0));
-    void changeAspect(int width, int height) override;
-    void update(long long int time);
+    void changeAspectRatio(int width, int height) override;
+    void update(long long int time) override;
     const glm::vec3 &getPosition() const;
     const glm::vec3 &getLookingAt() const;
 

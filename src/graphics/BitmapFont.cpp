@@ -14,8 +14,7 @@ GLuint BitmapFont::bitmapProgramID = 0;
 
 BitmapFont::BitmapFont(const std::string &bitmapPath, glm::vec2 bitmapArrayDimensions, glm::vec2 bitmapCharacterSize, std::vector<char> characters)
         : bitmapArrayDimensions(bitmapArrayDimensions), bitmapCharacterSize(bitmapCharacterSize) {
-    bitmapTexture = new Texture(bitmapPath);
-    bitmapTexture->useLinearFiltering(false);
+    bitmapTexture = new Texture(bitmapPath, true);
 
     if(bitmapTexture->imageWidth != bitmapArrayDimensions.x*bitmapCharacterSize.x)
         throw IOException("Bitmap texture width " + std::to_string(bitmapTexture->imageWidth) + " does not match required width " + std::to_string(bitmapArrayDimensions.x*bitmapCharacterSize.x));
@@ -23,7 +22,7 @@ BitmapFont::BitmapFont(const std::string &bitmapPath, glm::vec2 bitmapArrayDimen
         throw IOException("Bitmap texture height " + std::to_string(bitmapTexture->imageHeight) + " does not match required height " + std::to_string(bitmapArrayDimensions.y*bitmapCharacterSize.y));
 
     bitmapTexture->bindTexture(0);
-    bitmapTexture->fillTexture();
+    bitmapTexture->fillTexture(false);
 
     if(!shadersLoaded)
         loadShaders();

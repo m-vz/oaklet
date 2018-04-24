@@ -9,22 +9,13 @@
 #include <glm/ext.hpp>
 #include "Model.h"
 #include "../../io/FileLoader.h"
+#include "../../exception/Exception.h"
 
 Model::Model() {
     calculateTranslationMatrix();
     calculateRotationMatrix();
     calculateScaleMatrix();
     calculateModelMatrix();
-
-    blackTexture = new Texture("assets/images/pixel_black.png");
-    blackTexture->bindTexture(0);
-    blackTexture->fillTexture();
-    whiteTexture = new Texture("assets/images/pixel_white.png");
-    whiteTexture->bindTexture(0);
-    whiteTexture->fillTexture();
-    outwardsTexture = new Texture("assets/images/pixel_outwards.png");
-    outwardsTexture->bindTexture(0);
-    outwardsTexture->fillTexture();
 }
 
 void Model::loadModel(const std::string &path) {
@@ -37,7 +28,7 @@ void Model::loadModel(const std::string &path) {
     meshes.resize(oldSize + aiScene->mNumMeshes);
     for(unsigned long i = oldSize; i < meshes.size(); i++) {
         auto *mesh = new Mesh();
-        mesh->initMesh(aiScene->mMeshes[i - oldSize], static_cast<int>(materials.size()));
+        mesh->initFromAIMesh(aiScene->mMeshes[i - oldSize], static_cast<int>(materials.size()));
         meshes[i] = mesh;
     }
 
@@ -48,8 +39,8 @@ void Model::loadModel(const std::string &path) {
         const aiMaterial *aiMaterial = aiScene->mMaterials[i - oldSize];
 
         // search textures for all supported texture types
-        for(int j = 0; j < TEXTURE_MAX; ++j) {
-            aiTextureType aiType = Texture::textureTypeToAITextureType(static_cast<TextureType>(j));
+        for(TextureType type: TEXTURES_TO_LOAD) {
+            aiTextureType aiType = Texture::textureTypeToAITextureType(type);
 
             if(aiMaterial->GetTextureCount(aiType) > 0) { // the material contains a texture for the current type
                 aiString texturePath;
@@ -63,80 +54,32 @@ void Model::loadModel(const std::string &path) {
 
                     texture = new Texture(
                             path.substr(0, path.find_last_of("\\/") + 1) +
-                            texturePathString.substr(static_cast<unsigned long>(offset))
+                            texturePathString.substr(static_cast<unsigned long>(offset)),
+                            (type == TEXTURE_DIFFUSE) // only convert diffuse textures to
                     );
                     texture->bindTexture(0);
                     texture->fillTexture();
-                    materials[i][static_cast<TextureType>(j)] = texture;
+                    materials[i][type] = texture;
+                    texturesToDelete.push_back(texture);
                 }
             }
         }
     }
 }
 
-void Model::render(LightingTechnique &technique, glm::mat4 vp) {
-    glm::mat4 mvp;
+void Model::setMeshTexture(int meshIndex, TextureType type, Texture *texture) {
+    if(meshIndex >= meshes.size())
+        throw Exception("Mesh index out of bounds."); // NOLINT
 
-    for(auto mesh: meshes) {
-        mesh->bindBuffer(mesh->vertexBuffer);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-        mesh->bindBuffer(mesh->uvBuffer);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-        if(mesh->hasNormalData) {
-            mesh->bindBuffer(mesh->normalBuffer);
-            glEnableVertexAttribArray(2);
-            glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-        }
-        if(mesh->hasTangentData) {
-            mesh->bindBuffer(mesh->tangentBuffer);
-            glEnableVertexAttribArray(3);
-            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-        }
-        if(mesh->hasColorData) {
-            mesh->bindBuffer(mesh->colorBuffer);
-            glEnableVertexAttribArray(4);
-            glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-        }
+    Mesh *addTo = meshes[meshIndex];
 
-        mesh->bindBuffer(mesh->indexBuffer, GL_ELEMENT_ARRAY_BUFFER);
-
-        if(mesh->materialIndex >= 0) {
-            std::unordered_map<TextureType, Texture*, std::hash<int>> &material = materials[mesh->materialIndex];
-
-            if(material.find(TEXTURE_DIFFUSE) != material.end()) {
-                material[TEXTURE_DIFFUSE]->bindTexture(TEXTURE_DIFFUSE);
-                technique.setDiffuseTextureSampler(TEXTURE_DIFFUSE);
-            }
-            if(material.find(TEXTURE_NORMAL) != material.end()) {
-                material[TEXTURE_NORMAL]->bindTexture(TEXTURE_NORMAL);
-                technique.setNormalTextureSampler(TEXTURE_NORMAL);
-            }
-            if(material.find(TEXTURE_SPECULAR) != material.end()) {
-                material[TEXTURE_SPECULAR]->bindTexture(TEXTURE_SPECULAR);
-                technique.setSpecularTextureSampler(TEXTURE_SPECULAR);
-            }
-        } else {
-            blackTexture->bindTexture(TEXTURE_DIFFUSE);
-            technique.setDiffuseTextureSampler(TEXTURE_DIFFUSE);
-            outwardsTexture->bindTexture(TEXTURE_NORMAL);
-            technique.setNormalTextureSampler(TEXTURE_NORMAL);
-            whiteTexture->bindTexture(TEXTURE_SPECULAR);
-            technique.setSpecularTextureSampler(TEXTURE_SPECULAR);
-        }
-        technique.setModel(modelMatrix);
-        mvp = vp*modelMatrix;
-        technique.setMVP(mvp);
-
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->indices.size()), GL_UNSIGNED_INT, 0); // NOLINT
-
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
-        glDisableVertexAttribArray(3);
-        glDisableVertexAttribArray(4);
+    if(addTo->materialIndex < 0) {
+        addTo->materialIndex = materials.size();
+        materials.resize(static_cast<unsigned long>(addTo->materialIndex) + 1);
     }
+
+    materials[addTo->materialIndex][type] = texture;
+    int a = 3;
 }
 
 void Model::setTranslation(glm::vec3 translation) {
@@ -197,15 +140,11 @@ void Model::scale(float scale) {
     calculateModelMatrix();
 }
 
-Model::~Model() {
-    delete blackTexture;
-    delete whiteTexture;
-    delete outwardsTexture;
+Model::~Model() { // NOLINT
+    for(auto texture: texturesToDelete)
+        delete texture;
     for(auto mesh: meshes)
         delete mesh;
-    for(auto material: materials)
-        for(int i = 0; i < TEXTURE_MAX; ++i)
-            delete material[static_cast<TextureType>(i)];
 }
 
 void Model::calculateModelMatrix() {

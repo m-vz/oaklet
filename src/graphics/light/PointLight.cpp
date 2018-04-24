@@ -6,7 +6,7 @@
 
 PointLight::PointLight(glm::vec3 lightPosition,
                        glm::vec3 lightColor, float lightPower,
-                       float constantAttenuation, float linearAttenuation, float exponentialAttenuation)
+                       float exponentialAttenuation, float linearAttenuation, float constantAttenuation)
         : lightPosition(lightPosition), lightColor(lightColor), lightPower(lightPower) {
     attenuation = {
         exponentialAttenuation,

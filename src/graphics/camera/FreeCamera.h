@@ -15,7 +15,7 @@ public:
     float speed = 30.0f, friction = 0.1f;
 
     FreeCamera(Window &capturedIn, Mouse &mouse, Keyboard &keyboard, glm::vec3 position, glm::vec2 angles);
-    void changeAspect(int width, int height) override;
+    void changeAspectRatio(int width, int height) override;
     void update(long long int time) override;
 
 private:

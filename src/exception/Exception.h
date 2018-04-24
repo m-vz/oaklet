@@ -42,7 +42,7 @@ public:
 /// An Exception for things that have to be set before they can be accessed.
 class NotSetException: public Exception {
 public:
-    explicit NotSetException(const std::string &message, const int code = 0) : Exception(message + " has to be set before it can be accessed.", code) {};
+    explicit NotSetException(const std::string &message, const int code = 0) : Exception(message + " has to be set.", code) {};
 };
 
 /// An Exception for things that have to be initialized for other things to be initialized.

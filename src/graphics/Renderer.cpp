@@ -52,6 +52,7 @@ void Renderer::init(int width, int height) {
 
     // techniques
     lighting.init();
+    shadowing.init();
 
     // font
     font = new BitmapFont("assets/fonts/bitmap/font_bitmap.bmp", glm::vec2(8, 8), glm::vec2(16, 16),
@@ -63,6 +64,7 @@ void Renderer::init(int width, int height) {
     // options
     glClearColor(0, 0, 0, 1);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS);
 
     initialized = true;
@@ -72,15 +74,10 @@ void Renderer::renderScene(Scene *scene, long long int lag) {
     if(!initialized)
         throw NotInitialisedException("Renderer");
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // NOLINT
+    shadowing.execute();
+//    scene->entities[0]->getModel()->setMeshTexture(1, TEXTURE_DIFFUSE, scene->directionalLights[0]->getShadowMap());
 
-    lighting.enable();
-    lighting.setDirectionalLights(scene->directionalLights.size(), scene->directionalLights);
-    lighting.setPointLights(scene->pointLights.size(), scene->pointLights);
-    lighting.setSpotLights(scene->spotLights.size(), scene->spotLights);
-    lighting.setView(scene->activeCamera->getView());
-    for(auto entity: scene->entities)
-        entity->getModel()->render(lighting, scene->activeCamera->getProjection()*scene->activeCamera->getView());
+    lighting.execute();
 
     glfwSwapBuffers(window);
 }

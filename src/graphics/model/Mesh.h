@@ -23,13 +23,16 @@ public:
     std::vector<float> vertexData, normalData, tangentData, uvData;
     /// Color data structure where every four numbers represent a color (r, g, b, a)
     std::vector<float> colorData;
-    int materialIndex = -1;
+    long materialIndex = -1;
 
     Mesh();
-    void initMesh(const aiMesh* aiMesh, int materialIndexOffset);
+    void initFromAIMesh(const aiMesh *aiMesh, int materialIndexOffset);
     void generateBuffers(GLuint *buffers, int number = 1);
     void bindBuffer(GLuint buffer, GLenum type = GL_ARRAY_BUFFER);
     template<typename T> void fillBuffer(std::vector<T> *data, GLenum target = GL_ARRAY_BUFFER, GLenum usage = GL_STATIC_DRAW);
+    bool containsNormalData() const;
+    bool containsTangentData() const;
+    bool containsColorData() const;
     virtual ~Mesh();
 
 private:

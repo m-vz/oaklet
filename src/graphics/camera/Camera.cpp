@@ -11,3 +11,7 @@ const glm::mat4 &Camera::getView() const {
 const glm::mat4 &Camera::getProjection() const {
     return projection;
 }
+
+float Camera::getAspectRatio() const {
+    return aspectRatio;
+}

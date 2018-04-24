@@ -19,6 +19,7 @@ Renderer *renderer;
 IOControl *ioControl;
 World *world;
 FreeCamera *mainCamera;
+float angle = -0.44f;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -34,12 +35,11 @@ void toggleFullscreen(Keyboard &keyboard, int key, int scancode, int mods) {
 }
 
 void resize(Window &window, int width, int height) {
-    mainCamera->changeAspect(width, height);
+    mainCamera->changeAspectRatio(width, height);
 }
 
-void scrollMesh(Mouse &mouse, double xOffset, double yOffset) {
-    world->activeScene->spotLights[0]->lightPosition.x += xOffset/5.0f;
-    world->activeScene->spotLights[0]->lightPosition.y -= yOffset/5.0f;
+void scroll(Mouse &mouse, double xOffset, double yOffset) {
+
 }
 #pragma clang diagnostic pop
 
@@ -49,34 +49,43 @@ int main() {
     renderer = new Renderer;
     renderer->init(CONFIG.DEFAULT_WINDOW_WIDTH, CONFIG.DEFAULT_WINDOW_HEIGHT);
     ioControl = new IOControl(renderer->getWindow());
+    renderer->lighting.setViewportSize(ioControl->window->getFramebufferWidth(), ioControl->window->getFramebufferHeight());
     mainCamera = new FreeCamera(*ioControl->window, *ioControl->mouse, *ioControl->keyboard, glm::vec3(6, 8, 12), glm::vec2(-0.3f, 0.4f));
     world = new World;
     world->activeScene = new Scene(mainCamera);
     world->scenes.push_back(world->activeScene);
     renderer->camera = mainCamera;
 
-    Model test = Model(), test2 = Model();
-    Entity testEntity = Entity(), testEntity2 = Entity();
-    DirectionalLight testSunLight = DirectionalLight(glm::vec3(1, 1, -1), glm::vec3(0.933333333f, 0.847058824f, 0.62745098f), 1);
+    Model test = Model();
+    Entity testEntity = Entity();
+
+    Texture blackTexture("assets/images/pixel_black.png", true);//, gammaTest("assets/images/gamma_test_fine.jpg", true);
+    blackTexture.bindTexture(0);
+    blackTexture.fillTexture(false);
+//    gammaTest.bindTexture(0);
+//    gammaTest.fillTexture(false);
+
+    DirectionalLight testSunLight = DirectionalLight(glm::vec3(cosf(angle), 1, sinf(angle)), glm::vec3(0.933333333f, 0.847058824f, 0.62745098f), 1);
     PointLight testPointLight = PointLight(glm::vec3(0.15f, 3, 6.7f), glm::vec3(0.5f, 0.25f, 0.1f), 4);
-    SpotLight testSpotLight = SpotLight(glm::vec3(6.5f, 4, 4.5f), glm::vec3(-1, 0, -0.5f), glm::vec3(0.9f, 0.8f, 0.55f), 50, 0.9);
+    SpotLight testSpotLight = SpotLight(glm::vec3(3.1f, 4, 7.5f), glm::vec3(-1, -1, -1), glm::vec3(0.9f, 0.8f, 0.55f), 50, glm::radians(30.0f));
 
     test.loadModel("assets/meshes/medieval_house/medieval_house.obj");
+//    MeshFactory::addPlane(&test, glm::vec3(2, 4, 10), 1, 1, glm::vec3(1, 0, 0), glm::vec3(0, 1, 0));
+//    test.setMeshTexture(1, TEXTURE_SPECULAR, &blackTexture);
     MeshFactory::addPlane(&test, glm::vec3(0.0f), 10000, 10000, glm::vec3(0, 1, 0), glm::vec3(0, 0, -1), glm::vec4(0.2f, 0.16f, 0.13f, 1));
 
-    test2.setTranslation(glm::vec3(0, 1, 0));
-
     testEntity.setModel(&test);
-    testEntity2.setModel(&test2);
     world->activeScene->entities.push_back(&testEntity);
-    world->activeScene->entities.push_back(&testEntity2);
     world->activeScene->directionalLights.push_back(&testSunLight);
-    world->activeScene->pointLights.push_back(&testPointLight);
+//    world->activeScene->pointLights.push_back(&testPointLight);
     world->activeScene->spotLights.push_back(&testSpotLight);
+
+    renderer->lighting.setScene(world->activeScene);
+    renderer->shadowing.setScene(world->activeScene);
 
     ioControl->keyboard->addReleasedCallback(endProgram, GLFW_KEY_ESCAPE);
     ioControl->keyboard->addReleasedCallback(toggleFullscreen, GLFW_KEY_F);
-    ioControl->mouse->addScrollCallback(scrollMesh);
+    ioControl->mouse->addScrollCallback(scroll);
     ioControl->window->setWindowSizeLimits(640, 420, GLFW_DONT_CARE, GLFW_DONT_CARE);
     ioControl->window->addFramebufferSizeCallback(resize);
 
@@ -130,7 +139,6 @@ int main() {
     delete renderer;
     delete ioControl;
     delete world;
-    delete mainCamera;
 
     return 0;
 }
