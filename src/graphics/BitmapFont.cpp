@@ -16,12 +16,11 @@ BitmapFont::BitmapFont(const std::string &bitmapPath, glm::vec2 bitmapArrayDimen
         : bitmapArrayDimensions(bitmapArrayDimensions), bitmapCharacterSize(bitmapCharacterSize) {
     bitmapTexture = new Texture(bitmapPath, true);
 
-    if(bitmapTexture->imageWidth != bitmapArrayDimensions.x*bitmapCharacterSize.x)
-        throw IOException("Bitmap texture width " + std::to_string(bitmapTexture->imageWidth) + " does not match required width " + std::to_string(bitmapArrayDimensions.x*bitmapCharacterSize.x));
-    if(bitmapTexture->imageHeight != bitmapArrayDimensions.y*bitmapCharacterSize.y)
-        throw IOException("Bitmap texture height " + std::to_string(bitmapTexture->imageHeight) + " does not match required height " + std::to_string(bitmapArrayDimensions.y*bitmapCharacterSize.y));
+    if(bitmapTexture->getImageWidth() != bitmapArrayDimensions.x*bitmapCharacterSize.x)
+        throw IOException("Bitmap texture width " + std::to_string(bitmapTexture->getImageWidth()) + " does not match required width " + std::to_string(bitmapArrayDimensions.x*bitmapCharacterSize.x));
+    if(bitmapTexture->getImageHeight() != bitmapArrayDimensions.y*bitmapCharacterSize.y)
+        throw IOException("Bitmap texture height " + std::to_string(bitmapTexture->getImageHeight()) + " does not match required height " + std::to_string(bitmapArrayDimensions.y*bitmapCharacterSize.y));
 
-    bitmapTexture->bindTexture(0);
     bitmapTexture->fillTexture(false);
 
     if(!shadersLoaded)
@@ -58,7 +57,7 @@ void BitmapFont::renderText(std::string text, glm::vec2 position, glm::vec2 wind
     std::vector<float> vertex, uv;
     char character;
     glm::vec2 size = bitmapCharacterSize * scale;
-    glm::vec2 topLeft, topRight, bottomLeft, bottomRight, bitmapPosition; // NOLINT
+    glm::vec2 topLeft, topRight, bottomLeft, bottomRight, bitmapPosition;
 
     position.y -= size.y;
 
@@ -107,11 +106,11 @@ void BitmapFont::renderText(std::string text, glm::vec2 position, glm::vec2 wind
 
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0); // NOLINT
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
     glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0); // NOLINT
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
     bitmapTexture->bindTexture(0);
     glUniform1i(textureSamplerID, 0);

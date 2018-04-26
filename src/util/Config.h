@@ -26,6 +26,6 @@ static struct {
 
     // renderer
     const int DEFAULT_WINDOW_WIDTH = 1200, DEFAULT_WINDOW_HEIGHT = 900;
-} CONFIG; // NOLINT
+} CONFIG;
 
 #endif //BESTEST_GAME_CONFIG_H

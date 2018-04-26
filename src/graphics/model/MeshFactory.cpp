@@ -2,6 +2,7 @@
 // Created by Milan van Zanten on 27.03.18.
 //
 
+#include <array>
 #include "MeshFactory.h"
 
 Model *MeshFactory::addPlane(Model *addTo,
@@ -72,7 +73,8 @@ Model *MeshFactory::addCuboid(Model *addTo,
                               glm::vec3 origin,
                               float width, float height, float length,
                               glm::vec3 forward, glm::vec3 up,
-                              glm::vec4 color) {
+                              glm::vec4 color,
+                              bool insideOut) {
     auto *cuboid = new Mesh();
 
     // normalize and orthogonalize
@@ -109,30 +111,58 @@ Model *MeshFactory::addCuboid(Model *addTo,
             glm::normalize(glm::vec3(0) - left), // up
             glm::normalize(left) // down
     };
-    unsigned int vertexIndices[36] = {
-        0, 1, 2, 0, 2, 3, // front (~= -forward)
-        1, 5, 6, 1, 6, 2, // right
-        5, 4, 7, 5, 7, 6, // back (~= forward)
-        4, 0, 3, 4, 3, 7, // left
-        3, 2, 6, 3, 6, 7, // top
-        4, 5, 1, 4, 1, 0 // bottom
-    };
-    unsigned int normalIndices[36] = {
-        0, 0, 0, 0, 0, 0, // front (~= -forward)
-        1, 1, 1, 1, 1, 1, // right
-        2, 2, 2, 2, 2, 2, // back (~= forward)
-        3, 3, 3, 3, 3, 3, // left
-        4, 4, 4, 4, 4, 4, // top
-        5, 5, 5, 5, 5, 5 // bottom
-    };
-    unsigned int tangentIndices[36] = {
-        0, 0, 0, 0, 0, 0, // front (~= -forward)
-        1, 1, 1, 1, 1, 1, // right
-        2, 2, 2, 2, 2, 2, // back (~= forward)
-        3, 3, 3, 3, 3, 3, // left
-        4, 4, 4, 4, 4, 4, // top
-        5, 5, 5, 5, 5, 5 // bottom
-    };
+    std::array<unsigned int, 36> vertexIndices, normalIndices, tangentIndices; // NOLINT (suppressing because we don't want to initialise the yet)
+    if(insideOut) { // create faces facing inward
+        vertexIndices = {
+                0, 2, 1, 0, 3, 2, // front (~= -forward)
+                1, 6, 5, 1, 2, 6, // right
+                5, 7, 4, 5, 6, 7, // back (~= forward)
+                4, 3, 0, 4, 7, 3, // left
+                3, 6, 2, 3, 7, 6, // top
+                4, 1, 5, 4, 0, 1 // bottom
+        };
+        normalIndices = {
+                2, 2, 2, 2, 2, 2, // back (~= forward)
+                3, 3, 3, 3, 3, 3, // left
+                0, 0, 0, 0, 0, 0, // front (~= -forward)
+                1, 1, 1, 1, 1, 1, // right
+                5, 5, 5, 5, 5, 5, // bottom
+                4, 4, 4, 4, 4, 4 // top
+        };
+        tangentIndices = {
+                2, 2, 2, 2, 2, 2, // back (~= forward)
+                3, 3, 3, 3, 3, 3, // left
+                0, 0, 0, 0, 0, 0, // front (~= -forward)
+                1, 1, 1, 1, 1, 1, // right
+                5, 5, 5, 5, 5, 5, // bottom
+                4, 4, 4, 4, 4, 4 // top
+        };
+    } else { // create faces facing outward
+        vertexIndices = {
+                0, 1, 2, 0, 2, 3, // front (~= -forward)
+                1, 5, 6, 1, 6, 2, // right
+                5, 4, 7, 5, 7, 6, // back (~= forward)
+                4, 0, 3, 4, 3, 7, // left
+                3, 2, 6, 3, 6, 7, // top
+                4, 5, 1, 4, 1, 0 // bottom
+        };
+        normalIndices = {
+                0, 0, 0, 0, 0, 0, // front (~= -forward)
+                1, 1, 1, 1, 1, 1, // right
+                2, 2, 2, 2, 2, 2, // back (~= forward)
+                3, 3, 3, 3, 3, 3, // left
+                4, 4, 4, 4, 4, 4, // top
+                5, 5, 5, 5, 5, 5 // bottom
+        };
+        tangentIndices = {
+                0, 0, 0, 0, 0, 0, // front (~= -forward)
+                1, 1, 1, 1, 1, 1, // right
+                2, 2, 2, 2, 2, 2, // back (~= forward)
+                3, 3, 3, 3, 3, 3, // left
+                4, 4, 4, 4, 4, 4, // top
+                5, 5, 5, 5, 5, 5 // bottom
+        };
+    }
 
     for(auto &index: vertexIndices) {
         tmp = &vertices[index];
@@ -174,6 +204,7 @@ Model *MeshFactory::addCube(Model *addTo,
                             glm::vec3 origin,
                             float size,
                             glm::vec3 forward, glm::vec3 up,
-                            glm::vec4 color) {
-    return addCuboid(addTo, origin, size, size, size, forward, up, color);
+                            glm::vec4 color,
+                            bool insideOut) {
+    return addCuboid(addTo, origin, size, size, size, forward, up, color, insideOut);
 }

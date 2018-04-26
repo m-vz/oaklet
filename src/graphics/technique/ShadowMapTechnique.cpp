@@ -44,11 +44,11 @@ void ShadowMapTechnique::renderDepthMap(LightWithShadowMap *light) {
         for(auto mesh: entity->getModel()->meshes) {
             mesh->bindBuffer(mesh->vertexBuffer);
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
             mesh->bindBuffer(mesh->indexBuffer, GL_ELEMENT_ARRAY_BUFFER);
 
-            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->indices.size()), GL_UNSIGNED_INT, 0); // NOLINT
+            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
 
             glDisableVertexAttribArray(0);
         }

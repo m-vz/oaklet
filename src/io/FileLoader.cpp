@@ -112,7 +112,7 @@ GLuint FileLoader::loadShaders(const char *vertexShaderPath, const char *fragmen
 
 const aiScene *FileLoader::loadModel(Assimp::Importer &importer, const std::string &path) {
     const aiScene* aiScene = importer.ReadFile(path.c_str(),
-                                               aiProcess_CalcTangentSpace | // NOLINT
+                                               aiProcess_CalcTangentSpace |
                                                aiProcess_FindInvalidData |
                                                /*aiProcess_FlipUVs |*/ // textures are being flipped in the stb image loader
                                                aiProcess_GenSmoothNormals |
@@ -125,7 +125,7 @@ const aiScene *FileLoader::loadModel(Assimp::Importer &importer, const std::stri
                                                aiProcess_TransformUVCoords |
                                                aiProcess_Triangulate);
 
-    if(!aiScene || aiScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !aiScene->mRootNode) // NOLINT
+    if(!aiScene || aiScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !aiScene->mRootNode)
         throw IOException(importer.GetErrorString());
     else
         return aiScene;
@@ -136,7 +136,7 @@ void FileLoader::loadOBJ(const std::string &path,
                          std::vector<float> &normalData,
                          std::vector<float> &uvData,
                          std::vector<float> &colorData) {
-    tinyobj::index_t index; // NOLINT
+    tinyobj::index_t index;
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
@@ -191,7 +191,8 @@ void FileLoader::loadOBJ(const std::string &path,
 void FileLoader::loadImage(const std::string &path,
                            unsigned char **imageData,
                            int *imageWidth, int *imageHeight,
-                           int *numberOfChannels, int desiredNumberOfChannels) {
+                           int *numberOfChannels, int desiredNumberOfChannels,
+                           bool flipImage) {
     int foo; // used to store the unused information somewhere.
     if(imageWidth == nullptr)
         imageWidth = &foo;
@@ -200,7 +201,7 @@ void FileLoader::loadImage(const std::string &path,
     if(numberOfChannels == nullptr)
         numberOfChannels = &foo;
 
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(flipImage);
 
     *imageData = stbi_load(path.c_str(), imageWidth, imageHeight, numberOfChannels, desiredNumberOfChannels);
     if(*imageData == nullptr)

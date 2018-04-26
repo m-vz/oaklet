@@ -6,7 +6,7 @@
 #include "Log.h"
 #include "../exception/Exception.h"
 
-Log Log::log((const LogType) CONFIG.DEFAULT_LOG_LEVEL, true); // NOLINT
+Log Log::log((const LogType) CONFIG.DEFAULT_LOG_LEVEL, true);
 
 FileLog::FileLog(const std::string logPath, const LogType logLevel) : logLevel(logLevel) {
     logFile.open(logPath);

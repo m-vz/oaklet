@@ -10,12 +10,12 @@
 
 Renderer::Renderer() {
     if(!glfwInit())
-        throw Exception("Could not initialize glfw."); // NOLINT
+        throw Exception("Could not initialize glfw.");
 }
 
 static void glfwErrorCallback(int error, const char* description) {
     Log::log << LOG_ERROR << description << ". Code: " << error;
-    throw Exception(description, error); // NOLINT
+    throw Exception(description, error);
 }
 
 void Renderer::init(int width, int height) {
@@ -37,14 +37,14 @@ void Renderer::init(int width, int height) {
     window = glfwCreateWindow(width, height, "bestest game", nullptr, nullptr);
     if(window == nullptr) {
         glfwTerminate();
-        throw Exception("Could not open GLFW window."); // NOLINT
+        throw Exception("Could not open GLFW window.");
     }
     glfwMakeContextCurrent(window);
 
     // initialize glew
     glewExperimental = static_cast<GLboolean>(true); // necessary in core profile
     if(glewInit() != GLEW_OK)
-        throw Exception("Could not initialize glew."); // NOLINT
+        throw Exception("Could not initialize glew.");
 
     // VAO and vertex buffer
     glGenVertexArrays(1, &vertexArrayID);
@@ -65,6 +65,7 @@ void Renderer::init(int width, int height) {
     glClearColor(0, 0, 0, 1);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glDepthFunc(GL_LESS);
 
     initialized = true;
@@ -73,6 +74,8 @@ void Renderer::init(int width, int height) {
 void Renderer::renderScene(Scene *scene, long long int lag) {
     if(!initialized)
         throw NotInitialisedException("Renderer");
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shadowing.execute();
 //    scene->entities[0]->getModel()->setMeshTexture(1, TEXTURE_DIFFUSE, scene->directionalLights[0]->getShadowMap());

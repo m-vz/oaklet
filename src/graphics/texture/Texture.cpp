@@ -50,6 +50,8 @@ void Texture::bindTexture(int unit) {
 }
 
 void Texture::fillTexture(bool filter, bool mipmap, bool checkPowerOfTwo) {
+    bindTexture(0);
+
     if(checkPowerOfTwo) {
         // check power-of-two-ness
         int size = 1;
@@ -92,15 +94,26 @@ void Texture::fillTexture(bool filter, bool mipmap, bool checkPowerOfTwo) {
     }
 
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, imageWidth, imageHeight, 0, format, type, textureData);
+    if(freeTextureData)
+        FileLoader::freeImage(textureData);
+
     if(mipmap)
         glGenerateMipmap(GL_TEXTURE_2D);
 }
 
+int Texture::getImageWidth() const {
+    return imageWidth;
+}
+
+int Texture::getImageHeight() const {
+    return imageHeight;
+}
+
+int Texture::getChannelCount() const {
+    return channelCount;
+}
+
 Texture::~Texture() {
-    if(freeTextureData) {
-        FileLoader::freeImage(textureData);
-        freeTextureData = false;
-    }
     glDeleteTextures(1, &textureID);
 }
 

@@ -10,6 +10,7 @@
 #include "../light/SpotLight.h"
 #include "Technique.h"
 #include "../../world/Scene.h"
+#include "SkyboxTechnique.h"
 
 class SimpleLightingTechnique : public Technique {
 public:
@@ -36,6 +37,8 @@ public:
 private:
     int viewportWidth = 0, viewportHeight = 0;
     int shadowMapTextureUnit = 0;
+
+    SkyboxTechnique *skyboxTechnique;
 
     Scene *scene;
 

@@ -11,7 +11,7 @@ class PointLight {
 public:
     static constexpr float DEFAULT_ATTENUATION_EXPONENTIAL = 1;
     static constexpr float DEFAULT_ATTENUATION_LINEAR = 0;
-    static constexpr float DEFAULT_ATTENUATION_CONSTANT = 0;
+    static constexpr float DEFAULT_ATTENUATION_CONSTANT = 1;
 
     glm::vec3 lightPosition;
     glm::vec3 lightColor;

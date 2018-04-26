@@ -36,10 +36,12 @@ void toggleFullscreen(Keyboard &keyboard, int key, int scancode, int mods) {
 
 void resize(Window &window, int width, int height) {
     mainCamera->changeAspectRatio(width, height);
+    renderer->lighting.setViewportSize(ioControl->window->getFramebufferWidth(), ioControl->window->getFramebufferHeight());
 }
 
 void scroll(Mouse &mouse, double xOffset, double yOffset) {
-
+    world->activeScene->pointLights[0]->lightPosition += glm::vec3(xOffset, 0, yOffset)/5.0f;
+    Log::log << LOG_INFO << world->activeScene->pointLights[0]->lightPosition;
 }
 #pragma clang diagnostic pop
 
@@ -59,26 +61,24 @@ int main() {
     Model test = Model();
     Entity testEntity = Entity();
 
-    Texture blackTexture("assets/images/pixel_black.png", true);//, gammaTest("assets/images/gamma_test_fine.jpg", true);
-    blackTexture.bindTexture(0);
-    blackTexture.fillTexture(false);
-//    gammaTest.bindTexture(0);
-//    gammaTest.fillTexture(false);
+//    Texture blackTexture("assets/images/pixel_black.png", true);
+//    blackTexture.fillTexture(false);
 
     DirectionalLight testSunLight = DirectionalLight(glm::vec3(cosf(angle), 1, sinf(angle)), glm::vec3(0.933333333f, 0.847058824f, 0.62745098f), 1);
-    PointLight testPointLight = PointLight(glm::vec3(0.15f, 3, 6.7f), glm::vec3(0.5f, 0.25f, 0.1f), 4);
-    SpotLight testSpotLight = SpotLight(glm::vec3(3.1f, 4, 7.5f), glm::vec3(-1, -1, -1), glm::vec3(0.9f, 0.8f, 0.55f), 50, glm::radians(30.0f));
+    PointLight testPointLight = PointLight(glm::vec3(0.15f, 1, 4.3f), glm::vec3(0.5f, 0.25f, 0.1f), 20);
+    SpotLight testSpotLight = SpotLight(glm::vec3(1, 4, 7.3f), glm::vec3(-1, -1, -1), glm::vec3(1), 30, glm::radians(30.0f));
 
-    test.loadModel("assets/meshes/medieval_house/medieval_house.obj");
-//    MeshFactory::addPlane(&test, glm::vec3(2, 4, 10), 1, 1, glm::vec3(1, 0, 0), glm::vec3(0, 1, 0));
-//    test.setMeshTexture(1, TEXTURE_SPECULAR, &blackTexture);
+    Skybox skybox("assets/samples/images/skyboxes/thick_clouds");
+
+    test.loadModel("assets/samples/meshes/medieval_house/medieval_house.obj");
     MeshFactory::addPlane(&test, glm::vec3(0.0f), 10000, 10000, glm::vec3(0, 1, 0), glm::vec3(0, 0, -1), glm::vec4(0.2f, 0.16f, 0.13f, 1));
 
     testEntity.setModel(&test);
     world->activeScene->entities.push_back(&testEntity);
     world->activeScene->directionalLights.push_back(&testSunLight);
-//    world->activeScene->pointLights.push_back(&testPointLight);
+    world->activeScene->pointLights.push_back(&testPointLight);
     world->activeScene->spotLights.push_back(&testSpotLight);
+    world->activeScene->skybox = &skybox;
 
     renderer->lighting.setScene(world->activeScene);
     renderer->shadowing.setScene(world->activeScene);

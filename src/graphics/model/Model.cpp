@@ -57,7 +57,6 @@ void Model::loadModel(const std::string &path) {
                             texturePathString.substr(static_cast<unsigned long>(offset)),
                             (type == TEXTURE_DIFFUSE) // only convert diffuse textures to
                     );
-                    texture->bindTexture(0);
                     texture->fillTexture();
                     materials[i][type] = texture;
                     texturesToDelete.push_back(texture);
@@ -69,7 +68,7 @@ void Model::loadModel(const std::string &path) {
 
 void Model::setMeshTexture(int meshIndex, TextureType type, Texture *texture) {
     if(meshIndex >= meshes.size())
-        throw Exception("Mesh index out of bounds."); // NOLINT
+        throw Exception("Mesh index out of bounds.");
 
     Mesh *addTo = meshes[meshIndex];
 
@@ -140,7 +139,7 @@ void Model::scale(float scale) {
     calculateModelMatrix();
 }
 
-Model::~Model() { // NOLINT
+Model::~Model() {
     for(auto texture: texturesToDelete)
         delete texture;
     for(auto mesh: meshes)

@@ -11,6 +11,7 @@
 #include "Entity.h"
 #include "../graphics/light/DirectionalLight.h"
 #include "../graphics/light/SpotLight.h"
+#include "Skybox.h"
 
 class Scene {
 public:
@@ -20,6 +21,7 @@ public:
     std::vector<SpotLight*> spotLights;
     std::vector<Camera*> cameras;
     Camera *activeCamera;
+    Skybox *skybox;
 
     explicit Scene(Camera *activeCamera);
 };

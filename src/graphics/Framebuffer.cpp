@@ -27,7 +27,7 @@ void Framebuffer::init() {
 
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
-        throw Exception("Framebuffer could not be initialized.", status); // NOLINT
+        throw Exception("Framebuffer could not be initialized.", status);
 
     initialised = true;
 }

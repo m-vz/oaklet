@@ -20,7 +20,6 @@ class Texture {
 public:
     static const int MAX_POWER_OF_TWO_TEXTURE_SIZE = 16384; // 2^14, largest size for a power-of-two texture to be recognized as one.
 
-    int imageWidth, imageHeight, channelCount;
     unsigned char *textureData = nullptr;
     GLuint textureID;
 
@@ -28,13 +27,17 @@ public:
     explicit Texture(const std::string &texturePath, bool convertToLinearSpace, int desiredChannelCount = 3);
     void bindTexture(int unit);
     void fillTexture(bool filter = true, bool mipmap = false, bool checkPowerOfTwo = true);
+    int getImageWidth() const;
+    int getImageHeight() const;
+    int getChannelCount() const;
     virtual ~Texture();
 
     static aiTextureType textureTypeToAITextureType(TextureType type);
 
 protected:
+    int imageWidth, imageHeight, channelCount;
     GLint internalFormat;
-    GLenum format;
+    GLenum format = GL_RGB;
     GLenum type = GL_UNSIGNED_BYTE;
 
 private:

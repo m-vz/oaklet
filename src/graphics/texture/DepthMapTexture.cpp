@@ -9,6 +9,5 @@ DepthMapTexture::DepthMapTexture(int width, int height) : Texture(width, height,
     internalFormat = GL_DEPTH_COMPONENT;
     format = GL_DEPTH_COMPONENT;
 
-    bindTexture(0);
     fillTexture(false, false, false);
 }

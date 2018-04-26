@@ -47,10 +47,12 @@ public:
     /// \param imageHeight A pointer to an int that will be filled with the height of the image.
     /// \param numberOfChannels A pointer to an int that will be filled with the actual numbers of channels in the image.
     /// \param desiredNumberOfChannels An optional desired number of channels to load into the data.
+    /// \param flipImage Whether to flip the image after loading.
     static void loadImage(const std::string &path,
                           unsigned char **imageData,
                           int *imageWidth = nullptr, int *imageHeight = nullptr,
-                          int *numberOfChannels = nullptr, int desiredNumberOfChannels = 0);
+                          int *numberOfChannels = nullptr, int desiredNumberOfChannels = 0,
+                          bool flipImage = true);
     /// Free image data loaded with loadImage().
     static void freeImage(unsigned char *imageData);
 };

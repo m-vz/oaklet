@@ -65,7 +65,7 @@ void Mesh::initFromAIMesh(const aiMesh *aiMesh, int materialIndexOffset) {
         face = &aiMesh->mFaces[i];
 
         if(face->mNumIndices != 3) // expect mesh to be triangulated
-            throw Exception("Mesh was not triangulated correctly."); // NOLINT
+            throw Exception("Mesh was not triangulated correctly.");
 
         indices.push_back(face->mIndices[0]);
         indices.push_back(face->mIndices[1]);
@@ -124,7 +124,7 @@ void Mesh::bindBuffer(GLuint buffer, GLenum type) {
 template<typename T>
 void Mesh::fillBuffer(std::vector<T> *data, GLenum target, GLenum usage) {
     if(data->empty())
-        throw Exception("Data is empty, cannot fill buffer."); // NOLINT
+        throw Exception("Data is empty, cannot fill buffer.");
 
     glBufferData(target, data->size() * sizeof(T), &(*data)[0], usage);
 }

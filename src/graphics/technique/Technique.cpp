@@ -14,7 +14,7 @@ Technique::Technique() {
 void Technique::init() {
     shaderProgram = glCreateProgram();
     if(shaderProgram == 0)
-        throw Exception("Error creating program."); // NOLINT
+        throw Exception("Error creating program.");
 
     initialized = true;
 }
@@ -42,7 +42,7 @@ void Technique::addShader(GLenum shaderType, std::string shaderPath) {
     // Create the shader
     GLuint shaderObject = glCreateShader(shaderType);
     if(shaderObject == 0)
-        throw Exception("Error creating shader."); // NOLINT
+        throw Exception("Error creating shader.");
     shaderObjects.push_back(shaderObject);
 
     // READ

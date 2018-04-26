@@ -11,14 +11,14 @@ void SimpleLightingTechnique::init() {
     addShader(GL_FRAGMENT_SHADER, "assets/shaders/simple_fragment.glsl");
     finalize();
 
+    skyboxTechnique = new SkyboxTechnique();
+    skyboxTechnique->init();
+
     blackTexture = new Texture("assets/images/pixel_black.png", true);
-    blackTexture->bindTexture(0);
     blackTexture->fillTexture(false);
     whiteTexture = new Texture("assets/images/pixel_white.png", true);
-    whiteTexture->bindTexture(0);
     whiteTexture->fillTexture(false);
     outwardsTexture = new Texture("assets/images/pixel_outwards.png", false);
-    outwardsTexture->bindTexture(0);
     outwardsTexture->fillTexture(false);
 
     viewID = getUniformLocation("view");
@@ -65,45 +65,47 @@ void SimpleLightingTechnique::init() {
 }
 
 void SimpleLightingTechnique::execute() {
-    glm::mat4 vp = scene->activeCamera->getProjection()*scene->activeCamera->getView();
-
-    enable();
     glViewport(0, 0, viewportWidth, viewportHeight);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // NOLINT
+    skyboxTechnique->enable();
+    skyboxTechnique->setSkybox(scene->skybox);
+    skyboxTechnique->setVP(scene->activeCamera->getView(), scene->activeCamera->getProjection());
+    skyboxTechnique->execute();
+
+    enable();
 
     setDirectionalLights(scene->directionalLights.size(), scene->directionalLights);
     setPointLights(scene->pointLights.size(), scene->pointLights);
     setSpotLights(scene->spotLights.size(), scene->spotLights);
-    setView(scene->activeCamera->getView());
-
     shadowMapTextureUnit = 0;
+
+    setView(scene->activeCamera->getView());
 
     for(auto entity: scene->entities) {
         setModel(entity->getModel()->modelMatrix);
-        setMVP(vp*entity->getModel()->modelMatrix);
+        setMVP(scene->activeCamera->getProjection()*scene->activeCamera->getView()*entity->getModel()->modelMatrix);
 
         for(auto mesh: entity->getModel()->meshes) {
             mesh->bindBuffer(mesh->vertexBuffer);
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
             mesh->bindBuffer(mesh->uvBuffer);
             glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
             if(mesh->containsNormalData()) {
                 mesh->bindBuffer(mesh->normalBuffer);
                 glEnableVertexAttribArray(2);
-                glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+                glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
             }
             if(mesh->containsTangentData()) {
                 mesh->bindBuffer(mesh->tangentBuffer);
                 glEnableVertexAttribArray(3);
-                glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+                glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
             }
             if(mesh->containsColorData()) {
                 mesh->bindBuffer(mesh->colorBuffer);
                 glEnableVertexAttribArray(4);
-                glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+                glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0);
             }
 
             mesh->bindBuffer(mesh->indexBuffer, GL_ELEMENT_ARRAY_BUFFER);
@@ -141,7 +143,7 @@ void SimpleLightingTechnique::execute() {
                 setSpecularTextureSampler(TEXTURE_SPECULAR);
             }
 
-            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->indices.size()), GL_UNSIGNED_INT, 0); // NOLINT
+            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
 
             glDisableVertexAttribArray(0);
             glDisableVertexAttribArray(1);
@@ -154,7 +156,7 @@ void SimpleLightingTechnique::execute() {
 
 void SimpleLightingTechnique::setDirectionalLights(unsigned long lightCount, const std::vector<DirectionalLight *> &lights) {
     if(lightCount > MAX_DIRECTIONAL_LIGHTS)
-        throw Exception("Light count cannot be larger than MAX_DIRECTIONAL_LIGHTS."); // NOLINT
+        throw Exception("Light count cannot be larger than MAX_DIRECTIONAL_LIGHTS.");
 
     glUniform1i(directionalLightCountID, static_cast<GLint>(lightCount));
 
@@ -175,7 +177,7 @@ void SimpleLightingTechnique::setDirectionalLights(unsigned long lightCount, con
 
 void SimpleLightingTechnique::setPointLights(unsigned long lightCount, const std::vector<PointLight *> &lights) {
     if(lightCount > MAX_POINT_LIGHTS)
-        throw Exception("Light count cannot be larger than MAX_POINT_LIGHTS."); // NOLINT
+        throw Exception("Light count cannot be larger than MAX_POINT_LIGHTS.");
 
     glUniform1i(pointLightCountID, static_cast<GLint>(lightCount));
 
@@ -194,7 +196,7 @@ void SimpleLightingTechnique::setPointLights(unsigned long lightCount, const std
 
 void SimpleLightingTechnique::setSpotLights(unsigned long lightCount, const std::vector<SpotLight *> &lights) {
     if(lightCount > MAX_SPOT_LIGHTS)
-        throw Exception("Light count cannot be larger than MAX_SPOT_LIGHTS."); // NOLINT
+        throw Exception("Light count cannot be larger than MAX_SPOT_LIGHTS.");
 
     glUniform1i(spotLightCountID, static_cast<GLint>(lightCount));
 
