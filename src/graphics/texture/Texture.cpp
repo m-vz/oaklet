@@ -49,30 +49,14 @@ void Texture::bindTexture(int unit) {
     glBindTexture(GL_TEXTURE_2D, textureID);
 }
 
-void Texture::fillTexture(bool filter, bool mipmap, bool checkPowerOfTwo) {
+void Texture::fillTexture(bool filter, bool mipmap, GLint clamp) {
     bindTexture(0);
 
-    if(checkPowerOfTwo) {
-        // check power-of-two-ness
-        int size = 1;
-        if(imageWidth != imageHeight)
-            size = -1;
-        while(size > 0) {
-            if(imageWidth == size)
-                size = 0;
-            else if(size > MAX_POWER_OF_TWO_TEXTURE_SIZE)
-                size = -1;
-            else
-                size *= 2;
-        }
-        if(size < 0) { // texture is not a power-of-two texture (square with size equal to a power of two less than MAX_POWER_OF_TWO_TEXTURE_SIZE)
-            // required for non-power-of-two textures
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        }
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp);
+    if(clamp == GL_CLAMP_TO_BORDER) { // TODO: currently, this is only used for depth maps, where the border should be white.
+        float borderColours[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColours);
     }
 
     if(filter) {

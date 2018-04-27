@@ -71,7 +71,7 @@ int main() {
     Skybox skybox("assets/samples/images/skyboxes/thick_clouds");
 
     test.loadModel("assets/samples/meshes/medieval_house/medieval_house.obj");
-    MeshFactory::addPlane(&test, glm::vec3(0.0f), 10000, 10000, glm::vec3(0, 1, 0), glm::vec3(0, 0, -1), glm::vec4(0.2f, 0.16f, 0.13f, 1));
+    MeshFactory::addCuboid(&test, glm::vec3(0, -2, 0), 40, 4, 40, glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), glm::vec4(0.2f, 0.16f, 0.13f, 1));
 
     testEntity.setModel(&test);
     world->activeScene->entities.push_back(&testEntity);

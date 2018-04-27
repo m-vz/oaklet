@@ -10,9 +10,10 @@ Framebuffer::Framebuffer(int width, int height, GLenum attachment, int channelCo
         : framebufferWidth(width), framebufferHeight(height), attachment(attachment) {
     if(attachment == GL_DEPTH_ATTACHMENT)
         texture = new DepthMapTexture(framebufferWidth, framebufferHeight);
-    else
+    else {
         texture = new Texture(framebufferWidth, framebufferHeight, false, channelCount);
-    texture->fillTexture(false, false, false); // TODO: Let values be changed.
+        texture->fillTexture(false, false, GL_CLAMP_TO_EDGE); // TODO: Let values be changed.
+    }
 }
 
 void Framebuffer::init() {

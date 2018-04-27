@@ -18,15 +18,13 @@ enum TextureType {
 
 class Texture {
 public:
-    static const int MAX_POWER_OF_TWO_TEXTURE_SIZE = 16384; // 2^14, largest size for a power-of-two texture to be recognized as one.
-
     unsigned char *textureData = nullptr;
     GLuint textureID;
 
     explicit Texture(int width, int height, bool convertToLinearSpace, int desiredChannelCount = 3);
     explicit Texture(const std::string &texturePath, bool convertToLinearSpace, int desiredChannelCount = 3);
     void bindTexture(int unit);
-    void fillTexture(bool filter = true, bool mipmap = false, bool checkPowerOfTwo = true);
+    void fillTexture(bool filter = true, bool mipmap = false, GLint clamp = GL_CLAMP_TO_EDGE);
     int getImageWidth() const;
     int getImageHeight() const;
     int getChannelCount() const;
