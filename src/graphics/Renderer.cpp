@@ -63,6 +63,7 @@ void Renderer::init(int width, int height) {
 
     // options
     glClearColor(0, 0, 0, 1);
+    glEnable(GL_MULTISAMPLE);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);

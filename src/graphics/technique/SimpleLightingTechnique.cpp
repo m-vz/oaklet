@@ -8,6 +8,7 @@
 void SimpleLightingTechnique::init() {
     Technique::init();
     addShader(GL_VERTEX_SHADER, "assets/shaders/simple_vertex.glsl");
+    addShader(GL_GEOMETRY_SHADER, "assets/shaders/simple_geometry.glsl");
     addShader(GL_FRAGMENT_SHADER, "assets/shaders/simple_fragment.glsl");
     finalize();
 
@@ -66,11 +67,6 @@ void SimpleLightingTechnique::init() {
 
 void SimpleLightingTechnique::execute() {
     glViewport(0, 0, viewportWidth, viewportHeight);
-
-    skyboxTechnique->enable();
-    skyboxTechnique->setSkybox(scene->skybox);
-    skyboxTechnique->setVP(scene->activeCamera->getView(), scene->activeCamera->getProjection());
-    skyboxTechnique->execute();
 
     enable();
 
@@ -152,6 +148,15 @@ void SimpleLightingTechnique::execute() {
             glDisableVertexAttribArray(4);
         }
     }
+
+    glDepthFunc(GL_LEQUAL);
+
+    skyboxTechnique->enable();
+    skyboxTechnique->setSkybox(scene->skybox);
+    skyboxTechnique->setVP(scene->activeCamera->getView(), scene->activeCamera->getProjection());
+    skyboxTechnique->execute();
+
+    glDepthFunc(GL_LESS);
 }
 
 void SimpleLightingTechnique::setDirectionalLights(unsigned long lightCount, const std::vector<DirectionalLight *> &lights) {

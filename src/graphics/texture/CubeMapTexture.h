@@ -17,7 +17,7 @@ public:
     explicit CubeMapTexture(int size, bool convertToLinearSpace, int desiredChannelCount = 3);
     explicit CubeMapTexture(const std::vector<std::string> &texturePaths, bool convertToLinearSpace, int desiredChannelCount = 3);
     void bindTexture(int unit);
-    void fillTexture(bool filter = true, bool mipmap = false);
+    void fillTexture(bool filter = true, bool mipmap = false, bool filterBetweenMipmaps = true, GLint clamp = GL_CLAMP_TO_EDGE);
     int getImageSize() const;
     int getChannelCount() const;
     virtual ~CubeMapTexture();

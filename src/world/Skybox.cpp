@@ -27,7 +27,7 @@ void Skybox::init(const std::vector<std::string> &texturePaths) {
     skybox = new Model();
     MeshFactory::addCube(skybox, glm::vec3(0), 1, glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), glm::vec4(0), true);
     cubeMap = new CubeMapTexture(texturePaths, true);
-    cubeMap->fillTexture(true, false);
+    cubeMap->fillTexture();
 }
 
 Model *Skybox::getMesh() const {

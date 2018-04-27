@@ -9,8 +9,6 @@
 #include "io/IOControl.h"
 #include "util/Log.h"
 #include "graphics/model/MeshFactory.h"
-#include "world/Entity.h"
-#include "graphics/light/DirectionalLight.h"
 
 using namespace std;
 
@@ -41,7 +39,6 @@ void resize(Window &window, int width, int height) {
 
 void scroll(Mouse &mouse, double xOffset, double yOffset) {
     world->activeScene->pointLights[0]->lightPosition += glm::vec3(xOffset, 0, yOffset)/5.0f;
-    Log::log << LOG_INFO << world->activeScene->pointLights[0]->lightPosition;
 }
 #pragma clang diagnostic pop
 

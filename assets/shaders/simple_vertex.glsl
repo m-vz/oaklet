@@ -41,30 +41,32 @@ layout(location = 2) in vec3 modelspaceVertexNormal;
 layout(location = 3) in vec3 modelspaceVertexTangent;
 layout(location = 4) in vec4 color;
 
-out vec2 tangentspaceVertexUV;
-out vec4 vertexColor;
-out vec3 worldspaceVertexPosition, worldspaceCameraDirection;
-out mat3 tbn;
-out vec4 directionalLightVertexPositions[MAX_DIRECTIONAL_LIGHTS];
-out vec4 spotLightVertexPositions[MAX_SPOT_LIGHTS];
+out VertexOut {
+    vec2 tangentspaceVertexUV;
+    vec4 vertexColor;
+    vec3 worldspaceVertexPosition, worldspaceCameraDirection;
+    mat3 tbn;
+    vec4 directionalLightVertexPositions[MAX_DIRECTIONAL_LIGHTS];
+    vec4 spotLightVertexPositions[MAX_SPOT_LIGHTS];
+} vertexOut;
 
 void main() {
     gl_Position = mvp * vec4(modelspaceVertexPosition, 1);
 
-    tangentspaceVertexUV = vertexUV;
-    vertexColor = color;
+    vertexOut.tangentspaceVertexUV = vertexUV;
+    vertexOut.vertexColor = color;
 
-    worldspaceVertexPosition = (model * vec4(modelspaceVertexPosition, 1)).xyz;
-    worldspaceCameraDirection = (inverse(view) * (vec4(0, 0, 0, 1) - (view * vec4(worldspaceVertexPosition, 1)))).xyz; // TODO: This should be simplified.
+    vertexOut.worldspaceVertexPosition = (model * vec4(modelspaceVertexPosition, 1)).xyz;
+    vertexOut.worldspaceCameraDirection = (inverse(view) * (vec4(0, 0, 0, 1) - (view * vec4(vertexOut.worldspaceVertexPosition, 1)))).xyz; // TODO: This should be simplified.
 
     mat3 model3 = mat3(model);
     vec3 worldspaceVertexNormal = model3 * modelspaceVertexNormal;
     vec3 worldspaceVertexTangent = model3 * modelspaceVertexTangent;
     vec3 worldspaceVertexBitangent = model3 * cross(modelspaceVertexNormal, modelspaceVertexTangent);
-    tbn = mat3(worldspaceVertexTangent, worldspaceVertexBitangent, worldspaceVertexNormal);
+    vertexOut.tbn = mat3(worldspaceVertexTangent, worldspaceVertexBitangent, worldspaceVertexNormal);
 
-    for(int i = 0; i < spotLightCount; i++)
-        spotLightVertexPositions[i] = spotLights[i].vp * vec4(worldspaceVertexPosition, 1);
     for(int i = 0; i < directionalLightCount; i++)
-        directionalLightVertexPositions[i] = directionalLights[i].vp * vec4(worldspaceVertexPosition, 1);
+        vertexOut.directionalLightVertexPositions[i] = directionalLights[i].vp * vec4(vertexOut.worldspaceVertexPosition, 1);
+    for(int i = 0; i < spotLightCount; i++)
+        vertexOut.spotLightVertexPositions[i] = spotLights[i].vp * vec4(vertexOut.worldspaceVertexPosition, 1);
 }
