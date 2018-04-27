@@ -12,7 +12,7 @@ Framebuffer::Framebuffer(int width, int height, GLenum attachment, int channelCo
         texture = new DepthMapTexture(framebufferWidth, framebufferHeight);
     else {
         texture = new Texture(framebufferWidth, framebufferHeight, false, channelCount);
-        texture->fillTexture(false, false, GL_CLAMP_TO_EDGE); // TODO: Let values be changed.
+        texture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE); // TODO: Let values be changed.
     }
 }
 
