@@ -62,7 +62,7 @@ int main() {
 //    blackTexture.fillTexture(false);
 
     DirectionalLight testSunLight = DirectionalLight(glm::vec3(cosf(angle), 1, sinf(angle)), glm::vec3(0.933333333f, 0.847058824f, 0.62745098f), 1);
-    PointLight testPointLight = PointLight(glm::vec3(0.15f, 1, 4.3f), glm::vec3(0.5f, 0.25f, 0.1f), 20);
+    PointLight testPointLight = PointLight(glm::vec3(3.8f, 1, 3.5f), glm::vec3(0.5f, 0.25f, 0.1f), 20);
     SpotLight testSpotLight = SpotLight(glm::vec3(1, 4, 7.3f), glm::vec3(-1, -1, -1), glm::vec3(1), 30, glm::radians(30.0f));
 
     Skybox skybox("assets/samples/images/skyboxes/thick_clouds");

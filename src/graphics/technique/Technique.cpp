@@ -26,6 +26,27 @@ void Technique::enable() {
     glUseProgram(shaderProgram);
 }
 
+void Technique::validate() {
+    if(!initialized)
+        throw NotInitialisedException("Technique");
+
+#ifdef BESTEST_GAME_DEBUG // only validate in debug environments
+    // validate the program
+    GLint result = GL_FALSE;
+    int infoLogLength;
+
+    Log::log << LOG_FRAME << "Validating shader program.";
+    glValidateProgram(shaderProgram);
+    glGetProgramiv(shaderProgram, GL_VALIDATE_STATUS, &result);
+    glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
+    if(infoLogLength > 0) {
+        std::vector<char> programErrorMessage(static_cast<unsigned long>(infoLogLength + 1));
+        glGetProgramInfoLog(shaderProgram, infoLogLength, nullptr, &programErrorMessage[0]);
+        Log::log << LOG_ERROR << &programErrorMessage[0];
+    }
+#endif
+}
+
 Technique::~Technique() {
     // this is only needed if the technique is deleted before shaders are compiled and finalized
     for(auto shaderObject: shaderObjects)
@@ -80,23 +101,10 @@ void Technique::finalize() {
     GLint result = GL_FALSE;
     int infoLogLength;
 
-    // LINK AND CHECK
-
     // link the program
     Log::log << LOG_INFO << "Linking shader program.";
     glLinkProgram(shaderProgram);
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &result);
-    glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
-    if(infoLogLength > 0) {
-        std::vector<char> programErrorMessage(static_cast<unsigned long>(infoLogLength + 1));
-        glGetProgramInfoLog(shaderProgram, infoLogLength, nullptr, &programErrorMessage[0]);
-        Log::log << LOG_ERROR << &programErrorMessage[0];
-    }
-
-    // validate the program
-    Log::log << LOG_INFO << "Validating shader program.";
-    glValidateProgram(shaderProgram);
-    glGetProgramiv(shaderProgram, GL_VALIDATE_STATUS, &result);
     glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
     if(infoLogLength > 0) {
         std::vector<char> programErrorMessage(static_cast<unsigned long>(infoLogLength + 1));

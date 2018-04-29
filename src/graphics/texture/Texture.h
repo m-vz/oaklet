@@ -13,35 +13,37 @@ enum TextureType {
     TEXTURE_DIFFUSE = 0,
     TEXTURE_NORMAL,
     TEXTURE_SPECULAR,
-    TEXTURE_DEPTH
+    TEXTURE_MAX
 };
 
 class Texture {
 public:
-    unsigned char *textureData = nullptr;
-    GLuint textureID;
-
     explicit Texture(int width, int height, bool convertToLinearSpace, int desiredChannelCount = 3);
     explicit Texture(const std::string &texturePath, bool convertToLinearSpace, int desiredChannelCount = 3);
     void bindTexture(int unit);
-    void fillTexture(bool filter = true, bool mipmap = false, bool filterBetweenMipmaps = true, GLint clamp = GL_CLAMP_TO_EDGE);
+    virtual void fillTexture(bool filter, bool mipmap, bool filterBetweenMipmaps, GLint clamp);
+    GLuint getTextureID() const;
     int getImageWidth() const;
     int getImageHeight() const;
     int getChannelCount() const;
+    GLenum getTarget() const;
     virtual ~Texture();
 
     static aiTextureType textureTypeToAITextureType(TextureType type);
 
 protected:
+    bool freeTextureData = false;
     int imageWidth, imageHeight, channelCount;
+    GLuint textureID;
     GLint internalFormat;
     GLenum format = GL_RGB;
-    GLenum type = GL_UNSIGNED_BYTE;
+    GLenum type = GL_UNSIGNED_BYTE, target = GL_TEXTURE_2D;
+
+    virtual void init(int desiredChannelCount, bool convertToLinearSpace);
+    void setFilters(bool filter, bool mipmap, bool filterBetweenMipmaps);
 
 private:
-    bool freeTextureData = false;
-
-    void init(int desiredChannelCount, bool convertToLinearSpace);
+    unsigned char *textureData = nullptr;
 };
 
 #endif //BESTEST_GAME_TEXTURE_H

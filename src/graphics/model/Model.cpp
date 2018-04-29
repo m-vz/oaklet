@@ -57,7 +57,7 @@ void Model::loadModel(const std::string &path) {
                             texturePathString.substr(static_cast<unsigned long>(offset)),
                             (type == TEXTURE_DIFFUSE) // only convert diffuse textures to
                     );
-                    texture->fillTexture(true, true);
+                    texture->fillTexture(true, true, true, GL_CLAMP_TO_EDGE);
                     materials[i][type] = texture;
                     texturesToDelete.push_back(texture);
                 }

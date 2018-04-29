@@ -6,14 +6,14 @@
 #define BESTEST_GAME_POINTLIGHT_H
 
 #include <glm/glm.hpp>
+#include "LightWithShadowMap.h"
 
-class PointLight {
+class PointLight : public LightWithShadowMap {
 public:
     static constexpr float DEFAULT_ATTENUATION_EXPONENTIAL = 1;
     static constexpr float DEFAULT_ATTENUATION_LINEAR = 0;
     static constexpr float DEFAULT_ATTENUATION_CONSTANT = 1;
 
-    glm::vec3 lightPosition;
     glm::vec3 lightColor;
     float lightPower;
     struct {
@@ -27,6 +27,8 @@ public:
                float exponentialAttenuation = DEFAULT_ATTENUATION_EXPONENTIAL,
                float linearAttenuation = DEFAULT_ATTENUATION_LINEAR,
                float constantAttenuation = DEFAULT_ATTENUATION_CONSTANT);
+
+    void calculateVP() override;
 };
 
 #endif //BESTEST_GAME_POINTLIGHT_H

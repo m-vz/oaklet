@@ -21,15 +21,6 @@ public:
 
     void init() override;
     void execute() override;
-    void setDirectionalLights(unsigned long lightCount, const std::vector<DirectionalLight*> &lights);
-    void setPointLights(unsigned long lightCount, const std::vector<PointLight*> &lights);
-    void setSpotLights(unsigned long lightCount, const std::vector<SpotLight*> &lights);
-    void setDiffuseTextureSampler(GLuint textureSampler);
-    void setNormalTextureSampler(GLuint textureSampler);
-    void setSpecularTextureSampler(GLuint textureSampler);
-    void setView(const glm::mat4 &view);
-    void setModel(const glm::mat4 &model);
-    void setMVP(const glm::mat4 &mvp);
     void setScene(Scene *scene);
     void setViewportSize(int width, int height);
     ~SimpleLightingTechnique() override;
@@ -43,6 +34,8 @@ private:
     Scene *scene;
 
     Texture *blackTexture, *whiteTexture, *outwardsTexture;
+
+    GLuint blaID;
 
     GLuint viewID;
     GLuint modelID;
@@ -63,6 +56,8 @@ private:
 
     GLuint pointLightCountID;
     struct {
+        GLuint farID;
+        GLuint shadowMapTextureSamplerID;
         GLuint positionID;
         GLuint colorID;
         GLuint powerID;
@@ -88,6 +83,16 @@ private:
             GLuint constantID;
         } attenuation;
     } spotLights[MAX_POINT_LIGHTS];
+
+    void setDirectionalLights(unsigned long lightCount, const std::vector<DirectionalLight*> &lights);
+    void setPointLights(unsigned long lightCount, const std::vector<PointLight*> &lights);
+    void setSpotLights(unsigned long lightCount, const std::vector<SpotLight*> &lights);
+    void setDiffuseTextureSampler(GLuint textureSampler);
+    void setNormalTextureSampler(GLuint textureSampler);
+    void setSpecularTextureSampler(GLuint textureSampler);
+    void setView(const glm::mat4 &view);
+    void setModel(const glm::mat4 &model);
+    void setMVP(const glm::mat4 &mvp);
 };
 
 #endif //BESTEST_GAME_SIMPLELIGHTINGTECHNIQUE_H

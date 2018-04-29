@@ -6,19 +6,28 @@
 #define BESTEST_GAME_LIGHTWITHSHADOWMAP_H
 
 #include <glm/ext.hpp>
+#include <vector>
 #include "../texture/Texture.h"
 
 class LightWithShadowMap {
 public:
+    glm::vec3 lightPosition;
+
     virtual void calculateVP()= 0;
     Texture *getShadowMap() const;
     void setShadowMap(Texture *shadowMap);
-    const glm::mat4 &getView() const;
+    const glm::mat4 &getView(int index = 0) const;
     const glm::mat4 &getProjection() const;
-    const glm::mat4 &getVP() const;
+    const glm::mat4 &getVP(int index = 0) const;
+    float getNear() const;
+    float getFar() const;
+    bool isDepthMapCube() const;
 
 protected:
-    glm::mat4 view, projection, vp;
+    bool depthMapIsCube = false;
+    float near, far;
+    glm::mat4 projection;
+    std::vector<glm::mat4> views, vps;
 
 private:
     Texture *shadowMap;

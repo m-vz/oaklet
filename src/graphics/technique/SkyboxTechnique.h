@@ -14,7 +14,6 @@ public:
     void init() override;
     void execute() override;
     void setSkybox(Skybox *skybox);
-    void setCubeMapTextureSampler(GLuint textureSampler);
     void setVP(const glm::mat4 &view, const glm::mat4 &projection);
 
 private:

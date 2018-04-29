@@ -14,6 +14,7 @@ public:
     Technique();
     virtual void init();
     void enable();
+    void validate();
     virtual void execute() = 0;
     virtual ~Technique();
 

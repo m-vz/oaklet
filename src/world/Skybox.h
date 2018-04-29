@@ -5,7 +5,7 @@
 #ifndef BESTEST_GAME_SKYBOX_H
 #define BESTEST_GAME_SKYBOX_H
 
-#include "../graphics/texture/CubeMapTexture.h"
+#include "../graphics/texture/CubeTexture.h"
 #include "../graphics/model/Model.h"
 
 class Skybox {
@@ -13,12 +13,12 @@ public:
     explicit Skybox(std::string texturesPath, std::string fileExtension = ".png");
     explicit Skybox(const std::vector<std::string> &texturePaths);
     Model *getMesh() const;
-    CubeMapTexture *getCubeMap() const;
+    CubeTexture *getCubeMap() const;
     virtual ~Skybox();
 
 private:
     Model *skybox;
-    CubeMapTexture *cubeMap;
+    CubeTexture *cubeMap;
 
     void init(const std::vector<std::string> &texturePaths);
 };

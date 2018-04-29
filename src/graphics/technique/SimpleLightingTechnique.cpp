@@ -4,6 +4,7 @@
 
 #include "SimpleLightingTechnique.h"
 #include "../../exception/Exception.h"
+#include "../../util/Log.h"
 
 void SimpleLightingTechnique::init() {
     Technique::init();
@@ -16,11 +17,11 @@ void SimpleLightingTechnique::init() {
     skyboxTechnique->init();
 
     blackTexture = new Texture("assets/images/pixel_black.png", true);
-    blackTexture->fillTexture(false);
+    blackTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
     whiteTexture = new Texture("assets/images/pixel_white.png", true);
-    whiteTexture->fillTexture(false);
+    whiteTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
     outwardsTexture = new Texture("assets/images/pixel_outwards.png", false);
-    outwardsTexture->fillTexture(false);
+    outwardsTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
 
     viewID = getUniformLocation("view");
 
@@ -42,6 +43,8 @@ void SimpleLightingTechnique::init() {
 
     pointLightCountID = getUniformLocation("pointLightCount");
     for(int i = 0; i < MAX_POINT_LIGHTS; ++i) {
+        pointLights[i].farID = getUniformLocation("pointLights[" + std::to_string(i) + "].far");
+        pointLights[i].shadowMapTextureSamplerID = getUniformLocation("pointLights[" + std::to_string(i) + "].shadowMapTextureSampler");
         pointLights[i].positionID = getUniformLocation("pointLights[" + std::to_string(i) + "].position");
         pointLights[i].colorID = getUniformLocation("pointLights[" + std::to_string(i) + "].color");
         pointLights[i].powerID = getUniformLocation("pointLights[" + std::to_string(i) + "].power");
@@ -76,6 +79,8 @@ void SimpleLightingTechnique::execute() {
     shadowMapTextureUnit = 0;
 
     setView(scene->activeCamera->getView());
+
+    validate();
 
     for(auto entity: scene->entities) {
         setModel(entity->getModel()->modelMatrix);
@@ -166,18 +171,22 @@ void SimpleLightingTechnique::setDirectionalLights(unsigned long lightCount, con
     glUniform1i(directionalLightCountID, static_cast<GLint>(lightCount));
 
     DirectionalLight *light;
-    for(int i = 0; i < lightCount; i++) {
+    int i = 0;
+    for(; i < lightCount; i++) {
         light = lights[i];
 
         glUniformMatrix4fv(directionalLights[i].vpID, 1, GL_FALSE, &light->getVP()[0][0]);
-        light->getShadowMap()->bindTexture(TEXTURE_DEPTH + shadowMapTextureUnit + i);
-        glUniform1i(directionalLights[i].shadowMapTextureSamplerID, TEXTURE_DEPTH + shadowMapTextureUnit + i);
+        light->getShadowMap()->bindTexture(TEXTURE_MAX + shadowMapTextureUnit + i);
+        glUniform1i(directionalLights[i].shadowMapTextureSamplerID, TEXTURE_MAX + shadowMapTextureUnit + i);
         glUniform3f(directionalLights[i].directionID, light->lightDirection.x, light->lightDirection.y, light->lightDirection.z);
         glUniform3f(directionalLights[i].colorID, light->lightColor.x, light->lightColor.y, light->lightColor.z);
         glUniform1f(directionalLights[i].powerID, light->lightPower);
-
-        shadowMapTextureUnit++;
     }
+
+    // we also need to fill the remaining (unused) light structures with a unique texture unit to avoid texture unit 0 on different sampler types
+    for(; i < MAX_DIRECTIONAL_LIGHTS; i++)
+        glUniform1i(directionalLights[i].shadowMapTextureSamplerID, TEXTURE_MAX + shadowMapTextureUnit + i);
+    shadowMapTextureUnit += MAX_DIRECTIONAL_LIGHTS;
 }
 
 void SimpleLightingTechnique::setPointLights(unsigned long lightCount, const std::vector<PointLight *> &lights) {
@@ -187,9 +196,14 @@ void SimpleLightingTechnique::setPointLights(unsigned long lightCount, const std
     glUniform1i(pointLightCountID, static_cast<GLint>(lightCount));
 
     PointLight *light;
-    for(int i = 0; i < lightCount; i++) {
+    glUniform1i(blaID, TEXTURE_MAX + shadowMapTextureUnit);
+    int i = 0;
+    for(; i < lightCount; i++) {
         light = lights[i];
 
+        glUniform1f(pointLights[i].farID, light->getFar());
+        light->getShadowMap()->bindTexture(TEXTURE_MAX + shadowMapTextureUnit + i);
+        glUniform1i(pointLights[i].shadowMapTextureSamplerID, TEXTURE_MAX + shadowMapTextureUnit + i);
         glUniform3f(pointLights[i].positionID, light->lightPosition.x, light->lightPosition.y, light->lightPosition.z);
         glUniform3f(pointLights[i].colorID, light->lightColor.x, light->lightColor.y, light->lightColor.z);
         glUniform1f(pointLights[i].powerID, light->lightPower);
@@ -197,6 +211,11 @@ void SimpleLightingTechnique::setPointLights(unsigned long lightCount, const std
         glUniform1f(pointLights[i].attenuation.linearID, light->attenuation.linear);
         glUniform1f(pointLights[i].attenuation.constantID, light->attenuation.constant);
     }
+
+    // we also need to fill the remaining (unused) light structures with a unique texture unit to avoid texture unit 0 on different sampler types
+    for(; i < MAX_POINT_LIGHTS; i++)
+        glUniform1i(pointLights[i].shadowMapTextureSamplerID, TEXTURE_MAX + shadowMapTextureUnit + i);
+    shadowMapTextureUnit += MAX_POINT_LIGHTS;
 }
 
 void SimpleLightingTechnique::setSpotLights(unsigned long lightCount, const std::vector<SpotLight *> &lights) {
@@ -206,12 +225,13 @@ void SimpleLightingTechnique::setSpotLights(unsigned long lightCount, const std:
     glUniform1i(spotLightCountID, static_cast<GLint>(lightCount));
 
     SpotLight *light;
-    for(int i = 0; i < lightCount; i++) {
+    int i = 0;
+    for(; i < lightCount; i++) {
         light = lights[i];
 
         glUniformMatrix4fv(spotLights[i].vpID, 1, GL_FALSE, &light->getVP()[0][0]);
-        light->getShadowMap()->bindTexture(TEXTURE_DEPTH + shadowMapTextureUnit + i);
-        glUniform1i(spotLights[i].shadowMapTextureSamplerID, TEXTURE_DEPTH + shadowMapTextureUnit + i);
+        light->getShadowMap()->bindTexture(TEXTURE_MAX + shadowMapTextureUnit + i);
+        glUniform1i(spotLights[i].shadowMapTextureSamplerID, TEXTURE_MAX + shadowMapTextureUnit + i);
         glUniform3f(spotLights[i].positionID, light->lightPosition.x, light->lightPosition.y, light->lightPosition.z);
         glUniform3f(spotLights[i].directionID, light->lightDirection.x, light->lightDirection.y, light->lightDirection.z);
         glUniform3f(spotLights[i].colorID, light->lightColor.x, light->lightColor.y, light->lightColor.z);
@@ -220,9 +240,12 @@ void SimpleLightingTechnique::setSpotLights(unsigned long lightCount, const std:
         glUniform1f(spotLights[i].attenuation.exponentialID, light->attenuation.exponential);
         glUniform1f(spotLights[i].attenuation.linearID, light->attenuation.linear);
         glUniform1f(spotLights[i].attenuation.constantID, light->attenuation.constant);
-
-        shadowMapTextureUnit++;
     }
+
+    // we also need to fill the remaining (unused) light structures with a unique texture unit to avoid texture unit 0 on different sampler types
+    for(; i < MAX_SPOT_LIGHTS; i++)
+        glUniform1i(spotLights[i].shadowMapTextureSamplerID, TEXTURE_MAX + shadowMapTextureUnit + i);
+    shadowMapTextureUnit += MAX_SPOT_LIGHTS;
 }
 
 void SimpleLightingTechnique::setDiffuseTextureSampler(GLuint textureSampler) {

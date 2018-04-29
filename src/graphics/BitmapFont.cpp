@@ -21,7 +21,7 @@ BitmapFont::BitmapFont(const std::string &bitmapPath, glm::vec2 bitmapArrayDimen
     if(bitmapTexture->getImageHeight() != bitmapArrayDimensions.y*bitmapCharacterSize.y)
         throw IOException("Bitmap texture height " + std::to_string(bitmapTexture->getImageHeight()) + " does not match required height " + std::to_string(bitmapArrayDimensions.y*bitmapCharacterSize.y));
 
-    bitmapTexture->fillTexture(false);
+    bitmapTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
 
     if(!shadersLoaded)
         loadShaders();

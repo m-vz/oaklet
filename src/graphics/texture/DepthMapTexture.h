@@ -9,8 +9,6 @@
 
 class DepthMapTexture : public Texture {
 public:
-    GLuint texture = 0;
-
     DepthMapTexture(int width, int height);
 };
 

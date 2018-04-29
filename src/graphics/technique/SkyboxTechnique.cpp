@@ -25,7 +25,9 @@ void SkyboxTechnique::execute() {
     skybox->getMesh()->meshes[0]->bindBuffer(skybox->getMesh()->meshes[0]->indexBuffer, GL_ELEMENT_ARRAY_BUFFER);
 
     skybox->getCubeMap()->bindTexture(TEXTURE_DIFFUSE);
-    setCubeMapTextureSampler(TEXTURE_DIFFUSE);
+    glUniform1i(cubeMapTextureSamplerID, TEXTURE_DIFFUSE);
+
+    validate();
 
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(skybox->getMesh()->meshes[0]->indices.size()), GL_UNSIGNED_INT, 0);
 
@@ -36,10 +38,6 @@ void SkyboxTechnique::execute() {
 
 void SkyboxTechnique::setSkybox(Skybox *skybox) {
     this->skybox = skybox;
-}
-
-void SkyboxTechnique::setCubeMapTextureSampler(GLuint textureSampler) {
-    glUniform1i(cubeMapTextureSamplerID, textureSampler);
 }
 
 void SkyboxTechnique::setVP(const glm::mat4 &view, const glm::mat4 &projection) {
