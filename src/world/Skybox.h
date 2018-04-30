@@ -17,8 +17,8 @@ public:
     virtual ~Skybox();
 
 private:
-    Model *skybox;
-    CubeTexture *cubeMap;
+    Model *skybox = nullptr;
+    CubeTexture *cubeMap = nullptr;
 
     void init(const std::vector<std::string> &texturePaths);
 };

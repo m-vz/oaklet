@@ -20,8 +20,8 @@ public:
     std::vector<PointLight*> pointLights;
     std::vector<SpotLight*> spotLights;
     std::vector<Camera*> cameras;
-    Camera *activeCamera;
-    Skybox *skybox;
+    Camera *activeCamera = nullptr;
+    Skybox *skybox = nullptr;
 
     explicit Scene(Camera *activeCamera);
 };

@@ -29,12 +29,8 @@ void ShadowMapTechnique::execute() {
 
     enable();
 
-    for(auto light: scene->directionalLights)
-        renderDepthMap(light);
-    for(auto light: scene->pointLights)
-        renderDepthMap(light);
-    for(auto light: scene->spotLights)
-        renderDepthMap(light);
+    for(auto iterator: framebuffers)
+        renderDepthMap(iterator.first);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -58,11 +54,11 @@ void ShadowMapTechnique::renderDepthMap(LightWithShadowMap *light) {
         for(auto mesh: entity->getModel()->meshes) {
             mesh->bindBuffer(mesh->vertexBuffer);
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
 
             mesh->bindBuffer(mesh->indexBuffer, GL_ELEMENT_ARRAY_BUFFER);
 
-            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->indices.size()), GL_UNSIGNED_INT, 0); // NOLINT
 
             glDisableVertexAttribArray(0);
         }
@@ -98,11 +94,14 @@ void ShadowMapTechnique::setScene(Scene *scene) {
         delete iterator.second;
 
     for(auto light: scene->directionalLights)
-        addFramebuffer(light, DIRECTIONAL_LIGHT_SHADOW_MAP_WIDTH, DIRECTIONAL_LIGHT_SHADOW_MAP_HEIGHT);
+        if(light->isCastingShadows())
+            addFramebuffer(light, DIRECTIONAL_LIGHT_SHADOW_MAP_WIDTH, DIRECTIONAL_LIGHT_SHADOW_MAP_HEIGHT);
     for(auto light: scene->pointLights)
-        addFramebuffer(light, POINT_LIGHT_SHADOW_MAP_SIZE, POINT_LIGHT_SHADOW_MAP_SIZE);
+        if(light->isCastingShadows())
+            addFramebuffer(light, POINT_LIGHT_SHADOW_MAP_SIZE, POINT_LIGHT_SHADOW_MAP_SIZE);
     for(auto light: scene->spotLights)
-        addFramebuffer(light, SPOT_LIGHT_SHADOW_MAP_WIDTH, SPOT_LIGHT_SHADOW_MAP_HEIGHT);
+        if(light->isCastingShadows())
+            addFramebuffer(light, SPOT_LIGHT_SHADOW_MAP_WIDTH, SPOT_LIGHT_SHADOW_MAP_HEIGHT);
 }
 
 void ShadowMapTechnique::addFramebuffer(LightWithShadowMap *light, int width, int height) {

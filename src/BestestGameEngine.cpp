@@ -101,7 +101,8 @@ void resize(Window &window, int width, int height) {
 }
 
 void scroll(Mouse &mouse, double xOffset, double yOffset) {
-    engine->world->activeScene->pointLights[0]->lightPosition += glm::vec3(xOffset, 0, yOffset)/5.0f;
+    for(auto light: engine->world->activeScene->pointLights)
+        light->lightPosition += glm::vec3(xOffset, 0, yOffset)/5.0f;
 }
 #pragma clang diagnostic pop
 
@@ -109,27 +110,25 @@ int main() {
     engine = new BestestGameEngine;
     engine->init();
 
-    auto mainCamera = new FreeCamera(*engine->ioControl->window, *engine->ioControl->mouse, *engine->ioControl->keyboard, glm::vec3(6, 8, 12), glm::vec2(-0.3f, 0.4f));
+    auto mainCamera = new FreeCamera(*engine->ioControl->window, *engine->ioControl->mouse, *engine->ioControl->keyboard, glm::vec3(0, 8, 12), glm::vec2(-0.5f, 0));
     auto *testScene = new Scene(mainCamera);
 
-    Model test = Model();
-    Entity testEntity = Entity();
+    PointLight pointLight = PointLight(glm::vec3(-1, 3, 0), glm::vec3(1), 30);
+    pointLight.castShadows(true);
+    testScene->pointLights.push_back(&pointLight);
+    SpotLight spotLight = SpotLight(glm::vec3(-10, 1, 2), glm::vec3(10, -1, -2), glm::vec3(0.5f, 0.25f, 0.1f), 100, glm::radians(30.0f));
+    spotLight.castShadows(false);
+    testScene->spotLights.push_back(&spotLight);
 
-    DirectionalLight testSunLight = DirectionalLight(glm::vec3(cosf(-0.44f), 1, sinf(-0.44f)), glm::vec3(0.933333333f, 0.847058824f, 0.62745098f), 1);
-    PointLight testPointLight = PointLight(glm::vec3(3.8f, 1, 3.5f), glm::vec3(0.5f, 0.25f, 0.1f), 20);
-    SpotLight testSpotLight = SpotLight(glm::vec3(1, 4, 7.3f), glm::vec3(-1, -1, -1), glm::vec3(1), 30, glm::radians(30.0f));
-
-    Skybox skybox("assets/samples/images/skyboxes/thick_clouds");
-
-    test.loadModel("assets/samples/meshes/medieval_house/medieval_house.obj");
-    MeshFactory::addCuboid(&test, glm::vec3(0, -2, 0), 40, 4, 40, glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), glm::vec4(0.2f, 0.16f, 0.13f, 1));
-
-    testEntity.setModel(&test);
-    testScene->entities.push_back(&testEntity);
-    testScene->directionalLights.push_back(&testSunLight);
-    testScene->pointLights.push_back(&testPointLight);
-    testScene->spotLights.push_back(&testSpotLight);
-    testScene->skybox = &skybox;
+    Model boxes, floor;
+    Entity boxesEntity, floorEntity;
+    MeshFactory::addCube(&boxes, glm::vec3(-4, 0.5f, 0), 1, glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+    MeshFactory::addCube(&boxes, glm::vec3(4, 0.5f, 0), 1, glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+    MeshFactory::addPlane(&floor, glm::vec3(0), 1000, 1000, glm::vec3(0, 1, 0), glm::vec3(0, 0, 1), glm::vec4(0.1f, 0.1f, 0.1f, 1));
+    boxesEntity.setModel(&boxes);
+    floorEntity.setModel(&floor);
+    testScene->entities.push_back(&boxesEntity);
+    testScene->entities.push_back(&floorEntity);
 
     engine->setScene(testScene);
 

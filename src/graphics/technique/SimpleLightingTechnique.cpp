@@ -89,24 +89,24 @@ void SimpleLightingTechnique::execute() {
         for(auto mesh: entity->getModel()->meshes) {
             mesh->bindBuffer(mesh->vertexBuffer);
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
             mesh->bindBuffer(mesh->uvBuffer);
             glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
             if(mesh->containsNormalData()) {
                 mesh->bindBuffer(mesh->normalBuffer);
                 glEnableVertexAttribArray(2);
-                glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+                glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
             }
             if(mesh->containsTangentData()) {
                 mesh->bindBuffer(mesh->tangentBuffer);
                 glEnableVertexAttribArray(3);
-                glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+                glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
             }
             if(mesh->containsColorData()) {
                 mesh->bindBuffer(mesh->colorBuffer);
                 glEnableVertexAttribArray(4);
-                glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0);
+                glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
             }
 
             mesh->bindBuffer(mesh->indexBuffer, GL_ELEMENT_ARRAY_BUFFER);
@@ -144,7 +144,7 @@ void SimpleLightingTechnique::execute() {
                 setSpecularTextureSampler(TEXTURE_SPECULAR);
             }
 
-            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->indices.size()), GL_UNSIGNED_INT, 0); // NOLINT
 
             glDisableVertexAttribArray(0);
             glDisableVertexAttribArray(1);
@@ -156,10 +156,12 @@ void SimpleLightingTechnique::execute() {
 
     glDepthFunc(GL_LEQUAL);
 
-    skyboxTechnique->enable();
-    skyboxTechnique->setSkybox(scene->skybox);
-    skyboxTechnique->setVP(scene->activeCamera->getView(), scene->activeCamera->getProjection());
-    skyboxTechnique->execute();
+    if(scene->skybox != nullptr) {
+        skyboxTechnique->enable();
+        skyboxTechnique->setSkybox(scene->skybox);
+        skyboxTechnique->setVP(scene->activeCamera->getView(), scene->activeCamera->getProjection());
+        skyboxTechnique->execute();
+    }
 
     glDepthFunc(GL_LESS);
 }
