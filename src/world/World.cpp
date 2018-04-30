@@ -10,6 +10,11 @@ World::World() {
     physics = new Physics;
 }
 
+void World::init(Scene *initialScene) {
+    activeScene = initialScene;
+    scenes.push_back(initialScene);
+}
+
 void World::perFrameUpdate(long long int frameTime) {
     // special updates that run once per frame go here
     for(auto scene: scenes)

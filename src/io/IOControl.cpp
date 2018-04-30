@@ -5,7 +5,7 @@
 #include "IOControl.h"
 #include "../util/Log.h"
 
-IOControl::IOControl(GLFWwindow *window) {
+void IOControl::init(GLFWwindow *window) {
     // prepare mouse, keyboard and window
     IOControl::mouse = new Mouse();
     IOControl::keyboard = new Keyboard();

@@ -22,10 +22,6 @@ public:
     SimpleLightingTechnique lighting;
     ShadowMapTechnique shadowing;
 
-    FreeCamera *camera;
-
-    BitmapFont *font;
-
     Renderer();
     void init(int width, int height);
     void renderScene(Scene *scene, long long int lag);

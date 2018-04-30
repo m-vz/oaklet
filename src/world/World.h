@@ -17,6 +17,7 @@ public:
     Scene *activeScene;
 
     World();
+    void init(Scene *initialScene);
     void perFrameUpdate(long long int frameTime);
     void firstUpdateInFrame(long long int deltaTime);
     void update(long long int deltaTime);

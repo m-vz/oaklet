@@ -18,7 +18,7 @@ public:
     Keyboard *keyboard;
     Window *window;
 
-    explicit IOControl(GLFWwindow *window);
+    void init(GLFWwindow *window);
     void processInput();
     int getMonitorCount() const;
     GLFWmonitor *getPrimaryMonitor();
