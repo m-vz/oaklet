@@ -96,7 +96,9 @@ void toggleFullscreen(Keyboard &keyboard, int key, int scancode, int mods) {
 }
 
 void resize(Window &window, int width, int height) {
-    engine->mainCamera->changeAspectRatio(width, height);
+    for(auto scene: engine->world->scenes)
+        for(auto camera: scene->cameras)
+            camera->changeAspectRatio(width, height);
     engine->renderer->lighting.setViewportSize(engine->ioControl->window->getFramebufferWidth(), engine->ioControl->window->getFramebufferHeight());
 }
 
@@ -110,23 +112,23 @@ int main() {
     engine = new BestestGameEngine;
     engine->init();
 
-    auto mainCamera = new FreeCamera(*engine->ioControl->window, *engine->ioControl->mouse, *engine->ioControl->keyboard, glm::vec3(0, 8, 12), glm::vec2(-0.5f, 0));
+    auto mainCamera = new FreeCamera(*engine->ioControl->window, *engine->ioControl->mouse, *engine->ioControl->keyboard, glm::vec3(0, 8, 12), glm::vec2(-0.65f, 0));
     auto *testScene = new Scene(mainCamera);
 
-    PointLight light1 = PointLight(glm::vec3(-4, 2, -3), glm::vec3(1, 0.5f, 0), 10);
-    light1.castShadows(true);
+    PointLight light1 = PointLight(glm::vec3(0, 2, 0), glm::vec3(1, 0.5f, 0), 10);
     testScene->pointLights.push_back(&light1);
-    PointLight light2 = PointLight(glm::vec3(0, 2, -3), glm::vec3(0, 0.5f, 1), 10);
-    light2.castShadows(true);
-    testScene->pointLights.push_back(&light2);
-    PointLight light3 = PointLight(glm::vec3(4, 2, -3), glm::vec3(0, 1, 0.5f), 10);
-    light3.castShadows(true);
-    testScene->pointLights.push_back(&light3);
+    DirectionalLight light2 = DirectionalLight(glm::vec3(-1, 0.1f, 0.2f), glm::vec3(0.3f, 0.5f, 1), 1);
+    testScene->directionalLights.push_back(&light2);
 
     Model boxes, floor;
     Entity boxesEntity, floorEntity;
-    MeshFactory::addCube(&boxes, glm::vec3(-4, 0.5f, 0), 1, glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec4(0.5f, 0.5f, 0.5f, 1));
-    MeshFactory::addCube(&boxes, glm::vec3(4, 0.5f, 0), 1, glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec4(0.5f, 0.5f, 0.5f, 1));
+    int count = 20;
+    float distance = 6, height = 0.4f;
+    for (int i = 0; i < count; ++i) {
+        float alpha = glm::radians(i*360.0f/count);
+        glm::vec3 position = distance*glm::vec3(cosf(alpha), 0, sinf(alpha));
+        MeshFactory::addCube(&boxes, glm::vec3(0, height, 0)+position, 0.8f, -position, glm::vec3(0, 1, 0), glm::vec4(0.8f, 0.8f, 0.8f, 1));
+    }
     MeshFactory::addPlane(&floor, glm::vec3(0), 1000, 1000, glm::vec3(0, 1, 0), glm::vec3(0, 0, 1), glm::vec4(0.1f, 0.1f, 0.1f, 1));
     boxesEntity.setModel(&boxes);
     testScene->entities.push_back(&boxesEntity);

@@ -11,7 +11,7 @@ DirectionalLight::DirectionalLight(const glm::vec3 &lightDirection, const glm::v
     this->lightDirection = glm::normalize(lightDirection);
     this->lightPosition = 10.0f*lightDirection; // TODO: this is very hacky.
     near = 0.1f;
-    far = 20.0f;
+    far = 50.0f;
 
     views.resize(1);
     vps.resize(1);
