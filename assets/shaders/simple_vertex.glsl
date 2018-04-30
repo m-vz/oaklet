@@ -33,7 +33,7 @@ uniform DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
 uniform int directionalLightCount;
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 uniform int spotLightCount;
-uniform mat4 mvp, model, view;
+uniform mat4 mvp, model;
 
 layout(location = 0) in vec3 modelspaceVertexPosition;
 layout(location = 1) in vec2 vertexUV;
@@ -44,7 +44,7 @@ layout(location = 4) in vec4 color;
 out VertexOut {
     vec2 tangentspaceVertexUV;
     vec4 vertexColor;
-    vec3 worldspaceVertexPosition, worldspaceCameraDirection;
+    vec3 worldspaceVertexPosition;
     mat3 tbn;
     vec4 directionalLightVertexPositions[MAX_DIRECTIONAL_LIGHTS];
     vec4 spotLightVertexPositions[MAX_SPOT_LIGHTS];
@@ -57,7 +57,6 @@ void main() {
     vertexOut.vertexColor = color;
 
     vertexOut.worldspaceVertexPosition = (model * vec4(modelspaceVertexPosition, 1)).xyz;
-    vertexOut.worldspaceCameraDirection = (inverse(view) * (vec4(0, 0, 0, 1) - (view * vec4(vertexOut.worldspaceVertexPosition, 1)))).xyz; // TODO: This should be simplified.
 
     mat3 model3 = mat3(model);
     vec3 worldspaceVertexNormal = model3 * modelspaceVertexNormal;

@@ -23,10 +23,10 @@ void SimpleLightingTechnique::init() {
     outwardsTexture = new Texture("assets/images/pixel_outwards.png", false);
     outwardsTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
 
-    viewID = getUniformLocation("view");
-
     modelID = getUniformLocation("model");
     mvpID = getUniformLocation("mvp");
+
+    worldspaceCameraPositionID = getUniformLocation("worldspaceCameraPosition");
 
     diffuseTextureSamplerID = getUniformLocation("diffuseTextureSampler");
     normalTextureSamplerID = getUniformLocation("normalTextureSampler");
@@ -78,7 +78,7 @@ void SimpleLightingTechnique::execute() {
     setSpotLights(scene->spotLights.size(), scene->spotLights);
     shadowMapTextureUnit = 0;
 
-    setView(scene->activeCamera->getView());
+    setWorldspaceCameraPosition(scene->activeCamera->getPosition());
 
     validate();
 
@@ -198,7 +198,6 @@ void SimpleLightingTechnique::setPointLights(unsigned long lightCount, const std
     glUniform1i(pointLightCountID, static_cast<GLint>(lightCount));
 
     PointLight *light;
-    glUniform1i(blaID, TEXTURE_MAX + shadowMapTextureUnit);
     int i = 0;
     for(; i < lightCount; i++) {
         light = lights[i];
@@ -262,16 +261,16 @@ void SimpleLightingTechnique::setSpecularTextureSampler(GLuint textureSampler) {
     glUniform1i(specularTextureSamplerID, textureSampler);
 }
 
-void SimpleLightingTechnique::setView(const glm::mat4 &view) {
-    glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
-}
-
 void SimpleLightingTechnique::setModel(const glm::mat4 &model) {
     glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
 }
 
 void SimpleLightingTechnique::setMVP(const glm::mat4 &mvp) {
     glUniformMatrix4fv(mvpID, 1, GL_FALSE, &mvp[0][0]);
+}
+
+void SimpleLightingTechnique::setWorldspaceCameraPosition(const glm::vec3 &worldspaceCameraPosition) {
+    glUniform3f(worldspaceCameraPositionID, worldspaceCameraPosition.x, worldspaceCameraPosition.y, worldspaceCameraPosition.z);
 }
 
 void SimpleLightingTechnique::setScene(Scene *scene) {

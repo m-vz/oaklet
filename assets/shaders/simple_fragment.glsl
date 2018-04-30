@@ -45,12 +45,13 @@ uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform int pointLightCount;
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 uniform int spotLightCount;
+uniform vec3 worldspaceCameraPosition;
 uniform sampler2D diffuseTextureSampler, normalTextureSampler, specularTextureSampler;
 
 in GeometryOut {
     vec2 tangentspaceVertexUV;
     vec4 vertexColor;
-    vec3 worldspaceVertexPosition, worldspaceCameraDirection;
+    vec3 worldspaceVertexPosition;
     mat3 tbn;
     vec4 directionalLightVertexPositions[MAX_DIRECTIONAL_LIGHTS];
     vec4 spotLightVertexPositions[MAX_SPOT_LIGHTS];
@@ -77,10 +78,10 @@ float shadowCalculation(vec4 lightVertexPosition, vec3 vertexNormal, vec3 lightD
     return shadow;
 }
 
-float shadowCalculation(vec3 lightDirection, float far, samplerCube shadowMapTextureSampler) {
+float shadowCalculation(vec3 vertexNormal, vec3 lightDirection, float far, samplerCube shadowMapTextureSampler) {
     float shadow = 0.0;
 
-    float bias = 0.05;
+    float bias = max(0.08 * (1.0 - dot(vertexNormal, lightDirection)), 0.008);
     float offset = 0.01;
     float samples = 2.0;
 
@@ -103,19 +104,18 @@ void main() {
     color = ambientColor;
 
     vec3 worldspaceNormal = geometryOut.tbn * normalize(texture(normalTextureSampler, geometryOut.tangentspaceVertexUV).rgb*2.0 - 1.0);
+    vec3 worldspaceCameraDirection = normalize(worldspaceCameraPosition - geometryOut.worldspaceVertexPosition);
 
     for(int i = 0; i < directionalLightCount; i++) {
         float lambertian = max(dot(directionalLights[i].direction, worldspaceNormal), 0);
         float specular = 0;
 
         if(lambertian > 0) {
-            vec3 halfDirection = normalize(directionalLights[i].direction + geometryOut.worldspaceCameraDirection);
-            float cosAlpha = max(dot(halfDirection, worldspaceNormal), 0);
-            specular = pow(cosAlpha, shininess);
+            vec3 halfDirection = normalize(directionalLights[i].direction + worldspaceCameraDirection);
+            specular = pow(max(dot(halfDirection, worldspaceNormal), 0), shininess);
         }
 
-        color += (diffuseColor * directionalLights[i].color*directionalLights[i].power * lambertian +
-                 specularColor * directionalLights[i].color*directionalLights[i].power * specular) *
+        color += (diffuseColor*lambertian + specularColor*specular) * directionalLights[i].color*directionalLights[i].power *
                  (1 - shadowCalculation(geometryOut.directionalLightVertexPositions[i], worldspaceNormal, normalize(directionalLights[i].direction), directionalLights[i].shadowMapTextureSampler));
     }
 
@@ -131,14 +131,12 @@ void main() {
         float specular = 0;
 
         if(lambertian > 0) {
-            vec3 halfDirection = normalize(worldspaceLightDirection + geometryOut.worldspaceCameraDirection);
-            float cosAlpha = max(dot(halfDirection, worldspaceNormal), 0);
-            specular = pow(cosAlpha, shininess);
+            vec3 halfDirection = normalize(worldspaceLightDirection + worldspaceCameraDirection);
+            specular = pow(max(dot(halfDirection, worldspaceNormal), 0), shininess);
         }
 
-        color += (diffuseColor * pointLights[i].color*pointLights[i].power * lambertian / attenuation +
-                 specularColor * pointLights[i].color*pointLights[i].power * specular / attenuation) *
-                 (1 - shadowCalculation(geometryOut.worldspaceVertexPosition - pointLights[i].position, pointLights[i].far, pointLights[i].shadowMapTextureSampler));
+        color += (diffuseColor*lambertian + specularColor*specular) * pointLights[i].color*pointLights[i].power / attenuation *
+                 (1 - shadowCalculation(worldspaceNormal, geometryOut.worldspaceVertexPosition - pointLights[i].position, pointLights[i].far, pointLights[i].shadowMapTextureSampler));
     }
 
     for(int i = 0; i < spotLightCount; i++) {
@@ -156,13 +154,11 @@ void main() {
             float specular = 0;
 
             if(lambertian > 0) {
-                vec3 halfDirection = normalize(worldspaceLightDirection + geometryOut.worldspaceCameraDirection);
-                float cosAlpha = max(dot(halfDirection, worldspaceNormal), 0);
-                specular = pow(cosAlpha, shininess);
+                vec3 halfDirection = normalize(worldspaceLightDirection + worldspaceCameraDirection);
+                specular = pow(max(dot(halfDirection, worldspaceNormal), 0), shininess);
             }
 
-            color += (diffuseColor * spotLights[i].color*spotLights[i].power * lambertian / attenuation +
-                     specularColor * spotLights[i].color*spotLights[i].power * specular / attenuation) *
+            color += (diffuseColor*lambertian + specularColor*specular) * spotLights[i].color*spotLights[i].power / attenuation *
                      (1 - (1 - spotlightFactor) * 1/(1 - spotLights[i].cutoff)) *
                      (1 - shadowCalculation(geometryOut.spotLightVertexPositions[i], worldspaceNormal, worldspaceLightDirection, spotLights[i].shadowMapTextureSampler));
         }

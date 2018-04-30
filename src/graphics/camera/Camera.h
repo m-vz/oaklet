@@ -14,10 +14,13 @@ public:
     const glm::mat4 &getView() const;
     const glm::mat4 &getProjection() const;
     float getAspectRatio() const;
+    const glm::vec3 &getPosition() const;
+    const glm::vec3 &getLookingDirection() const;
 
 protected:
     float aspectRatio = 1;
     glm::mat4 view, projection;
+    glm::vec3 position, lookingDirection;
 };
 
 #endif //BESTEST_GAME_CAMERA_H

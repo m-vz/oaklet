@@ -113,12 +113,15 @@ int main() {
     auto mainCamera = new FreeCamera(*engine->ioControl->window, *engine->ioControl->mouse, *engine->ioControl->keyboard, glm::vec3(0, 8, 12), glm::vec2(-0.5f, 0));
     auto *testScene = new Scene(mainCamera);
 
-    PointLight pointLight = PointLight(glm::vec3(-1, 3, 0), glm::vec3(1), 30);
-    pointLight.castShadows(true);
-    testScene->pointLights.push_back(&pointLight);
-    SpotLight spotLight = SpotLight(glm::vec3(-10, 1, 2), glm::vec3(10, -1, -2), glm::vec3(0.5f, 0.25f, 0.1f), 100, glm::radians(30.0f));
-    spotLight.castShadows(false);
-    testScene->spotLights.push_back(&spotLight);
+    PointLight light1 = PointLight(glm::vec3(-4, 2, -3), glm::vec3(1, 0.5f, 0), 10);
+    light1.castShadows(true);
+    testScene->pointLights.push_back(&light1);
+    PointLight light2 = PointLight(glm::vec3(0, 2, -3), glm::vec3(0, 0.5f, 1), 10);
+    light2.castShadows(true);
+    testScene->pointLights.push_back(&light2);
+    PointLight light3 = PointLight(glm::vec3(4, 2, -3), glm::vec3(0, 1, 0.5f), 10);
+    light3.castShadows(true);
+    testScene->pointLights.push_back(&light3);
 
     Model boxes, floor;
     Entity boxesEntity, floorEntity;
@@ -126,8 +129,8 @@ int main() {
     MeshFactory::addCube(&boxes, glm::vec3(4, 0.5f, 0), 1, glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec4(0.5f, 0.5f, 0.5f, 1));
     MeshFactory::addPlane(&floor, glm::vec3(0), 1000, 1000, glm::vec3(0, 1, 0), glm::vec3(0, 0, 1), glm::vec4(0.1f, 0.1f, 0.1f, 1));
     boxesEntity.setModel(&boxes);
-    floorEntity.setModel(&floor);
     testScene->entities.push_back(&boxesEntity);
+    floorEntity.setModel(&floor);
     testScene->entities.push_back(&floorEntity);
 
     engine->setScene(testScene);

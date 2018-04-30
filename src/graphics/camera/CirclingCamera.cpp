@@ -7,8 +7,10 @@
 
 CirclingCamera::CirclingCamera(int width, int height,
                                float distance, float angle, float speed,
-                               glm::vec3 lookingAt)
-        : distance(distance), angle(angle), speed(speed), lookingAt(lookingAt) {
+                               glm::vec3 lookingDirection)
+        : distance(distance), angle(angle), speed(speed) {
+    this->lookingDirection = lookingDirection;
+
     changeAspectRatio(width, height);
     update(0);
 }
@@ -22,19 +24,11 @@ void CirclingCamera::changeAspectRatio(int width, int height) {
 
 void CirclingCamera::update(long long int time) {
     float planeDistance = distance * std::cosf(angle), t = rotation + speed * speed * time/10000000000.0f;
-    position = lookingAt - glm::vec3(planeDistance * sinf(t), distance*std::sinf(-angle), planeDistance * cosf(t));
+    position = lookingDirection - glm::vec3(planeDistance * sinf(t), distance*std::sinf(-angle), planeDistance * cosf(t));
 
     view = glm::lookAt(
             position,
-            lookingAt,
+            lookingDirection,
             glm::vec3(0, 1, 0) // head is up
     );
-}
-
-const glm::vec3 &CirclingCamera::getPosition() const {
-    return position;
-}
-
-const glm::vec3 &CirclingCamera::getLookingAt() const {
-    return lookingAt;
 }

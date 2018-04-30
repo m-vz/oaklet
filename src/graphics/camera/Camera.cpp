@@ -15,3 +15,11 @@ const glm::mat4 &Camera::getProjection() const {
 float Camera::getAspectRatio() const {
     return aspectRatio;
 }
+
+const glm::vec3 &Camera::getPosition() const {
+    return position;
+}
+
+const glm::vec3 &Camera::getLookingDirection() const {
+    return lookingDirection;
+}

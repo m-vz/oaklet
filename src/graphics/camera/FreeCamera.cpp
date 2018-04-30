@@ -8,7 +8,9 @@
 #include "../../util/Log.h"
 
 FreeCamera::FreeCamera(Window &capturedIn, Mouse &mouse, Keyboard &keyboard, glm::vec3 position, glm::vec2 angles)
-        : capturedIn(capturedIn), position(position), angles(angles) {
+        : capturedIn(capturedIn), angles(angles) {
+    this->position = position;
+
     changeAspectRatio(capturedIn.getWindowWidth(), capturedIn.getWindowHeight());
     update(0);
 

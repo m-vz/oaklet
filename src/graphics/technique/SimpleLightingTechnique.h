@@ -35,11 +35,10 @@ private:
 
     Texture *blackTexture, *whiteTexture, *outwardsTexture;
 
-    GLuint blaID;
-
-    GLuint viewID;
     GLuint modelID;
     GLuint mvpID;
+
+    GLuint worldspaceCameraPositionID;
 
     GLuint diffuseTextureSamplerID = 0;
     GLuint normalTextureSamplerID = 0;
@@ -90,9 +89,9 @@ private:
     void setDiffuseTextureSampler(GLuint textureSampler);
     void setNormalTextureSampler(GLuint textureSampler);
     void setSpecularTextureSampler(GLuint textureSampler);
-    void setView(const glm::mat4 &view);
     void setModel(const glm::mat4 &model);
     void setMVP(const glm::mat4 &mvp);
+    void setWorldspaceCameraPosition(const glm::vec3 &worldspaceCameraPosition);
 };
 
 #endif //BESTEST_GAME_SIMPLELIGHTINGTECHNIQUE_H

@@ -24,7 +24,7 @@ private:
     /// Contains angle around the x axis and angle around the y axis.
     glm::vec2 angles;
     glm::vec3 acceleration = glm::vec3(0.0f), accelerationTmp;
-    glm::vec3 position, velocity = glm::vec3(0.0f), lookingDirection, rightDirection, upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 velocity = glm::vec3(0.0f), rightDirection, upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
 };
 
 #endif //BESTEST_GAME_FREECAMERA_H
