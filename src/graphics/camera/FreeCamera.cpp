@@ -3,6 +3,7 @@
 //
 
 #define GLM_ENABLE_EXPERIMENTAL
+#define _USE_MATH_DEFINES
 
 #include "FreeCamera.h"
 #include "../../util/Log.h"
@@ -17,8 +18,15 @@ FreeCamera::FreeCamera(Window &capturedIn, Mouse &mouse, Keyboard &keyboard, glm
     mouse.capture(capturedIn);
     mouse.addMoveCallback([this](Mouse &mouse) {
         if(mouseCaptured) {
-            this->angles.x += glm::radians<float>(static_cast<float>(-mouse.position().y) / 6.0f);
-            this->angles.y += glm::radians<float>(static_cast<float>(-mouse.position().x) / 6.0f);
+            int sign = this->upDirection.y < 0 ? 1 : -1;
+            this->angles.x += glm::radians<float>(static_cast<float>(-mouse.position().y)/10.0f);
+            this->angles.y += glm::radians<float>(static_cast<float>(sign*mouse.position().x)/10.0f);
+
+            this->leaning += leaningAmount*mouse.position().x;
+
+            double a = std::fmod(this->angles.x + M_PI/2, 2*M_PI);
+            sign = a < 0 ? -1 : 1;
+            this->upDirection.y = (a <= sign*M_PI ? 1 : -1);
         }
     });
 
@@ -89,7 +97,7 @@ FreeCamera::FreeCamera(Window &capturedIn, Mouse &mouse, Keyboard &keyboard, glm
 }
 
 void FreeCamera::changeAspectRatio(int width, int height) {
-    aspectRatio = (float) width / (float) height;
+    aspectRatio = (float) width/(float) height;
 
     // projection matrix: 45° field of view, display range : 0.1 unit <-> 100 units
     projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
@@ -97,12 +105,14 @@ void FreeCamera::changeAspectRatio(int width, int height) {
 
 void FreeCamera::update(long long int time) {
     lookingDirection = glm::normalize(glm::rotateY(glm::rotateX(glm::vec3(0.0f, 0.0f, -1.0f), angles.x), angles.y));
-    rightDirection = glm::normalize(glm::cross<glm::highp_float, glm::highp>(lookingDirection, upDirection));
+    leaning -= leaning*leaningFriction;
+    glm::vec3 upDirectionTmp = glm::rotate(upDirection, leaning, lookingDirection);
+    rightDirection = glm::normalize(glm::cross(lookingDirection, upDirectionTmp));
 
     float seconds = time/1000000000.0f;
-    accelerationTmp = acceleration*seconds;
-    velocity += -lookingDirection*accelerationTmp.z + rightDirection*accelerationTmp.x + upDirection*accelerationTmp.y - velocity*friction;
+    glm::vec3 accelerationTmp = acceleration*seconds;
+    velocity += -lookingDirection*accelerationTmp.z + rightDirection*accelerationTmp.x + upDirectionTmp*accelerationTmp.y - velocity*friction;
     position += velocity*seconds;
 
-    view = glm::lookAt(position, position + lookingDirection, upDirection);
+    view = glm::lookAt(position, position + lookingDirection, upDirectionTmp);
 }

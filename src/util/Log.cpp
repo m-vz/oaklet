@@ -202,6 +202,10 @@ Log &operator<<(Log &log, const glm::vec3 message) {
     return log << ("(" + std::to_string(message.x) + ", " + std::to_string(message.y) + ", " + std::to_string(message.z) + ")").c_str();
 }
 
+Log &operator<<(Log &log, const glm::vec2 message) {
+    return log << ("(" + std::to_string(message.x) + ", " + std::to_string(message.y) + ")").c_str();
+}
+
 void Log::setLogLevel(LogType logLevel, bool setForFileLog) {
     Log::logLevel = logLevel;
 

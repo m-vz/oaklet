@@ -68,6 +68,7 @@ public:
     friend Log& operator<<(Log &log, float message);
     friend Log& operator<<(Log &log, double message);
     friend Log& operator<<(Log &log, glm::vec3 message);
+    friend Log& operator<<(Log &log, glm::vec2 message);
     virtual ~Log();
     void setLogLevel(LogType logLevel, bool setForFileLog = true);
 
