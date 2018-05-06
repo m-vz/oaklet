@@ -103,7 +103,7 @@ void main() {
     vec3 specularColor = texture(specularTextureSampler, geometryOut.tangentspaceVertexUV).rgb;
     color = ambientColor;
 
-    vec3 worldspaceNormal = geometryOut.tbn * normalize(texture(normalTextureSampler, geometryOut.tangentspaceVertexUV).rgb*2.0 - 1.0);
+    vec3 worldspaceNormal = normalize(geometryOut.tbn * normalize(texture(normalTextureSampler, geometryOut.tangentspaceVertexUV).rgb*2.0 - 1.0));
     vec3 worldspaceCameraDirection = normalize(worldspaceCameraPosition - geometryOut.worldspaceVertexPosition);
 
     for(int i = 0; i < directionalLightCount; i++) {

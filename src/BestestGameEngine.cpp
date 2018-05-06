@@ -112,16 +112,16 @@ int main() {
     engine = new BestestGameEngine;
     engine->init();
 
-    auto mainCamera = new FreeCamera(*engine->ioControl->window, *engine->ioControl->mouse, *engine->ioControl->keyboard, glm::vec3(0, 8, 12), glm::vec2(-0.65f, 0));
+    auto mainCamera = new FreeCamera(*engine->ioControl->window, *engine->ioControl->mouse, *engine->ioControl->keyboard, glm::vec3(0, 8, 12), glm::vec2(-0.62f, 0));
     auto *testScene = new Scene(mainCamera);
 
-    PointLight light1 = PointLight(glm::vec3(0, 2, 0), glm::vec3(1, 0.5f, 0), 10);
+    PointLight light1 = PointLight(glm::vec3(0, 2, 3), glm::vec3(1, 0.7f, 1), 8);
     testScene->pointLights.push_back(&light1);
-    DirectionalLight light2 = DirectionalLight(glm::vec3(-1, 0.1f, 0.2f), glm::vec3(0.3f, 0.5f, 1), 1);
+    DirectionalLight light2 = DirectionalLight(glm::vec3(-1, 0.1f, 0.2f), glm::vec3(0.5f, 0.8f, 1), 1);
     testScene->directionalLights.push_back(&light2);
 
-    Model boxes, floor;
-    Entity boxesEntity, floorEntity;
+    Model boxes, statue, floor;
+    Entity boxesEntity, statueEntity, floorEntity;
     int count = 20;
     float distance = 6, height = 0.4f;
     for (int i = 0; i < count; ++i) {
@@ -129,9 +129,15 @@ int main() {
         glm::vec3 position = distance*glm::vec3(cosf(alpha), 0, sinf(alpha));
         MeshFactory::addCube(&boxes, glm::vec3(0, height, 0)+position, 0.8f, -position, glm::vec3(0, 1, 0), glm::vec4(0.8f, 0.8f, 0.8f, 1));
     }
+    statue.loadModel("assets/samples/meshes/statue_lowpoly.obj");
+    statue.setScale(3);
+    statue.setTranslation(glm::vec3(0, -0.03f, 0));
+    statue.meshes[0]->setColor(glm::vec4(0.8f, 0.6f, 0.3f, 1.0f));
     MeshFactory::addPlane(&floor, glm::vec3(0), 1000, 1000, glm::vec3(0, 1, 0), glm::vec3(0, 0, 1), glm::vec4(0.1f, 0.1f, 0.1f, 1));
     boxesEntity.setModel(&boxes);
     testScene->entities.push_back(&boxesEntity);
+    statueEntity.setModel(&statue);
+    testScene->entities.push_back(&statueEntity);
     floorEntity.setModel(&floor);
     testScene->entities.push_back(&floorEntity);
 

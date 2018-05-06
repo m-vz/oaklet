@@ -72,7 +72,6 @@ void Renderer::renderScene(Scene *scene, long long int lag) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shadowing.execute();
-//    scene->entities[0]->getModel()->setMeshTexture(1, TEXTURE_DIFFUSE, scene->directionalLights[0]->getShadowMap());
 
     lighting.execute();
 

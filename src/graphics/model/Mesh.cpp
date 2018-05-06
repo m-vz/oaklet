@@ -141,6 +141,22 @@ bool Mesh::containsColorData() const {
     return hasColorData;
 }
 
+void Mesh::setColor(glm::vec4 color) {
+    if(hasColorData)
+        colorData.clear();
+
+    for(int i = 0; i < indices.size(); ++i) {
+        colorData.push_back(color.r);
+        colorData.push_back(color.g);
+        colorData.push_back(color.b);
+        colorData.push_back(color.a);
+    }
+    hasColorData = true;
+
+    bindBuffer(colorBuffer);
+    fillBuffer(&colorData);
+}
+
 Mesh::~Mesh() {
     glDeleteBuffers(1, &vertexBuffer);
     glDeleteBuffers(1, &indexBuffer);

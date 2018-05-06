@@ -33,6 +33,7 @@ public:
     bool containsNormalData() const;
     bool containsTangentData() const;
     bool containsColorData() const;
+    void setColor(glm::vec4 color);
     virtual ~Mesh();
 
 private:

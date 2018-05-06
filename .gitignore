@@ -91,9 +91,6 @@ Temporary Items
 out
 gen
 
-# Mesh files
-!/assets/meshes/**/*.obj
-
 # asset working files
 *.blend
 *.blend1
