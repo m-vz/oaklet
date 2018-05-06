@@ -48,7 +48,7 @@ void ShadowMapTechnique::renderDepthMap(LightWithShadowMap *light) {
 
     validate();
 
-    for(auto entity: scene->entities) {
+    for(auto entity: scene->meshEntities) {
         setModel(entity->getModel()->modelMatrix);
 
         for(auto mesh: entity->getModel()->meshes) {
@@ -81,7 +81,7 @@ void ShadowMapTechnique::setLight(const LightWithShadowMap &light) {
         for(int i = 1; i < 6; ++i) // note that we start at one here
             glUniformMatrix4fv(vpIDs[i], 1, GL_FALSE, &zeroes[0][0]);
     }
-    glUniform3f(worldspaceLightPositionID, light.lightPosition.x, light.lightPosition.y, light.lightPosition.z);
+    glUniform3f(worldspaceLightPositionID, light.getLightPosition().x, light.getLightPosition().y, light.getLightPosition().z);
     glUniform1i(cubeID, light.isDepthMapCube());
     glUniform1f(farID, light.getFar());
 }

@@ -81,7 +81,7 @@ float shadowCalculation(vec4 lightVertexPosition, vec3 vertexNormal, vec3 lightD
 float shadowCalculation(vec3 vertexNormal, vec3 lightDirection, float far, samplerCube shadowMapTextureSampler) {
     float shadow = 0.0;
 
-    float bias = max(0.08 * (1.0 - dot(vertexNormal, lightDirection)), 0.008);
+    float bias = max(0.08 * (1.0 - dot(vertexNormal, -lightDirection)), 0.008);
     float offset = 0.01;
     float samples = 2.0;
 
@@ -90,7 +90,7 @@ float shadowCalculation(vec3 vertexNormal, vec3 lightDirection, float far, sampl
     for(float z = -offset; z < offset; z += step)
         for(float y = -offset; y < offset; y += step)
             for(float x = -offset; x < offset; x += step)
-                shadow += currentDepth > texture(shadowMapTextureSampler, lightDirection + vec3(x, y, z)).r*far ? 1 : 0;
+                shadow += currentDepth > texture(shadowMapTextureSampler, -lightDirection + vec3(x, y, z)).r*far ? 1 : 0;
     shadow /= pow(samples, 3); // divide by the number of samples
 
     return shadow;
@@ -135,8 +135,20 @@ void main() {
             specular = pow(max(dot(halfDirection, worldspaceNormal), 0), shininess);
         }
 
+//        vec3 lightDirection = pointLights[i].position - geometryOut.worldspaceVertexPosition;
+//        float bias = max(0.08 * (1.0 - dot(worldspaceNormal, lightDirection)), 0.008);
+//        float currentDepth = length(lightDirection) - bias;
+//        float closestDepth = texture(pointLights[i].shadowMapTextureSampler, -lightDirection).r*pointLights[i].far;
+//        float thickness = currentDepth - closestDepth;
+//        vec3 sssColor = vec3(1, 0.4, 0.2);
+//        float sss = 1 - thickness;
+//        if(sss <= 0)
+//            sss = 0;
+//        sss = pow(sss, 3);
+
         color += (diffuseColor*lambertian + specularColor*specular) * pointLights[i].color*pointLights[i].power / attenuation *
-                 (1 - shadowCalculation(worldspaceNormal, geometryOut.worldspaceVertexPosition - pointLights[i].position, pointLights[i].far, pointLights[i].shadowMapTextureSampler));
+                 (1 - shadowCalculation(worldspaceNormal, pointLights[i].position - geometryOut.worldspaceVertexPosition, pointLights[i].far, pointLights[i].shadowMapTextureSampler))/* +
+                 sssColor*sss*/;
     }
 
     for(int i = 0; i < spotLightCount; i++) {

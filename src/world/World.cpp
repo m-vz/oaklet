@@ -31,6 +31,9 @@ void World::firstUpdateInFrame(long long int deltaTime) {
 
 void World::update(long long int deltaTime) {
     physics->update(deltaTime);
+    for(auto scene: scenes)
+        for(auto entity: scene->updateEntities)
+            entity->update(*time);
 }
 
 long long int World::age() {

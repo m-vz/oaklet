@@ -8,14 +8,16 @@
 #include "../graphics/model/Model.h"
 #include "../graphics/camera/Camera.h"
 #include "../graphics/light/PointLight.h"
-#include "Entity.h"
+#include "entity/ModelEntity.h"
 #include "../graphics/light/DirectionalLight.h"
 #include "../graphics/light/SpotLight.h"
 #include "Skybox.h"
+#include "entity/UpdateEntity.h"
 
 class Scene {
 public:
-    std::vector<Entity*> entities;
+    std::vector<UpdateEntity*> updateEntities;
+    std::vector<ModelEntity*> meshEntities;
     std::vector<DirectionalLight*> directionalLights;
     std::vector<PointLight*> pointLights;
     std::vector<SpotLight*> spotLights;

@@ -58,6 +58,14 @@ void LightWithShadowMap::castShadows(bool castingShadows) {
     }
 }
 
+const glm::vec3 &LightWithShadowMap::getLightPosition() const {
+    return lightPosition;
+}
+
+void LightWithShadowMap::setLightPosition(const glm::vec3 &lightPosition) {
+    LightWithShadowMap::lightPosition = lightPosition;
+}
+
 LightWithShadowMap::~LightWithShadowMap() {
     if(deleteShadowMap)
         delete shadowMap;

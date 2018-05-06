@@ -11,8 +11,6 @@
 
 class LightWithShadowMap {
 public:
-    glm::vec3 lightPosition;
-
     virtual void calculateVP()= 0;
     const glm::mat4 &getView(int index = 0) const;
     const glm::mat4 &getProjection() const;
@@ -24,9 +22,12 @@ public:
     bool isCastingShadows() const;
     void setShadowMap(Texture *shadowMap);
     void castShadows(bool castingShadows);
+    const glm::vec3 &getLightPosition() const;
+    virtual void setLightPosition(const glm::vec3 &lightPosition);
     virtual ~LightWithShadowMap();
 
 protected:
+    glm::vec3 lightPosition;
     bool depthMapIsCube = false, castingShadows = true;
     float near, far;
     glm::mat4 projection;

@@ -82,7 +82,7 @@ void SimpleLightingTechnique::execute() {
 
     validate();
 
-    for(auto entity: scene->entities) {
+    for(auto entity: scene->meshEntities) {
         setModel(entity->getModel()->modelMatrix);
         setMVP(scene->activeCamera->getProjection()*scene->activeCamera->getView()*entity->getModel()->modelMatrix);
 
@@ -205,7 +205,7 @@ void SimpleLightingTechnique::setPointLights(unsigned long lightCount, const std
         glUniform1f(pointLights[i].farID, light->getFar());
         light->getShadowMap()->bindTexture(TEXTURE_MAX + shadowMapTextureUnit + i);
         glUniform1i(pointLights[i].shadowMapTextureSamplerID, TEXTURE_MAX + shadowMapTextureUnit + i);
-        glUniform3f(pointLights[i].positionID, light->lightPosition.x, light->lightPosition.y, light->lightPosition.z);
+        glUniform3f(pointLights[i].positionID, light->getLightPosition().x, light->getLightPosition().y, light->getLightPosition().z);
         glUniform3f(pointLights[i].colorID, light->lightColor.x, light->lightColor.y, light->lightColor.z);
         glUniform1f(pointLights[i].powerID, light->lightPower);
         glUniform1f(pointLights[i].attenuation.exponentialID, light->attenuation.exponential);
@@ -233,7 +233,7 @@ void SimpleLightingTechnique::setSpotLights(unsigned long lightCount, const std:
         glUniformMatrix4fv(spotLights[i].vpID, 1, GL_FALSE, &light->getVP()[0][0]);
         light->getShadowMap()->bindTexture(TEXTURE_MAX + shadowMapTextureUnit + i);
         glUniform1i(spotLights[i].shadowMapTextureSamplerID, TEXTURE_MAX + shadowMapTextureUnit + i);
-        glUniform3f(spotLights[i].positionID, light->lightPosition.x, light->lightPosition.y, light->lightPosition.z);
+        glUniform3f(spotLights[i].positionID, light->getLightPosition().x, light->getLightPosition().y, light->getLightPosition().z);
         glUniform3f(spotLights[i].directionID, light->lightDirection.x, light->lightDirection.y, light->lightDirection.z);
         glUniform3f(spotLights[i].colorID, light->lightColor.x, light->lightColor.y, light->lightColor.z);
         glUniform1f(spotLights[i].powerID, light->lightPower);
