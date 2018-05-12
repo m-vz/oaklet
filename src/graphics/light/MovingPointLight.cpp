@@ -29,5 +29,5 @@ const glm::vec3 &MovingPointLight::getCenter() const {
 }
 
 void MovingPointLight::update() {
-    lightPosition = center + glm::vec3(3, 0, 0)*std::cosf(age/600.0f) + glm::vec3(0, 0, 3)*std::sinf(age/600.0f);
+    lightPosition = center + glm::vec3(3, 0, 0)*cosf(age/600.0f) + glm::vec3(0, 0, 3)*sinf(age/600.0f);
 }
