@@ -7,19 +7,20 @@
 
 #include <string>
 #include <utility>
+#include <stdexcept>
 
 /// General Exception
 class Exception: public std::exception {
 public:
     explicit Exception(const char* message, const int code = 0) : error(message), message(message), code(code) {}
     explicit Exception(std::string message, const int code = 0) : error(message), message(std::move(message)), code(code) {}
-    const char* what() const throw() override {
+    const char* what() const noexcept override {
         if(code == 0) // 0 is considered no exception code
             return (messagePrefix + messageSeparator + message).c_str();
         else
             return (messagePrefix + messageSeparator + message + " " + codePrefix + std::to_string(code)).c_str();
     }
-    ~Exception() throw() override = default;
+    ~Exception() noexcept override = default;
 
 protected:
     std::runtime_error error;

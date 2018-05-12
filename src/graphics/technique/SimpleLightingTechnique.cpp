@@ -8,19 +8,19 @@
 
 void SimpleLightingTechnique::init() {
     Technique::init();
-    addShader(GL_VERTEX_SHADER, "assets/shaders/simple_vertex.glsl");
-    addShader(GL_GEOMETRY_SHADER, "assets/shaders/simple_geometry.glsl");
-    addShader(GL_FRAGMENT_SHADER, "assets/shaders/simple_fragment.glsl");
+    addShader(GL_VERTEX_SHADER, "../assets/shaders/simple_vertex.glsl");
+    addShader(GL_GEOMETRY_SHADER, "../assets/shaders/simple_geometry.glsl");
+    addShader(GL_FRAGMENT_SHADER, "../assets/shaders/simple_fragment.glsl");
     finalize();
 
     skyboxTechnique = new SkyboxTechnique();
     skyboxTechnique->init();
 
-    blackTexture = new Texture("assets/images/pixel_black.png", true);
+    blackTexture = new Texture("../assets/images/pixel_black.png", true);
     blackTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
-    whiteTexture = new Texture("assets/images/pixel_white.png", true);
+    whiteTexture = new Texture("../assets/images/pixel_white.png", true);
     whiteTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
-    outwardsTexture = new Texture("assets/images/pixel_outwards.png", false);
+    outwardsTexture = new Texture("../assets/images/pixel_outwards.png", false);
     outwardsTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
 
     modelID = getUniformLocation("model");

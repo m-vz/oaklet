@@ -23,8 +23,8 @@ void CirclingCamera::changeAspectRatio(int width, int height) {
 }
 
 void CirclingCamera::update(long long int time) {
-    float planeDistance = distance * std::cosf(angle), t = rotation + speed * speed * time/10000000000.0f;
-    position = lookingDirection - glm::vec3(planeDistance * sinf(t), distance*std::sinf(-angle), planeDistance * cosf(t));
+    float planeDistance = distance * cosf(angle), t = rotation + speed * speed * time/10000000000.0f;
+    position = lookingDirection - glm::vec3(planeDistance * sinf(t), distance*sinf(-angle), planeDistance * cosf(t));
 
     view = glm::lookAt(
             position,

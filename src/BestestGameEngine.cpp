@@ -132,7 +132,7 @@ int main() {
         glm::vec3 position = distance*glm::vec3(cosf(alpha), 0, sinf(alpha));
         MeshFactory::addCube(&boxes, glm::vec3(0, height, 0)+position, 0.8f, -position, glm::vec3(0, 1, 0), color);
     }
-    statue.loadModel("assets/samples/meshes/statue/statue_lowpoly.obj");
+    statue.loadModel("../assets/samples/meshes/statue/statue_lowpoly.obj");
     statue.setScale(2.5f);
     statue.setTranslation(glm::vec3(0, -0.03f, 0));
     statue.meshes[0]->setColor(color);
@@ -146,7 +146,7 @@ int main() {
 
     engine->setScene(testScene);
 
-    BitmapFont *font = new BitmapFont("assets/fonts/bitmap/font_bitmap.bmp", glm::vec2(8, 8), glm::vec2(16, 16),
+    BitmapFont *font = new BitmapFont("../assets/fonts/bitmap/font_bitmap.bmp", glm::vec2(8, 8), glm::vec2(16, 16),
                                       {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
                                        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5',
                                        '6', '7', '8', '9', ':', ';', '#', '%', '+', '-', '/', '\\', '!', '?', '.', ',',

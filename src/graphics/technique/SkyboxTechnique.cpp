@@ -6,8 +6,8 @@
 
 void SkyboxTechnique::init() {
     Technique::init();
-    addShader(GL_VERTEX_SHADER, "assets/shaders/skybox_vertex.glsl");
-    addShader(GL_FRAGMENT_SHADER, "assets/shaders/skybox_fragment.glsl");
+    addShader(GL_VERTEX_SHADER, "../assets/shaders/skybox_vertex.glsl");
+    addShader(GL_FRAGMENT_SHADER, "../assets/shaders/skybox_fragment.glsl");
     finalize();
 
     vpID = getUniformLocation("vp");
@@ -20,7 +20,7 @@ void SkyboxTechnique::execute() {
 
     skybox->getMesh()->meshes[0]->bindBuffer(skybox->getMesh()->meshes[0]->vertexBuffer);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
 
     skybox->getMesh()->meshes[0]->bindBuffer(skybox->getMesh()->meshes[0]->indexBuffer, GL_ELEMENT_ARRAY_BUFFER);
 
@@ -29,7 +29,7 @@ void SkyboxTechnique::execute() {
 
     validate();
 
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(skybox->getMesh()->meshes[0]->indices.size()), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(skybox->getMesh()->meshes[0]->indices.size()), GL_UNSIGNED_INT, 0); // NOLINT
 
     glDisableVertexAttribArray(0);
 

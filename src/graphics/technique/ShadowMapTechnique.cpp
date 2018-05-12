@@ -10,9 +10,9 @@
 
 void ShadowMapTechnique::init() {
     Technique::init();
-    addShader(GL_VERTEX_SHADER, "assets/shaders/shadow_map_vertex.glsl");
-    addShader(GL_GEOMETRY_SHADER, "assets/shaders/shadow_map_geometry.glsl");
-    addShader(GL_FRAGMENT_SHADER, "assets/shaders/shadow_map_fragment.glsl");
+    addShader(GL_VERTEX_SHADER, "../assets/shaders/shadow_map_vertex.glsl");
+    addShader(GL_GEOMETRY_SHADER, "../assets/shaders/shadow_map_geometry.glsl");
+    addShader(GL_FRAGMENT_SHADER, "../assets/shaders/shadow_map_fragment.glsl");
     finalize();
 
     modelID = getUniformLocation("model");

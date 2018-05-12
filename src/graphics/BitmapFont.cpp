@@ -7,8 +7,8 @@
 #include "../io/FileLoader.h"
 #include "../util/Log.h"
 
-const char *BitmapFont::VERTEX_SHADER_PATH = "assets/shaders/bitmap_vertex.glsl",
-        *BitmapFont::FRAGMENT_SHADER_PATH = "assets/shaders/bitmap_fragment.glsl";
+const char *BitmapFont::VERTEX_SHADER_PATH = "../assets/shaders/bitmap_vertex.glsl",
+        *BitmapFont::FRAGMENT_SHADER_PATH = "../assets/shaders/bitmap_fragment.glsl";
 bool BitmapFont::shadersLoaded = false;
 GLuint BitmapFont::bitmapProgramID = 0;
 
@@ -106,11 +106,11 @@ void BitmapFont::renderText(std::string text, glm::vec2 position, glm::vec2 wind
 
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0); // NOLINT
 
     glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0); // NOLINT
 
     bitmapTexture->bindTexture(0);
     glUniform1i(textureSamplerID, 0);
