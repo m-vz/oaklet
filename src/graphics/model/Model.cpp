@@ -95,17 +95,15 @@ void Model::translate(glm::vec3 translation) {
     calculateModelMatrix();
 }
 
-void Model::setRotation(float angle, glm::vec3 axis) {
-    rotationAngle = angle;
-    rotationAxis = axis;
+void Model::setRotation(glm::vec3 angles) {
+    rotation = angles;
 
     calculateRotationMatrix();
     calculateModelMatrix();
 }
 
-void Model::rotate(float angle, glm::vec3 axis) {
-    rotationAngle += angle;
-    rotationAxis = axis;
+void Model::rotate(glm::vec3 angles) {
+    rotation += angles;
 
     calculateRotationMatrix();
     calculateModelMatrix();
@@ -139,6 +137,18 @@ void Model::scale(float scale) {
     calculateModelMatrix();
 }
 
+const glm::vec3 &Model::getTranslation() const {
+    return translation;
+}
+
+const glm::vec3 &Model::getRotation() const {
+    return rotation;
+}
+
+const glm::vec3 &Model::getScale() const {
+    return scaleVector;
+}
+
 Model::~Model() {
     for(auto texture: texturesToDelete)
         delete texture;
@@ -155,7 +165,7 @@ void Model::calculateTranslationMatrix() {
 }
 
 void Model::calculateRotationMatrix() {
-    rotationMatrix = glm::rotate(rotationAngle, rotationAxis);
+    rotationMatrix = glm::rotate(glm::rotate(glm::rotate(rotation.x, glm::vec3(1, 0, 0)), rotation.y, glm::vec3(0, 1, 0)), rotation.z, glm::vec3(0, 0, 1));
 }
 
 void Model::calculateScaleMatrix() {

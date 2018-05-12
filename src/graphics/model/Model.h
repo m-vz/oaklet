@@ -23,20 +23,22 @@ public:
     void setMeshTexture(int meshIndex, TextureType type, Texture *texture);
     void setTranslation(glm::vec3 translation);
     void translate(glm::vec3 translation);
-    void setRotation(float angle, glm::vec3 axis);
-    void rotate(float angle, glm::vec3 axis);
+    void setRotation(glm::vec3 angles);
+    void rotate(glm::vec3 angles);
     void setScale(glm::vec3 scale);
     void setScale(float scale);
     void scale(glm::vec3 scale);
     void scale(float scale);
+    const glm::vec3 &getTranslation() const;
+    const glm::vec3 &getRotation() const;
+    const glm::vec3 &getScale() const;
     virtual ~Model();
 
 private:
     /// Textures that were created with this model and need to be deleted in the destructor.
     std::vector<Texture*> texturesToDelete;
-    float rotationAngle = 0.0f;
     glm::mat4 translationMatrix, rotationMatrix, scaleMatrix;
-    glm::vec3 translation = glm::vec3(0.0f), rotationAxis = glm::vec3(0.0f, 1.0f, 0.0f), scaleVector = glm::vec3(1.0f);
+    glm::vec3 translation = glm::vec3(0.0f), rotation = glm::vec3(0.0f, 1.0f, 0.0f), scaleVector = glm::vec3(1.0f);
 
     void calculateModelMatrix();
     void calculateTranslationMatrix();

@@ -119,7 +119,7 @@ int main() {
     MovingPointLight light1 = MovingPointLight(glm::vec3(0, 2, 0), glm::vec3(1, 0.7f, 1), 8);
     testScene->pointLights.push_back(&light1);
     testScene->updateEntities.push_back(&light1);
-    DirectionalLight light2 = DirectionalLight(glm::vec3(-1, 0.1f, 0.2f), glm::vec3(0.6f, 0.8f, 1), 1);
+    DirectionalLight light2 = DirectionalLight(glm::vec3(-1, 0.3f, 0.4f), glm::vec3(0.6f, 0.8f, 1), 0.2f);
     testScene->directionalLights.push_back(&light2);
 
     Model boxes, statue, floor;
@@ -143,6 +143,9 @@ int main() {
     testScene->meshEntities.push_back(&statueEntity);
     floorEntity.setModel(&floor);
     testScene->meshEntities.push_back(&floorEntity);
+
+    Skybox s = Skybox("../assets/samples/images/skyboxes/full_moon");
+    testScene->skybox = &s;
 
     engine->setScene(testScene);
 
