@@ -94,6 +94,11 @@ FreeCamera::FreeCamera(Window &capturedIn, Mouse &mouse, Keyboard &keyboard, glm
         else
             acceleration.y = 0;
     }, GLFW_KEY_LEFT_SHIFT);
+    keyboard.addReleasedCallback([this](Keyboard &keyboard, int key, int scancode, int mods) {
+        velocity.x = 0;
+        velocity.y = 0;
+        velocity.z = 0;
+    }, GLFW_KEY_X);
 }
 
 void FreeCamera::changeAspectRatio(int width, int height) {
