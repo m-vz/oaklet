@@ -10,18 +10,23 @@
 class Framebuffer {
 public:
     Framebuffer(Texture *texture, GLenum attachment);
-    Framebuffer(int width, int height, GLenum attachment, int channelCount = 3);
-    virtual void init(bool writeColor, bool readColor);
+    Framebuffer(int width, int height);
+    void addTexture(Texture *texture, GLenum attachment);
+    /// Initialize this framebuffer to be used in rendering.
+    /// \param writeColor Whether the color buffer of this framebuffer will be written to.
+    /// \param readColor Whether the color buffer of this framebuffer will be read from.
+    void init(bool writeColor, bool readColor, bool specifyTextarget = false);
     void bindFramebuffer(bool read);
-    Texture *getTexture() const;
+    Texture *getColorTexture(int attachmentIndex = 0) const;
+    Texture *getDepthStencilTexture() const;
+    Texture *getDepthTexture() const;
     int getFramebufferWidth() const;
     int getFramebufferHeight() const;
     virtual ~Framebuffer();
 
 protected:
-    bool initialised = false;
-    Texture *texture;
-    GLenum attachment;
+    bool initialised = false, colorTexture0Bound = false, depthStencilTextureBound = false, depthTextureBound = false;
+    Texture *colorTexture0 = nullptr, *depthStencilTexture = nullptr, *depthTexture = nullptr;
     GLuint fbo = 0;
 
     void checkFramebuffer(GLenum status);

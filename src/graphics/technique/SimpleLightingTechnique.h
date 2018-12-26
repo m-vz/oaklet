@@ -11,6 +11,7 @@
 #include "Technique.h"
 #include "../../world/Scene.h"
 #include "SkyboxTechnique.h"
+#include "../framebuffer/Framebuffer.h"
 
 class SimpleLightingTechnique : public Technique {
 public:
@@ -21,11 +22,13 @@ public:
 
     void init() override;
     void execute() override;
+    void setRenderTarget(Framebuffer *renderTarget);
     void setScene(Scene *scene);
     void setViewportSize(int width, int height);
     ~SimpleLightingTechnique() override;
 
 private:
+    Framebuffer *renderTarget = nullptr;
     int viewportWidth = 0, viewportHeight = 0;
     int shadowMapTextureUnit = 0;
 

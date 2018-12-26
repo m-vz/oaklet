@@ -106,11 +106,11 @@ void BitmapFont::renderText(std::string text, glm::vec2 position, glm::vec2 wind
 
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0); // NOLINT
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
 
     glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0); // NOLINT
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
 
     bitmapTexture->bindTexture(0);
     glUniform1i(textureSamplerID, 0);

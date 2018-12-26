@@ -7,6 +7,8 @@
 #include "../exception/Exception.h"
 #include "../util/Log.h"
 #include "model/MeshFactory.h"
+#include "texture/HDRTexture.h"
+#include "texture/DepthStencilTexture.h"
 
 Renderer::Renderer() {
     if(!glfwInit())
@@ -46,13 +48,44 @@ void Renderer::init(int width, int height) {
     if(glewInit() != GLEW_OK)
         throw Exception("Could not initialize glew.");
 
-    // VAO and vertex buffer
+    // VAOs
+    glGenVertexArrays(1, &quadVertexArrayID);
+    glBindVertexArray(quadVertexArrayID);
+    // TODO: use a mesh object to do this (needs work on mesh class):
+    float quadVertices[] = {
+            -1.0f, -1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            -1.0f, 1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f
+    };
+    float quadUVs[] = {
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f
+    };
+    unsigned int quadIndices[] = {
+            0, 1, 3,
+            0, 3, 2
+    };
+    GLuint quadVBOs[3]; // vertex data, uv data, index data
+    glGenBuffers(3, quadVBOs);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBOs[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBOs[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadUVs), quadUVs, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadVBOs[2]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
+
     glGenVertexArrays(1, &vertexArrayID);
     glBindVertexArray(vertexArrayID);
 
     // techniques
     lighting.init();
     shadowing.init();
+    toneMapping.init();
+    toneMapping.setQuadVAO(quadVertexArrayID);
+    toneMapping.setVAO(vertexArrayID);
 
     // options
     glClearColor(0, 0, 0, 1);
@@ -65,15 +98,31 @@ void Renderer::init(int width, int height) {
     initialized = true;
 }
 
+void Renderer::sizeChanged(int width, int height) {
+    lighting.setViewportSize(width, height);
+    toneMapping.setViewportSize(width, height);
+
+    auto *lightingTargetTexture = new HDRTexture(width, height, false);
+    lightingTargetTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
+    auto *lightingTargetDepthStencilTexture = new DepthStencilTexture(width, height);
+    lightingTargetDepthStencilTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
+    auto *lightingTarget = new Framebuffer(lightingTargetTexture, GL_COLOR_ATTACHMENT0);
+    lightingTarget->addTexture(lightingTargetDepthStencilTexture, GL_DEPTH_STENCIL_ATTACHMENT);
+    lightingTarget->init(true, true);
+    lighting.setRenderTarget(lightingTarget);
+    toneMapping.setRenderResult(lightingTarget);
+}
+
 void Renderer::renderScene(Scene *scene, long long int lag) {
     if(!initialized)
         throw NotInitialisedException("Renderer");
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBindVertexArray(vertexArrayID);
 
     shadowing.execute();
-
     lighting.execute();
+    toneMapping.execute();
 
     glfwSwapBuffers(window);
 }

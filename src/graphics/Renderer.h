@@ -16,14 +16,17 @@
 #include "../world/Scene.h"
 #include "technique/SimpleLightingTechnique.h"
 #include "technique/ShadowMapTechnique.h"
+#include "technique/ToneMappingTechnique.h"
 
 class Renderer {
 public:
     SimpleLightingTechnique lighting;
     ShadowMapTechnique shadowing;
+    ToneMappingTechnique toneMapping;
 
     Renderer();
     void init(int width, int height);
+    void sizeChanged(int width, int height);
     void renderScene(Scene *scene, long long int lag);
 
     GLFWwindow *getWindow() const;
@@ -31,7 +34,7 @@ public:
 
 private:
     bool initialized = false;
-    GLuint vertexArrayID;
+    GLuint vertexArrayID, quadVertexArrayID;
     GLFWwindow *window;
 };
 

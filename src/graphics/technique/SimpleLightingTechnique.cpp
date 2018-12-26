@@ -69,101 +69,114 @@ void SimpleLightingTechnique::init() {
 }
 
 void SimpleLightingTechnique::execute() {
-    glViewport(0, 0, viewportWidth, viewportHeight);
+    if(renderTarget != nullptr) {
+        enable();
 
-    enable();
+        renderTarget->bindFramebuffer(false);
 
-    setDirectionalLights(scene->directionalLights.size(), scene->directionalLights);
-    setPointLights(scene->pointLights.size(), scene->pointLights);
-    setSpotLights(scene->spotLights.size(), scene->spotLights);
-    shadowMapTextureUnit = 0;
+        glViewport(0, 0, viewportWidth, viewportHeight);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    setWorldspaceCameraPosition(scene->activeCamera->getPosition());
+        setDirectionalLights(scene->directionalLights.size(), scene->directionalLights);
+        setPointLights(scene->pointLights.size(), scene->pointLights);
+        setSpotLights(scene->spotLights.size(), scene->spotLights);
+        shadowMapTextureUnit = 0;
 
-    validate();
+        setWorldspaceCameraPosition(scene->activeCamera->getPosition());
 
-    for(auto entity: scene->meshEntities) {
-        setModel(entity->getModel()->modelMatrix);
-        setMVP(scene->activeCamera->getProjection()*scene->activeCamera->getView()*entity->getModel()->modelMatrix);
+        validate();
 
-        for(auto mesh: entity->getModel()->meshes) {
-            mesh->bindBuffer(mesh->vertexBuffer);
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-            mesh->bindBuffer(mesh->uvBuffer);
-            glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-            if(mesh->containsNormalData()) {
-                mesh->bindBuffer(mesh->normalBuffer);
-                glEnableVertexAttribArray(2);
-                glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-            }
-            if(mesh->containsTangentData()) {
-                mesh->bindBuffer(mesh->tangentBuffer);
-                glEnableVertexAttribArray(3);
-                glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-            }
-            if(mesh->containsColorData()) {
-                mesh->bindBuffer(mesh->colorBuffer);
-                glEnableVertexAttribArray(4);
-                glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-            }
+        for(auto entity: scene->meshEntities) {
+            setModel(entity->getModel()->modelMatrix);
+            setMVP(scene->activeCamera->getProjection()*scene->activeCamera->getView()*entity->getModel()->modelMatrix);
 
-            mesh->bindBuffer(mesh->indexBuffer, GL_ELEMENT_ARRAY_BUFFER);
+            for(auto mesh: entity->getModel()->meshes) {
+                mesh->bindBuffer(mesh->vertexBuffer);
+                glEnableVertexAttribArray(0);
+                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+                mesh->bindBuffer(mesh->uvBuffer);
+                glEnableVertexAttribArray(1);
+                glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+                if(mesh->containsNormalData()) {
+                    mesh->bindBuffer(mesh->normalBuffer);
+                    glEnableVertexAttribArray(2);
+                    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+                }
+                if(mesh->containsTangentData()) {
+                    mesh->bindBuffer(mesh->tangentBuffer);
+                    glEnableVertexAttribArray(3);
+                    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+                }
+                if(mesh->containsColorData()) {
+                    mesh->bindBuffer(mesh->colorBuffer);
+                    glEnableVertexAttribArray(4);
+                    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
+                }
 
-            if(mesh->materialIndex >= 0) {
-                std::unordered_map<TextureType, Texture*, std::hash<int>> &material = entity->getModel()->materials[mesh->materialIndex];
+                mesh->bindBuffer(mesh->indexBuffer, GL_ELEMENT_ARRAY_BUFFER);
 
-                if(material.find(TEXTURE_DIFFUSE) != material.end()) {
-                    material[TEXTURE_DIFFUSE]->bindTexture(TEXTURE_DIFFUSE);
-                    setDiffuseTextureSampler(TEXTURE_DIFFUSE);
+                if(mesh->materialIndex >= 0) {
+                    std::unordered_map<TextureType, Texture*, std::hash<int>> &material = entity->getModel()->materials[mesh->materialIndex];
+
+                    if(material.find(TEXTURE_DIFFUSE) != material.end()) {
+                        material[TEXTURE_DIFFUSE]->bindTexture(TEXTURE_DIFFUSE);
+                        setDiffuseTextureSampler(TEXTURE_DIFFUSE);
+                    } else {
+                        blackTexture->bindTexture(TEXTURE_DIFFUSE);
+                        setDiffuseTextureSampler(TEXTURE_DIFFUSE);
+                    }
+                    if(material.find(TEXTURE_NORMAL) != material.end()) {
+                        material[TEXTURE_NORMAL]->bindTexture(TEXTURE_NORMAL);
+                        setNormalTextureSampler(TEXTURE_NORMAL);
+                    } else {
+                        outwardsTexture->bindTexture(TEXTURE_NORMAL);
+                        setNormalTextureSampler(TEXTURE_NORMAL);
+                    }
+                    if(material.find(TEXTURE_SPECULAR) != material.end()) {
+                        material[TEXTURE_SPECULAR]->bindTexture(TEXTURE_SPECULAR);
+                        setSpecularTextureSampler(TEXTURE_SPECULAR);
+                    } else {
+                        whiteTexture->bindTexture(TEXTURE_SPECULAR);
+                        setSpecularTextureSampler(TEXTURE_SPECULAR);
+                    }
                 } else {
                     blackTexture->bindTexture(TEXTURE_DIFFUSE);
                     setDiffuseTextureSampler(TEXTURE_DIFFUSE);
-                }
-                if(material.find(TEXTURE_NORMAL) != material.end()) {
-                    material[TEXTURE_NORMAL]->bindTexture(TEXTURE_NORMAL);
-                    setNormalTextureSampler(TEXTURE_NORMAL);
-                } else {
                     outwardsTexture->bindTexture(TEXTURE_NORMAL);
                     setNormalTextureSampler(TEXTURE_NORMAL);
-                }
-                if(material.find(TEXTURE_SPECULAR) != material.end()) {
-                    material[TEXTURE_SPECULAR]->bindTexture(TEXTURE_SPECULAR);
-                    setSpecularTextureSampler(TEXTURE_SPECULAR);
-                } else {
                     whiteTexture->bindTexture(TEXTURE_SPECULAR);
                     setSpecularTextureSampler(TEXTURE_SPECULAR);
                 }
-            } else {
-                blackTexture->bindTexture(TEXTURE_DIFFUSE);
-                setDiffuseTextureSampler(TEXTURE_DIFFUSE);
-                outwardsTexture->bindTexture(TEXTURE_NORMAL);
-                setNormalTextureSampler(TEXTURE_NORMAL);
-                whiteTexture->bindTexture(TEXTURE_SPECULAR);
-                setSpecularTextureSampler(TEXTURE_SPECULAR);
+
+                glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->indices.size()), GL_UNSIGNED_INT, 0); // NOLINT
+
+                glDisableVertexAttribArray(0);
+                glDisableVertexAttribArray(1);
+                glDisableVertexAttribArray(2);
+                glDisableVertexAttribArray(3);
+                glDisableVertexAttribArray(4);
             }
-
-            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->indices.size()), GL_UNSIGNED_INT, 0); // NOLINT
-
-            glDisableVertexAttribArray(0);
-            glDisableVertexAttribArray(1);
-            glDisableVertexAttribArray(2);
-            glDisableVertexAttribArray(3);
-            glDisableVertexAttribArray(4);
         }
-    }
 
-    glDepthFunc(GL_LEQUAL);
+        if(scene->skybox != nullptr) {
+            glDepthFunc(GL_LEQUAL);
 
-    if(scene->skybox != nullptr) {
-        skyboxTechnique->enable();
-        skyboxTechnique->setSkybox(scene->skybox);
-        skyboxTechnique->setVP(scene->activeCamera->getView(), scene->activeCamera->getProjection());
-        skyboxTechnique->execute();
-    }
+            skyboxTechnique->enable();
+            skyboxTechnique->setSkybox(scene->skybox);
+            skyboxTechnique->setVP(scene->activeCamera->getView(), scene->activeCamera->getProjection());
+            skyboxTechnique->execute();
 
-    glDepthFunc(GL_LESS);
+            glDepthFunc(GL_LESS);
+        }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    } else
+        Log::log << LOG_WARNING << "SimpleLighting render target is not set.";
+}
+
+void SimpleLightingTechnique::setRenderTarget(Framebuffer *renderTarget) {
+    delete this->renderTarget;
+    this->renderTarget = renderTarget;
 }
 
 void SimpleLightingTechnique::setDirectionalLights(unsigned long lightCount, const std::vector<DirectionalLight *> &lights) {
@@ -286,4 +299,5 @@ SimpleLightingTechnique::~SimpleLightingTechnique() {
     delete blackTexture;
     delete whiteTexture;
     delete outwardsTexture;
+    delete renderTarget;
 }

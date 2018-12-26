@@ -40,6 +40,14 @@ public:
     };
 };
 
+/// An Exception for things that have to do with Framebuffers.
+class FramebufferException: public Exception {
+public:
+    explicit FramebufferException(const std::string &message, const int code = 0) : Exception(message, code) {
+        messagePrefix = "Framebuffer Exception";
+    };
+};
+
 /// An Exception for things that have to be set before they can be accessed.
 class NotSetException: public Exception {
 public:

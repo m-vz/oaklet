@@ -55,7 +55,7 @@ void Model::loadModel(const std::string &path) {
                     texture = new Texture(
                             path.substr(0, path.find_last_of("\\/") + 1) +
                             texturePathString.substr(static_cast<unsigned long>(offset)),
-                            (type == TEXTURE_DIFFUSE) // only convert diffuse textures to
+                            (type == TEXTURE_DIFFUSE) // only convert diffuse textures to linear space
                     );
                     texture->fillTexture(true, true, true, GL_CLAMP_TO_EDGE);
                     materials[i][type] = texture;

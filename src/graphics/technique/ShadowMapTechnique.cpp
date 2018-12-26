@@ -6,7 +6,6 @@
 #include "../../exception/Exception.h"
 #include "../texture/DepthMapTexture.h"
 #include "../texture/DepthMapCubeTexture.h"
-#include "../framebuffer/CubeFramebuffer.h"
 
 void ShadowMapTechnique::init() {
     Technique::init();
@@ -40,7 +39,6 @@ void ShadowMapTechnique::renderDepthMap(LightWithShadowMap *light) {
     depthBuffer->bindFramebuffer(false);
 
     glViewport(0, 0, depthBuffer->getFramebufferWidth(), depthBuffer->getFramebufferHeight());
-
     glClear(GL_DEPTH_BUFFER_BIT);
 
     light->calculateVP();
@@ -64,7 +62,7 @@ void ShadowMapTechnique::renderDepthMap(LightWithShadowMap *light) {
         }
     }
 
-    light->setShadowMap(depthBuffer->getTexture());
+    light->setShadowMap(depthBuffer->getDepthTexture());
 }
 
 void ShadowMapTechnique::setModel(const glm::mat4 &model) {
@@ -107,15 +105,14 @@ void ShadowMapTechnique::setScene(Scene *scene) {
 void ShadowMapTechnique::addFramebuffer(LightWithShadowMap *light, int width, int height) {
     Texture *depthMap; // will be deleted in the framebuffer, so we don't need to worry about that here.
     Framebuffer *depthBuffer;
-    if(light->isDepthMapCube()) {
-        depthMap = new DepthMapCubeTexture(width);
-        depthBuffer = new CubeFramebuffer(depthMap, GL_DEPTH_ATTACHMENT);
-    } else {
-        depthMap = new DepthMapTexture(width, height);
-        depthBuffer = new Framebuffer(depthMap, GL_DEPTH_ATTACHMENT);
-    }
 
+    if(light->isDepthMapCube())
+        depthMap = new DepthMapCubeTexture(width);
+    else
+        depthMap = new DepthMapTexture(width, height);
+    depthBuffer = new Framebuffer(depthMap, GL_DEPTH_ATTACHMENT);
     depthBuffer->init(false, false);
+
     framebuffers[light] = depthBuffer;
 }
 

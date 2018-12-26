@@ -6,7 +6,6 @@
 #include "BestestGameEngine.h"
 #include "graphics/model/MeshFactory.h"
 #include "util/Log.h"
-#include "world/entity/ModelEntity.h"
 #include "graphics/light/MovingPointLight.h"
 
 BestestGameEngine::BestestGameEngine() {
@@ -18,7 +17,7 @@ BestestGameEngine::BestestGameEngine() {
 void BestestGameEngine::init() {
     renderer->init(CONFIG.DEFAULT_WINDOW_WIDTH, CONFIG.DEFAULT_WINDOW_HEIGHT);
     ioControl->init(renderer->getWindow());
-    renderer->lighting.setViewportSize(ioControl->window->getFramebufferWidth(), ioControl->window->getFramebufferHeight());
+    renderer->sizeChanged(ioControl->window->getFramebufferWidth(), ioControl->window->getFramebufferHeight());
 }
 
 void BestestGameEngine::setScene(Scene *scene) {
@@ -101,7 +100,7 @@ void resize(Window &window, int width, int height) {
     for(auto scene: engine->world->scenes)
         for(auto camera: scene->cameras)
             camera->changeAspectRatio(width, height);
-    engine->renderer->lighting.setViewportSize(engine->ioControl->window->getFramebufferWidth(), engine->ioControl->window->getFramebufferHeight());
+    engine->renderer->sizeChanged(width, height);
 }
 
 void scroll(Mouse &mouse, double xOffset, double yOffset) {
