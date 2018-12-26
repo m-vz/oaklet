@@ -12,6 +12,8 @@ void ToneMappingTechnique::init() {
     finalize();
 
     renderedTextureSamplerID = getUniformLocation("renderedTextureSampler");
+
+    exposureID = getUniformLocation("exposure");
 }
 
 void ToneMappingTechnique::execute() {
@@ -33,6 +35,8 @@ void ToneMappingTechnique::execute() {
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 3);
+
+        glUniform1f(exposureID, *exposure);
 
         glUniform1i(renderedTextureSamplerID, TEXTURE_MAX);
         renderResult->getColorTexture()->bindTexture(TEXTURE_MAX);
@@ -59,6 +63,10 @@ void ToneMappingTechnique::setVAO(GLuint vertexArrayID) {
 
 void ToneMappingTechnique::setRenderResult(Framebuffer *renderResult) {
     this->renderResult = renderResult;
+}
+
+void ToneMappingTechnique::setExposure(float *exposure) {
+    this->exposure = exposure;
 }
 
 void ToneMappingTechnique::setViewportSize(int width, int height) {

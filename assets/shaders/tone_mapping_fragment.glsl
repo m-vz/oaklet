@@ -1,6 +1,7 @@
 #version 330 core
 
 uniform sampler2D renderedTextureSampler;
+uniform float exposure;
 
 in vec2 uv;
 
@@ -8,6 +9,9 @@ out vec4 color;
 
 void main() {
     color = texture(renderedTextureSampler, uv);
+
+    // tone mapping
+    color = vec4(1.0) - exp(-color*exposure);
 
     // gamma correction (conversion from linear colours to srgb)
     if(color.r <= 0.00313066844250063) color.r *= 12.92;

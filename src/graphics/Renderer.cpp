@@ -86,6 +86,7 @@ void Renderer::init(int width, int height) {
     toneMapping.init();
     toneMapping.setQuadVAO(quadVertexArrayID);
     toneMapping.setVAO(vertexArrayID);
+    toneMapping.setExposure(&exposure);
 
     // options
     glClearColor(0, 0, 0, 1);
@@ -102,7 +103,7 @@ void Renderer::sizeChanged(int width, int height) {
     lighting.setViewportSize(width, height);
     toneMapping.setViewportSize(width, height);
 
-    auto *lightingTargetTexture = new HDRTexture(width, height, false);
+    auto *lightingTargetTexture = new HDRTexture(width, height);
     lightingTargetTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
     auto *lightingTargetDepthStencilTexture = new DepthStencilTexture(width, height);
     lightingTargetDepthStencilTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);

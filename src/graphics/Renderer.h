@@ -23,6 +23,7 @@ public:
     SimpleLightingTechnique lighting;
     ShadowMapTechnique shadowing;
     ToneMappingTechnique toneMapping;
+    float exposure = 1;
 
     Renderer();
     void init(int width, int height);

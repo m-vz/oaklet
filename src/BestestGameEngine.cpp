@@ -104,7 +104,10 @@ void resize(Window &window, int width, int height) {
 }
 
 void scroll(Mouse &mouse, double xOffset, double yOffset) {
-
+    if(yOffset > 0)
+        engine->renderer->exposure /= 1.1f;
+    else if (yOffset < 0)
+        engine->renderer->exposure *= 1.1f;
 }
 #pragma clang diagnostic pop
 
@@ -120,28 +123,35 @@ int main() {
     testScene->updateEntities.push_back(&light1);
     DirectionalLight light2 = DirectionalLight(glm::vec3(-1, 0.3f, 0.4f), glm::vec3(0.6f, 0.8f, 1), 0.2f);
     testScene->directionalLights.push_back(&light2);
+    PointLight light3 = PointLight(glm::vec3(13, 2, 0), glm::vec3(1), 80);
+    testScene->pointLights.push_back(&light3);
 
-    Model boxes, statue, floor;
-    ModelEntity boxesEntity, statueEntity, floorEntity;
+    Model boxes, statue, floor, house;
+    ModelEntity boxesEntity, statueEntity, floorEntity, houseEntity;
     glm::vec4 color = glm::vec4(0.8f, 0.6f, 0.4f, 1);
     int count = 20;
     float distance = 6, height = 0.4f;
     for (int i = 0; i < count; ++i) {
         float alpha = glm::radians(i*360.0f/count);
         glm::vec3 position = distance*glm::vec3(cosf(alpha), 0, sinf(alpha));
-        MeshFactory::addCube(&boxes, glm::vec3(0, height, 0)+position, 0.8f, -position, glm::vec3(0, 1, 0), color);
+        MeshFactory::addCuboid(&boxes, glm::vec3(0, 0, 0)+position, 2*height, 4*height, 2*height, -position, glm::vec3(0, 1, 0), color);
     }
     statue.loadModel("../assets/samples/meshes/statue/statue_lowpoly.obj");
     statue.setScale(2.5f);
     statue.setTranslation(glm::vec3(0, -0.03f, 0));
     statue.meshes[0]->setColor(color);
-    MeshFactory::addPlane(&floor, glm::vec3(0), 1000, 1000, glm::vec3(0, 1, 0), glm::vec3(0, 0, 1), color);
+    house.loadModel("../assets/samples/meshes/medieval_house/medieval_house.obj");
+    house.setScale(0.4f);
+    house.setTranslation(glm::vec3(10.0f, 0, 0));
+    MeshFactory::addCuboid(&floor, glm::vec3(0, -1, 0), 1000, 2, 1000, glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), color);
     boxesEntity.setModel(&boxes);
     testScene->meshEntities.push_back(&boxesEntity);
     statueEntity.setModel(&statue);
     testScene->meshEntities.push_back(&statueEntity);
     floorEntity.setModel(&floor);
     testScene->meshEntities.push_back(&floorEntity);
+    houseEntity.setModel(&house);
+    testScene->meshEntities.push_back(&houseEntity);
 
     Skybox s = Skybox("../assets/samples/images/skyboxes/full_moon");
     testScene->skybox = &s;
