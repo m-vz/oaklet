@@ -27,14 +27,31 @@ void BestestGameEngine::setScene(Scene *scene) {
 }
 
 void BestestGameEngine::start() {
-    long long int timeLag = 0;
+    long long int timeLag = 0, deltaTick = 0;
     std::chrono::time_point<std::chrono::steady_clock> thisTick = std::chrono::steady_clock::now(), lastTick = thisTick;
 
     while(!glfwWindowShouldClose(renderer->getWindow())) {
+        /*
+         * advance time
+         */
         thisTick = std::chrono::steady_clock::now();
-        world->time->tick(std::chrono::duration_cast<std::chrono::nanoseconds>(thisTick - lastTick).count());
+        deltaTick = std::chrono::duration_cast<std::chrono::nanoseconds>(thisTick - lastTick).count();
+        world->time->tick(deltaTick);
         timeLag += world->time->deltaTime();
         lastTick = thisTick;
+
+        /*
+         * frame time and framerate
+         */
+        frameTime[frameTimeSampleCount] = deltaTick;
+        frameTimeSampleCount++;
+        if(frameTimeSampleCount == FRAMERATE_COMPUTATION_SAMPLE_COUNT) {
+            frameTimeSampleCount = 0;
+            float framerate = 0;
+            for(long long int t: frameTime)
+                framerate += t;
+            renderer->setFramerate((long long int) (FRAMERATE_COMPUTATION_SAMPLE_COUNT)*1000000000/framerate);
+        }
 
         /*
          * input
@@ -128,6 +145,7 @@ int main() {
 
     Model boxes, statue, floor, house;
     ModelEntity boxesEntity, statueEntity, floorEntity, houseEntity;
+
     glm::vec4 color = glm::vec4(0.8f, 0.6f, 0.4f, 1);
     int count = 20;
     float distance = 6, height = 0.4f;
@@ -136,33 +154,31 @@ int main() {
         glm::vec3 position = distance*glm::vec3(cosf(alpha), 0, sinf(alpha));
         MeshFactory::addCuboid(&boxes, glm::vec3(0, 0, 0)+position, 2*height, 4*height, 2*height, -position, glm::vec3(0, 1, 0), color);
     }
+
     statue.loadModel("../assets/samples/meshes/statue/statue_lowpoly.obj");
     statue.setScale(2.5f);
     statue.setTranslation(glm::vec3(0, -0.03f, 0));
     statue.meshes[0]->setColor(color);
+
     house.loadModel("../assets/samples/meshes/medieval_house/medieval_house.obj");
     house.setScale(0.4f);
     house.setTranslation(glm::vec3(10.0f, 0, 0));
+
     MeshFactory::addCuboid(&floor, glm::vec3(0, -1, 0), 1000, 2, 1000, glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), color);
+
     boxesEntity.setModel(&boxes);
     testScene->meshEntities.push_back(&boxesEntity);
     statueEntity.setModel(&statue);
     testScene->meshEntities.push_back(&statueEntity);
-    floorEntity.setModel(&floor);
-    testScene->meshEntities.push_back(&floorEntity);
     houseEntity.setModel(&house);
     testScene->meshEntities.push_back(&houseEntity);
+    floorEntity.setModel(&floor);
+    testScene->meshEntities.push_back(&floorEntity);
 
     Skybox s = Skybox("../assets/samples/images/skyboxes/full_moon");
     testScene->skybox = &s;
 
     engine->setScene(testScene);
-
-    BitmapFont *font = new BitmapFont("../assets/fonts/bitmap/font_bitmap.bmp", glm::vec2(8, 8), glm::vec2(16, 16),
-                                      {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-                                       'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5',
-                                       '6', '7', '8', '9', ':', ';', '#', '%', '+', '-', '/', '\\', '!', '?', '.', ',',
-                                       '\'', '*', '(', ')', '[', ']', '{', '}', '<', '>', '"', '=', ' ', '_', '|', '\0'});
 
     engine->ioControl->keyboard->addReleasedCallback(endProgram, GLFW_KEY_ESCAPE);
     engine->ioControl->keyboard->addReleasedCallback(toggleFullscreen, GLFW_KEY_F);

@@ -42,7 +42,9 @@ void ToneMappingTechnique::execute() {
         renderResult->getColorTexture()->bindTexture(TEXTURE_MAX);
 
         glDisable(GL_DEPTH_TEST);
+
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // NOLINT
+
         glEnable(GL_DEPTH_TEST);
 
         glDisableVertexAttribArray(0);

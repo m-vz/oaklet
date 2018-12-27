@@ -11,11 +11,16 @@
 
 class BestestGameEngine {
 public:
+    static const int FRAMERATE_COMPUTATION_SAMPLE_COUNT = 4;
+
     Renderer *renderer;
     IOControl *ioControl;
     World *world;
 
     FreeCamera *mainCamera;
+
+    long long int frameTime[FRAMERATE_COMPUTATION_SAMPLE_COUNT];
+    int frameTimeSampleCount = 0;
 
     BestestGameEngine();
     void init();

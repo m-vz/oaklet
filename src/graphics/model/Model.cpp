@@ -78,7 +78,6 @@ void Model::setMeshTexture(int meshIndex, TextureType type, Texture *texture) {
     }
 
     materials[addTo->materialIndex][type] = texture;
-    int a = 3;
 }
 
 void Model::setTranslation(glm::vec3 translation) {

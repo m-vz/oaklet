@@ -27,9 +27,8 @@ public:
 
     Mesh();
     void initFromAIMesh(const aiMesh *aiMesh, int materialIndexOffset);
-    void generateBuffers(GLuint *buffers, int number = 1);
     void bindBuffer(GLuint buffer, GLenum type = GL_ARRAY_BUFFER);
-    template<typename T> void fillBuffer(std::vector<T> *data, GLenum target = GL_ARRAY_BUFFER, GLenum usage = GL_STATIC_DRAW);
+    void fillBuffers(bool fillUVBuffer = true, bool fillNormalBuffer = true, bool fillTangentBuffer = true, bool fillColorBuffer = true);
     bool containsNormalData() const;
     bool containsTangentData() const;
     bool containsColorData() const;
@@ -38,8 +37,8 @@ public:
 
 private:
     bool hasNormalData = false, hasTangentData = false, hasColorData = false;
-
-    void fillBuffers(bool fillUVBuffer = true, bool fillNormalBuffer = true, bool fillTangentBuffer = true, bool fillColorBuffer = true);
+    template<typename T> void fillBuffer(std::vector<T> *data, GLenum target = GL_ARRAY_BUFFER, GLenum usage = GL_STATIC_DRAW);
+    void generateBuffers(GLuint *buffers, int number = 1);
 };
 
 #endif //BESTEST_GAME_MESH_H

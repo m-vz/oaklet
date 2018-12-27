@@ -25,7 +25,7 @@ static struct {
     const int TIME_TICK_DURATION = 1000000;
 
     // renderer
-    const int DEFAULT_WINDOW_WIDTH = 1200, DEFAULT_WINDOW_HEIGHT = 900;
-} CONFIG;
+    const int DEFAULT_WINDOW_WIDTH = 1280, DEFAULT_WINDOW_HEIGHT = 840;
+} CONFIG; // NOLINT(cert-err58-cpp)
 
 #endif //BESTEST_GAME_CONFIG_H

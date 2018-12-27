@@ -80,6 +80,16 @@ void Renderer::init(int width, int height) {
     glGenVertexArrays(1, &vertexArrayID);
     glBindVertexArray(vertexArrayID);
 
+    // fonts
+    debugFont = new BitmapFont("../assets/fonts/bitmap/font_bitmap.gif", glm::vec2(8, 8), glm::vec2(8, 8),
+                                 {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+                                  'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5',
+                                  '6', '7', '8', '9', ':', ';', '#', '%', '+', '-', '/', '\\', '!', '?', '.', ',',
+                                  '\'', '*', '(', ')', '[', ']', '{', '}', '<', '>', '"', '=', ' ', '_', '|', '\0'});
+
+    // gui
+    framerateTextElement = new TextElement("0.0", debugFont, glm::vec2(10), glm::vec3(1), 4);
+
     // techniques
     lighting.init();
     shadowing.init();
@@ -87,6 +97,8 @@ void Renderer::init(int width, int height) {
     toneMapping.setQuadVAO(quadVertexArrayID);
     toneMapping.setVAO(vertexArrayID);
     toneMapping.setExposure(&exposure);
+    debugText.init();
+    debugText.setTextElement(framerateTextElement);
 
     // options
     glClearColor(0, 0, 0, 1);
@@ -102,6 +114,7 @@ void Renderer::init(int width, int height) {
 void Renderer::sizeChanged(int width, int height) {
     lighting.setViewportSize(width, height);
     toneMapping.setViewportSize(width, height);
+    debugText.setViewportSize(width, height);
 
     auto *lightingTargetTexture = new HDRTexture(width, height);
     lightingTargetTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
@@ -121,11 +134,26 @@ void Renderer::renderScene(Scene *scene, long long int lag) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glBindVertexArray(vertexArrayID);
 
+    /*
+     * render scene
+     */
     shadowing.execute();
     lighting.execute();
     toneMapping.execute();
 
+    /*
+     * render gui
+     */
+    debugText.execute();
+
     glfwSwapBuffers(window);
+}
+
+void Renderer::setFramerate(float framerate) {
+    auto framerateTextBytes = static_cast<size_t>(snprintf(nullptr, 0, "%.1f", framerate)) + 1; // + 1 for the '\0' // NOLINT(bugprone-misplaced-widening-cast)
+    auto *framerateText = (char *) malloc(framerateTextBytes);
+    snprintf(framerateText, framerateTextBytes, "%.2f", framerate);
+    framerateTextElement->setText(framerateText);
 }
 
 GLFWwindow* Renderer::getWindow() const {
@@ -133,6 +161,9 @@ GLFWwindow* Renderer::getWindow() const {
 }
 
 Renderer::~Renderer() {
+    delete debugFont;
+    delete framerateTextElement;
+
     glDeleteVertexArrays(1, &vertexArrayID);
 
     glfwTerminate();

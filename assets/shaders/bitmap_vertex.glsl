@@ -1,15 +1,20 @@
 #version 330 core
 
-layout(location = 0) in vec2 vertexPosition;
-layout(location = 1) in vec2 vertexUV;
-
 uniform vec2 windowSize;
 
-out vec2 uv;
+layout(location = 0) in vec2 vertexPosition;
+layout(location = 1) in vec2 vertexUV;
+layout(location = 2) in vec3 color;
+
+out VertexOut {
+    vec2 uv;
+    vec3 vertexColor;
+} vertexOut;
 
 void main() {
     vec2 halfWindowSize = windowSize/2;
-    gl_Position =  vec4((vertexPosition - halfWindowSize)/halfWindowSize, 0, 1);
+    gl_Position =  vec4(vertexPosition.x/halfWindowSize.x - 1, 1 - vertexPosition.y/halfWindowSize.y, 0, 1);
 
-    uv = vertexUV;
+    vertexOut.uv = vertexUV;
+    vertexOut.vertexColor = color;
 }
