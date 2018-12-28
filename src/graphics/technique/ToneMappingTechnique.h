@@ -7,13 +7,12 @@
 
 #include "Technique.h"
 #include "../framebuffer/Framebuffer.h"
+#include "../model/Model.h"
 
 class ToneMappingTechnique : public Technique {
 public:
     void init() override;
     void execute() override;
-    void setQuadVAO(GLuint quadVertexArrayID);
-    void setVAO(GLuint vertexArrayID);
     void setRenderResult(Framebuffer *renderResult);
     void setExposure(float *exposure);
     void setViewportSize(int width, int height);
@@ -23,8 +22,7 @@ private:
     Framebuffer *renderResult = nullptr;
     int viewportWidth = 0, viewportHeight = 0;
     float *exposure;
-
-    GLuint vertexArrayID, quadVertexArrayID;
+    Model quad;
 
     GLuint renderedTextureSamplerID = 0;
 

@@ -69,6 +69,14 @@ Model *MeshFactory::addPlane(Model *addTo,
     return addTo;
 }
 
+Model *MeshFactory::addQuad(Model *addTo,
+                            glm::vec2 origin,
+                            float width,
+                            float height,
+                            glm::vec4 color) {
+    return addPlane(addTo, glm::vec3(origin.x, origin.y, 0), width, height, glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), color);
+}
+
 Model *MeshFactory::addCuboid(Model *addTo,
                               glm::vec3 origin,
                               float width, float height, float length,

@@ -4,12 +4,15 @@
 
 #include "ToneMappingTechnique.h"
 #include "../../util/Log.h"
+#include "../model/MeshFactory.h"
 
 void ToneMappingTechnique::init() {
     Technique::init();
     addShader(GL_VERTEX_SHADER, "../assets/shaders/tone_mapping_vertex.glsl");
     addShader(GL_FRAGMENT_SHADER, "../assets/shaders/tone_mapping_fragment.glsl");
     finalize();
+
+    MeshFactory::addQuad(&quad);
 
     renderedTextureSamplerID = getUniformLocation("renderedTextureSampler");
 
@@ -21,20 +24,20 @@ void ToneMappingTechnique::execute() {
         enable();
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glBindVertexArray(quadVertexArrayID);
 
         glViewport(0, 0, viewportWidth, viewportHeight);
         glClear(GL_COLOR_BUFFER_BIT);
 
         validate();
 
-        glBindBuffer(GL_ARRAY_BUFFER, 1);
+        Mesh *quadMesh = quad.meshes[0];
+        quadMesh->bindBuffer(quadMesh->vertexBuffer);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-        glBindBuffer(GL_ARRAY_BUFFER, 2);
+        quadMesh->bindBuffer(quadMesh->uvBuffer);
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0); // NOLINT
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 3);
+        quadMesh->bindBuffer(quadMesh->indexBuffer, GL_ELEMENT_ARRAY_BUFFER);
 
         glUniform1f(exposureID, *exposure);
 
@@ -43,24 +46,14 @@ void ToneMappingTechnique::execute() {
 
         glDisable(GL_DEPTH_TEST);
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // NOLINT
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(quadMesh->indices.size()), GL_UNSIGNED_INT, 0); // NOLINT
 
         glEnable(GL_DEPTH_TEST);
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
-
-        glBindVertexArray(vertexArrayID);
     } else
         Log::log << LOG_WARNING << "ToneMapping render result is not set.";
-}
-
-void ToneMappingTechnique::setQuadVAO(GLuint quadVertexArrayID) {
-    this->quadVertexArrayID = quadVertexArrayID;
-}
-
-void ToneMappingTechnique::setVAO(GLuint vertexArrayID) {
-    this->vertexArrayID = vertexArrayID;
 }
 
 void ToneMappingTechnique::setRenderResult(Framebuffer *renderResult) {

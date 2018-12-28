@@ -49,34 +49,6 @@ void Renderer::init(int width, int height) {
         throw Exception("Could not initialize glew.");
 
     // VAOs
-    glGenVertexArrays(1, &quadVertexArrayID);
-    glBindVertexArray(quadVertexArrayID);
-    // TODO: use a mesh object to do this (needs work on mesh class):
-    float quadVertices[] = {
-            -1.0f, -1.0f, 0.0f,
-            1.0f, -1.0f, 0.0f,
-            -1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f
-    };
-    float quadUVs[] = {
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            0.0f, 1.0f,
-            1.0f, 1.0f
-    };
-    unsigned int quadIndices[] = {
-            0, 1, 3,
-            0, 3, 2
-    };
-    GLuint quadVBOs[3]; // vertex data, uv data, index data
-    glGenBuffers(3, quadVBOs);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBOs[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBOs[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadUVs), quadUVs, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadVBOs[2]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
-
     glGenVertexArrays(1, &vertexArrayID);
     glBindVertexArray(vertexArrayID);
 
@@ -94,8 +66,6 @@ void Renderer::init(int width, int height) {
     lighting.init();
     shadowing.init();
     toneMapping.init();
-    toneMapping.setQuadVAO(quadVertexArrayID);
-    toneMapping.setVAO(vertexArrayID);
     toneMapping.setExposure(&exposure);
     debugText.init();
     debugText.setTextElement(framerateTextElement);

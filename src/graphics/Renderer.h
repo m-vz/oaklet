@@ -41,7 +41,7 @@ public:
 
 private:
     bool initialized = false;
-    GLuint vertexArrayID, quadVertexArrayID;
+    GLuint vertexArrayID;
     GLFWwindow *window;
 };
 
