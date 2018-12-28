@@ -3,7 +3,6 @@
 //
 
 #include "Framebuffer.h"
-#include "../../exception/Exception.h"
 
 Framebuffer::Framebuffer(Texture *texture, GLenum attachment) : Framebuffer(texture->getImageWidth(), texture->getImageHeight()) {
     addTexture(texture, attachment);
@@ -16,20 +15,20 @@ Framebuffer::Framebuffer(int width, int height) {
 
 void Framebuffer::addTexture(Texture *texture, GLenum attachment) {
     switch(attachment) {
-        case GL_COLOR_ATTACHMENT0:
-            this->colorTexture0 = texture;
-            this->colorTexture0Bound = true;
-            break;
-        case GL_DEPTH_STENCIL_ATTACHMENT:
+        case GL_DEPTH_STENCIL_ATTACHMENT: // depth-stencil texture
             this->depthStencilTexture = texture;
             this->depthStencilTextureBound = true;
             break;
-        case GL_DEPTH_ATTACHMENT:
+        case GL_DEPTH_ATTACHMENT: // depth texture
             this->depthTexture = texture;
             this->depthTextureBound = true;
             break;
         default:
-            throw FramebufferException("Trying to bind a texture with an unsupported attachment.");
+            if(attachment >= GL_COLOR_ATTACHMENT0 && attachment < GL_COLOR_ATTACHMENT0 + MAX_COLOR_ATTACHMENTS) { // color texture
+                this->colorTextures[attachment - GL_COLOR_ATTACHMENT0] = texture;
+                this->colorTexturesBound[attachment - GL_COLOR_ATTACHMENT0] = true;
+            } else // no supported texture
+                throw FramebufferException("Trying to bind a texture with an unsupported attachment.");
     }
 }
 
@@ -39,17 +38,25 @@ void Framebuffer::init(bool writeColor, bool readColor, bool specifyTextarget) {
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
     if(specifyTextarget) {
-        if(colorTexture0Bound)
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTexture0->getTarget(), colorTexture0->getTextureID(), 0);
+        // color textures
+        for(int i = 0; i < MAX_COLOR_ATTACHMENTS; ++i)
+            if(colorTexturesBound[i])
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTextures[i]->getTarget(), colorTextures[i]->getTextureID(), 0);
+        // depth-stencil texture
         if(depthStencilTextureBound)
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture->getTarget(), depthStencilTexture->getTextureID(), 0);
+        // depth texture
         if(depthTextureBound)
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture->getTarget(), depthTexture->getTextureID(), 0);
     } else {
-        if(colorTexture0Bound)
-            glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTexture0->getTextureID(), 0);
+        // color textures
+        for(int i = 0; i < MAX_COLOR_ATTACHMENTS; ++i)
+            if(colorTexturesBound[i])
+                glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTextures[i]->getTextureID(), 0);
+        // depth-stencil texture
         if(depthStencilTextureBound)
             glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture->getTextureID(), 0);
+        // depth texture
         if(depthTextureBound)
             glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture->getTextureID(), 0);
     }
@@ -74,15 +81,16 @@ void Framebuffer::bindFramebuffer(bool read) {
 }
 
 Texture *Framebuffer::getColorTexture(int attachmentIndex) const {
-    if(!colorTexture0Bound)
-        throw FramebufferException("Trying to access a color attachment that is not bound.");
+    if(attachmentIndex >= GL_COLOR_ATTACHMENT0 && attachmentIndex < GL_COLOR_ATTACHMENT0 + MAX_COLOR_ATTACHMENTS) // index is actually an attachment, turn it into an index
+        attachmentIndex -= GL_COLOR_ATTACHMENT0;
 
-    switch(attachmentIndex) {
-        case 0:
-            return colorTexture0;
-        default:
-            throw FramebufferException("Trying to access a color attachment with an unsupported index.");
-    }
+    if(attachmentIndex < 0 || attachmentIndex >= MAX_COLOR_ATTACHMENTS)
+        throw FramebufferException("Trying to access a color attachment with an unsupported index.");
+
+    if(colorTexturesBound[attachmentIndex])
+        return colorTextures[attachmentIndex];
+    else
+        throw FramebufferException("Trying to access a color attachment that is not bound.");
 }
 
 Texture *Framebuffer::getDepthStencilTexture() const {
@@ -127,7 +135,8 @@ void Framebuffer::checkFramebuffer(GLenum status) {
 }
 
 Framebuffer::~Framebuffer() {
-    delete colorTexture0;
+    for(auto &texture: colorTextures)
+        delete texture;
     delete depthStencilTexture;
 
     if(fbo != 0)

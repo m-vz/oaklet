@@ -120,7 +120,7 @@ void Renderer::sizeChanged(int width, int height) {
     lightingTargetTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
     auto *lightingTargetDepthStencilTexture = new DepthStencilTexture(width, height);
     lightingTargetDepthStencilTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
-    auto *lightingTarget = new Framebuffer(lightingTargetTexture, GL_COLOR_ATTACHMENT0);
+    auto *lightingTarget = new Framebuffer(lightingTargetTexture, GL_COLOR_ATTACHMENT5);
     lightingTarget->addTexture(lightingTargetDepthStencilTexture, GL_DEPTH_STENCIL_ATTACHMENT);
     lightingTarget->init(true, true);
     lighting.setRenderTarget(lightingTarget);

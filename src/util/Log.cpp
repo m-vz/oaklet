@@ -158,6 +158,10 @@ Log &operator<<(Log &log, const std::string message) {
     return log << message.c_str();
 }
 
+Log &operator<<(Log &log, const bool message) {
+    return log << (message ? "true" : "false");
+}
+
 Log &operator<<(Log &log, const char message) {
     return log << std::to_string(message).c_str();
 }

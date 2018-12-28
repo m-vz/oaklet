@@ -39,7 +39,7 @@ void ToneMappingTechnique::execute() {
         glUniform1f(exposureID, *exposure);
 
         glUniform1i(renderedTextureSamplerID, TEXTURE_MAX);
-        renderResult->getColorTexture()->bindTexture(TEXTURE_MAX);
+        renderResult->getColorTexture(5)->bindTexture(TEXTURE_MAX);
 
         glDisable(GL_DEPTH_TEST);
 
