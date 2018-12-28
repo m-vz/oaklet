@@ -69,6 +69,7 @@ void Renderer::init(int width, int height) {
     toneMapping.setExposure(&exposure);
     debugText.init();
     debugText.setTextElement(framerateTextElement);
+    gBufferDebug.init();
 
     // options
     glClearColor(0, 0, 0, 1);
@@ -85,12 +86,13 @@ void Renderer::sizeChanged(int width, int height) {
     lighting.setViewportSize(width, height);
     toneMapping.setViewportSize(width, height);
     debugText.setViewportSize(width, height);
+    gBufferDebug.setViewportSize(width, height);
 
     auto *lightingTargetTexture = new HDRTexture(width, height);
     lightingTargetTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
     auto *lightingTargetDepthStencilTexture = new DepthStencilTexture(width, height);
     lightingTargetDepthStencilTexture->fillTexture(false, false, false, GL_CLAMP_TO_EDGE);
-    auto *lightingTarget = new Framebuffer(lightingTargetTexture, GL_COLOR_ATTACHMENT5);
+    auto *lightingTarget = new Framebuffer(lightingTargetTexture, GL_COLOR_ATTACHMENT0);
     lightingTarget->addTexture(lightingTargetDepthStencilTexture, GL_DEPTH_STENCIL_ATTACHMENT);
     lightingTarget->init(true, true);
     lighting.setRenderTarget(lightingTarget);
@@ -112,9 +114,10 @@ void Renderer::renderScene(Scene *scene, long long int lag) {
     toneMapping.execute();
 
     /*
-     * render gui
+     * debug
      */
     debugText.execute();
+//    gBufferDebug.execute();
 
     glfwSwapBuffers(window);
 }

@@ -10,7 +10,7 @@
 #include <stdexcept>
 
 /// General Exception
-class Exception: public std::exception {
+class Exception : public std::exception {
 public:
     explicit Exception(const char* message, const int code = 0) : error(message), message(message), code(code) {}
     explicit Exception(std::string message, const int code = 0) : error(message), message(std::move(message)), code(code) {}
@@ -33,7 +33,7 @@ private:
 };
 
 /// An Exception for things that have to do with IO.
-class IOException: public Exception {
+class IOException : public Exception {
 public:
     explicit IOException(const std::string &message, const int code = 0) : Exception(message, code) {
         messagePrefix = "IO Exception";
@@ -41,7 +41,7 @@ public:
 };
 
 /// An Exception for things that have to do with Framebuffers.
-class FramebufferException: public Exception {
+class FramebufferException : public Exception {
 public:
     explicit FramebufferException(const std::string &message, const int code = 0) : Exception(message, code) {
         messagePrefix = "Framebuffer Exception";
@@ -49,26 +49,26 @@ public:
 };
 
 /// An Exception for things that have to be set before they can be accessed.
-class NotSetException: public Exception {
+class NotSetException : public Exception {
 public:
     explicit NotSetException(const std::string &message, const int code = 0) : Exception(message + " has to be set.", code) {};
 };
 
 /// An Exception for things that have to be initialized for other things to be initialized.
-class NotInitialisedException: public Exception {
+class NotInitialisedException : public Exception {
 public:
     explicit NotInitialisedException(const std::string &notInitialised) : Exception(notInitialised + " is not initialised.", 0) {};
     NotInitialisedException(const std::string &notInitialised, const std::string &toBeInitialised) : Exception(notInitialised + " has to be initialised before " + toBeInitialised + " can be initialised.", 0) {};
 };
 
 /// An Exception for things that are not allocated.
-class NotAllocatedException: public Exception {
+class NotAllocatedException : public Exception {
 public:
     explicit NotAllocatedException(const std::string &notAllocated) : Exception(notAllocated + " is not allocated.", 0) {};
 };
 
 // An Exception for things that have not been created yet.
-class NotCreatedException: public Exception {
+class NotCreatedException : public Exception {
 public:
     explicit NotCreatedException(const std::string &notCreated) : Exception(notCreated + " has not been created yet.", 0) {};
 };

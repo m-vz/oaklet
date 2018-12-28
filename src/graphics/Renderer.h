@@ -18,6 +18,7 @@
 #include "technique/ShadowMapTechnique.h"
 #include "technique/ToneMappingTechnique.h"
 #include "technique/BitmapFontTechnique.h"
+#include "technique/TextureDebugTechnique.h"
 
 class Renderer {
 public:
@@ -25,6 +26,7 @@ public:
     ShadowMapTechnique shadowing;
     ToneMappingTechnique toneMapping;
     BitmapFontTechnique debugText;
+    TextureDebugTechnique gBufferDebug;
 
     BitmapFont *debugFont;
     TextElement *framerateTextElement;
