@@ -16,10 +16,12 @@ public:
     Framebuffer(Texture *texture, GLenum attachment);
     Framebuffer(int width, int height);
     void addTexture(Texture *texture, GLenum attachment);
-    /// Initialize this framebuffer to be used in rendering.
-    /// \param writeColor Whether the color buffer of this framebuffer will be written to.
-    /// \param readColor Whether the color buffer of this framebuffer will be read from.
-    void init(bool writeColor, bool readColor, bool specifyTextarget = false);
+    void init(GLuint *drawAttachments = nullptr,
+              int drawAttachmentsSize = 0,
+              GLuint readAttachment = GL_NONE,
+              bool readAttachmentSet = false,
+              bool specifyTextarget = false);
+    void init(bool drawColor, bool readColor, bool specifyTextarget = false);
     void bindFramebuffer(bool read);
     Texture *getColorTexture(int attachmentIndex) const;
     Texture *getDepthStencilTexture() const;

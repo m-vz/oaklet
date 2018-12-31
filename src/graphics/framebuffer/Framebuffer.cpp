@@ -32,7 +32,11 @@ void Framebuffer::addTexture(Texture *texture, GLenum attachment) {
     }
 }
 
-void Framebuffer::init(bool writeColor, bool readColor, bool specifyTextarget) {
+void Framebuffer::init(GLuint *drawAttachments,
+                       int drawAttachmentsSize,
+                       GLuint readAttachment,
+                       bool readAttachmentSet,
+                       bool specifyTextarget) {
     glGenFramebuffers(1, &fbo);
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -61,16 +65,36 @@ void Framebuffer::init(bool writeColor, bool readColor, bool specifyTextarget) {
             glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture->getTextureID(), 0);
     }
 
-    if(!writeColor)
-        glDrawBuffer(GL_NONE);
-    if(!readColor)
-        glReadBuffer(GL_NONE);
+    if(drawAttachmentsSize > 0) {
+        if(drawAttachmentsSize == 1)
+            glDrawBuffer(drawAttachments[0]);
+        else
+            glDrawBuffers(drawAttachmentsSize, drawAttachments);
+    }
+    if(readAttachmentSet)
+        glReadBuffer(readAttachment);
 
     checkFramebuffer(glCheckFramebufferStatus(GL_FRAMEBUFFER));
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     initialised = true;
+}
+
+void Framebuffer::init(bool drawColor, bool readColor, bool specifyTextarget) {
+    if(drawColor) {
+        if(readColor)
+            init(nullptr, 0, 0, false, specifyTextarget);
+        else
+            init(nullptr, 0, GL_NONE, true, specifyTextarget);
+    } else {
+        GLuint drawAttachments[1] = { GL_NONE };
+
+        if(readColor)
+            init(drawAttachments, 1, 0, false, specifyTextarget);
+        else
+            init(drawAttachments, 1, GL_NONE, true, specifyTextarget);
+    }
 }
 
 void Framebuffer::bindFramebuffer(bool read) {
